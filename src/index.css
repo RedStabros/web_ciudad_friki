@@ -1,0 +1,378 @@
+@import "tailwindcss";
+
+@theme {
+  /* Dynamic Theme Mapping */
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-primary-light);
+  --color-secondary: var(--brand-secondary);
+
+  --color-bg-main: var(--bg-primary);
+  --color-bg-side: var(--bg-secondary);
+  --color-bg-sub: var(--bg-tertiary);
+  --color-bg-pop: var(--bg-elevated);
+
+  --color-text-main: var(--text-primary);
+  --color-text-sub: var(--text-secondary);
+  --color-text-muted: var(--text-tertiary);
+  --color-text-inv: var(--text-inverse);
+
+  --color-border-theme: var(--ui-border);
+  --color-divider-theme: var(--ui-divider);
+
+  /* Maintain compatibility with surface/card names used in components */
+  --color-surface-light: var(--bg-primary);
+  --color-surface-dark: var(--bg-secondary);
+  --color-card-light: var(--bg-secondary);
+  --color-card-dark: var(--bg-tertiary);
+  --color-input-dark: var(--bg-elevated);
+  --color-accent-gold: var(--brand-secondary);
+
+  --font-display: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Legacy aliases logic */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-elevated: var(--bg-elevated);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-primary-dark: var(--brand-primary-dark);
+
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-light: var(--brand-secondary-light);
+  --color-brand-secondary-dark: var(--brand-secondary-dark);
+
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-green: var(--accent-green);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-red: var(--accent-red);
+  --color-accent-purple: var(--accent-purple);
+
+  --color-ui-border: var(--ui-border);
+  --color-ui-divider: var(--ui-divider);
+  --color-ui-shadow: var(--ui-shadow);
+  --color-ui-overlay: var(--ui-overlay);
+}
+
+@layer base {
+
+  /* Theme: Dark Friki (Default Oscuro) */
+  :root,
+  [data-theme="dark-friki"] {
+    --bg-primary: #1e222a;
+    --bg-secondary: #262a33;
+    --bg-tertiary: #374151;
+    --bg-elevated: #2d3139;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+    --text-inverse: #1f2937;
+    --brand-primary: #e1192f;
+    --brand-primary-light: #ff4458;
+    --brand-primary-dark: #b8142a;
+    --brand-secondary: #fbbf24;
+    --brand-secondary-light: #fcd34d;
+    --brand-secondary-dark: #f59e0b;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-yellow: #f59e0b;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    --ui-border: #374151;
+    --ui-divider: #2d3139;
+    --ui-shadow: rgba(0, 0, 0, 0.4);
+    --ui-overlay: rgba(0, 0, 0, 0.7);
+  }
+
+  /* Theme: Light Friki (Default Claro) */
+  [data-theme="light-friki"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --bg-elevated: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #9ca3af;
+    --text-inverse: #ffffff;
+    --brand-primary: #e1192f;
+    --brand-primary-light: #ff4458;
+    --brand-primary-dark: #b8142a;
+    --brand-secondary: #f59e0b;
+    --brand-secondary-light: #fbbf24;
+    --brand-secondary-dark: #d97706;
+    --accent-blue: #2563eb;
+    --accent-green: #059669;
+    --accent-yellow: #d97706;
+    --accent-red: #dc2626;
+    --accent-purple: #7c3aed;
+    --ui-border: #e5e7eb;
+    --ui-divider: #f3f4f6;
+    --ui-shadow: rgba(0, 0, 0, 0.05);
+    --ui-overlay: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Theme: AMOLED Black */
+  [data-theme="amoled"] {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #1a1a1a;
+    --bg-elevated: #121212;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #808080;
+    --brand-primary: #ff1744;
+    --brand-secondary: #ffd700;
+    --ui-border: #1a1a1a;
+  }
+
+  /* Theme: Pastel Dreams */
+  [data-theme="pastel"] {
+    --bg-primary: #fef3f8;
+    --bg-secondary: #fce7f3;
+    --bg-tertiary: #f5d0e5;
+    --bg-elevated: #ffffff;
+    --text-primary: #4a1942;
+    --text-secondary: #7e3a75;
+    --brand-primary: #ec4899;
+    --brand-secondary: #f59e0b;
+    --ui-border: #f5d0e5;
+  }
+
+  /* Theme: Neon Cyberpunk */
+  [data-theme="neon"] {
+    --bg-primary: #0f0f23;
+    --bg-secondary: #1a1a3e;
+    --bg-tertiary: #2d2d5f;
+    --bg-elevated: #1f1f3a;
+    --text-primary: #00ffff;
+    --text-secondary: #ff00ff;
+    --brand-primary: #ff0080;
+    --brand-secondary: #00ffff;
+    --ui-border: #2d2d5f;
+  }
+
+  /* Theme: Warm Autumn */
+  [data-theme="autumn"] {
+    --bg-primary: #2d1b0e;
+    --bg-secondary: #3d2817;
+    --bg-tertiary: #4d3520;
+    --bg-elevated: #362212;
+    --text-primary: #ffecd1;
+    --text-secondary: #d4a574;
+    --brand-primary: #ff6b35;
+    --brand-secondary: #f4a261;
+    --ui-border: #4d3520;
+  }
+
+  /* Theme: Midnight Purple */
+  [data-theme="midnight"] {
+    --bg-primary: #1a0b2e;
+    --bg-secondary: #2d1b4e;
+    --bg-tertiary: #432c7a;
+    --bg-elevated: #2d1b4e;
+    --text-primary: #e9d5ff;
+    --text-secondary: #c084fc;
+    --brand-primary: #d8b4fe;
+    --brand-secondary: #facc15;
+    --ui-border: #432c7a;
+  }
+
+  /* Theme: Abyssal Blue */
+  [data-theme="abyss"] {
+    --bg-primary: #0b1120;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-elevated: #1e293b;
+    --text-primary: #f0f9ff;
+    --text-secondary: #94a3b8;
+    --brand-primary: #38bdf8;
+    --brand-secondary: #fbbf24;
+    --ui-border: #334155;
+  }
+
+  /* Theme: Sky Breeze */
+  [data-theme="sky"] {
+    --bg-primary: #e0f2fe;
+    --bg-secondary: #bae6fd;
+    --bg-tertiary: #7dd3fc;
+    --bg-elevated: #e0f2fe;
+    --text-primary: #082f49;
+    --text-secondary: #0369a1;
+    --brand-primary: #0284c7;
+    --brand-secondary: #ea580c;
+    --ui-border: #bae6fd;
+  }
+
+  /* Theme: Crimson Night */
+  [data-theme="crimson"] {
+    --bg-primary: #1a0404;
+    --bg-secondary: #2a0a0a;
+    --bg-tertiary: #450a0a;
+    --bg-elevated: #2a0a0a;
+    --text-primary: #fee2e2;
+    --text-secondary: #fca5a5;
+    --brand-primary: #dc2626;
+    --brand-secondary: #f59e0b;
+    --ui-border: #7f1d1d;
+  }
+
+  /* Theme: Desert Sands */
+  [data-theme="desert"] {
+    --bg-primary: #fef3c7;
+    --bg-secondary: #fde68a;
+    --bg-tertiary: #fcd34d;
+    --bg-elevated: #fef3c7;
+    --text-primary: #451a03;
+    --text-secondary: #78350f;
+    --brand-primary: #b45309;
+    --brand-secondary: #059669;
+    --ui-border: #fde68a;
+  }
+
+  /* Theme: Oceanic Teal */
+  [data-theme="teal"] {
+    --bg-primary: #083344;
+    --bg-secondary: #155e75;
+    --bg-tertiary: #164e63;
+    --bg-elevated: #155e75;
+    --text-primary: #cffafe;
+    --text-secondary: #67e8f9;
+    --brand-primary: #06b6d4;
+    --brand-secondary: #fde047;
+    --ui-border: #164e63;
+  }
+
+  /* Theme: Pastel Lavender */
+  [data-theme="pastel-purple"] {
+    --bg-primary: #fbf5ff;
+    --bg-secondary: #f3e8ff;
+    --bg-tertiary: #e9d5ff;
+    --bg-elevated: #ffffff;
+    --text-primary: #4c1d95;
+    --text-secondary: #6d28d9;
+    --brand-primary: #a855f7;
+    --brand-secondary: #f472b6;
+    --ui-border: #e9d5ff;
+  }
+
+  /* Theme: Pastel Mint */
+  [data-theme="pastel-mint"] {
+    --bg-primary: #f0fdf4;
+    --bg-secondary: #dcfce7;
+    --bg-tertiary: #bbf7d0;
+    --bg-elevated: #ffffff;
+    --text-primary: #14532d;
+    --text-secondary: #166534;
+    --brand-primary: #4ade80;
+    --brand-secondary: #38bdf8;
+    --ui-border: #bbf7d0;
+  }
+
+  /* Theme: Pastel Peach */
+  [data-theme="pastel-peach"] {
+    --bg-primary: #fffbeb;
+    --bg-secondary: #fef3c7;
+    --bg-tertiary: #fde68a;
+    --bg-elevated: #ffffff;
+    --text-primary: #78350f;
+    --text-secondary: #92400e;
+    --brand-primary: #fbbf24;
+    --brand-secondary: #fb7185;
+    --ui-border: #fde68a;
+  }
+
+  /* Theme: Retro GameBoy */
+  [data-theme="retro-gb"] {
+    --bg-primary: #8bac0f;
+    --bg-secondary: #9bbc0f;
+    --bg-tertiary: #306230;
+    --text-primary: #0f380f;
+    --brand-primary: #306230;
+    --brand-secondary: #0f380f;
+    --ui-border: #306230;
+  }
+
+  /* Theme: Hacker Console */
+  [data-theme="hacker"] {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #1a1a1a;
+    --text-primary: #00ff41;
+    --text-secondary: #008f11;
+    --brand-primary: #00ff41;
+    --brand-secondary: #008f11;
+    --ui-border: #008f11;
+  }
+
+  /* Theme: High Fantasy */
+  [data-theme="fantasy"] {
+    --bg-primary: #0e1a12;
+    --bg-secondary: #182b20;
+    --bg-tertiary: #244030;
+    --bg-elevated: #1e332a;
+    --text-primary: #f5f1e6;
+    --text-secondary: #d1c4a1;
+    --brand-primary: #c9a44c;
+    --brand-secondary: #6b8e23;
+    --ui-border: #3d2b1a;
+  }
+
+  /* Theme: Steampunk */
+  [data-theme="steampunk"] {
+    --bg-primary: #2b1b17;
+    --bg-secondary: #3d2b1f;
+    --bg-tertiary: #4e3b31;
+    --bg-elevated: #34251e;
+    --text-primary: #d4af37;
+    --text-secondary: #b8860b;
+    --brand-primary: #cd7f32;
+    --brand-secondary: #708090;
+    --ui-border: #8b4513;
+  }
+
+  /* Theme: Galactic Command */
+  [data-theme="galactic"] {
+    --bg-primary: #080d1a;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1f2937;
+    --bg-elevated: #151c2e;
+    --text-primary: #e0f2fe;
+    --text-secondary: #7dd3fc;
+    --brand-primary: #0ea5e9;
+    --brand-secondary: #f97316;
+    --ui-border: #1f2937;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body), sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}

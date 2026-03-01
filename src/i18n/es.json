@@ -1,0 +1,23 @@
+{
+    "common": {
+        "login": "Iniciar sesión",
+        "register": "Registrarse",
+        "logout": "Cerrar sesión",
+        "loading": "Cargando..."
+    },
+    "nav": {
+        "home": "Inicio",
+        "tavern": "Taberna",
+        "events": "Eventos",
+        "trivia": "Trivias",
+        "polls": "Encuestas"
+    },
+    "theme": {
+        "dark": "Modo Oscuro Friki",
+        "light": "Modo Claro Friki"
+    },
+    "maintenance": {
+        "title": "En Construcción",
+        "message": "Estamos trabajando para brindarte la mejor experiencia. Ciudad Friki Web estará lista muy pronto."
+    }
+}

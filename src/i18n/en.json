@@ -1,0 +1,23 @@
+{
+    "common": {
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "loading": "Loading..."
+    },
+    "nav": {
+        "home": "Home",
+        "tavern": "Tavern",
+        "events": "Events",
+        "trivia": "Trivias",
+        "polls": "Polls"
+    },
+    "theme": {
+        "dark": "Dark Friki Mode",
+        "light": "Light Friki Mode"
+    },
+    "maintenance": {
+        "title": "Under Construction",
+        "message": "We are working to give you the best experience. Ciudad Friki Web will be ready very soon."
+    }
+}
