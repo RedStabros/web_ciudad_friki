@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Calendar, Bookmark, Heart, Share2 } from 'lucide-react';
 import type { FrikiEvent } from '../services/EventService';
 import { getAvatarSource } from '../config/avatars';
+import { renderTextWithMedia } from '../utils/mediaRenderer';
 
 interface EventCardProps {
     event: FrikiEvent;
@@ -34,7 +35,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
     };
 
     return (
-        <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden hover:shadow-md transition duration-300">
+        <div className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition duration-300 ${event.is_sponsored ? 'border-brand-secondary ring-1 ring-brand-secondary/20' : 'border-border-theme'}`}>
             <div className="relative h-64 w-full">
                 <img
                     alt={event.title}
@@ -53,12 +54,17 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                     <div className="cursor-pointer flex-1 pr-4" onClick={onClick}>
                         <div className="flex items-center text-text-muted text-sm mb-1">
                             <Calendar className="text-base mr-1.5" size={16} />
-                            {formattedDate} • {event.time || event.start_time || 'TBD'}
+                            {formattedDate} • {event.start_time || 'TBD'}
                         </div>
                         <h3 className="text-2xl font-bold text-text-main mb-2">{event.title}</h3>
-                        <div className="flex items-center text-text-sub text-sm line-clamp-2">
-                            {event.location}
+                        <div className="flex items-center text-text-muted text-xs mb-2">
+                            <span className="truncate">{event.location}</span>
                         </div>
+                        {event.description && (
+                            <div className="text-text-sub text-sm line-clamp-2 mb-2">
+                                {renderTextWithMedia(event.description)}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col items-center gap-3 pt-1">

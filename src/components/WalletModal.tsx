@@ -6,7 +6,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
     const [wallet, setWallet] = useState<{ id: string, balance: number, deposit_qr: string } | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (isOpen && userId) {

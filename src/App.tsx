@@ -8,6 +8,7 @@ import { MaintenancePage } from './pages/Maintenance';
 import { MaintenanceGuard } from './components/MaintenanceGuard';
 import Surveys from './pages/Surveys';
 import Trivias from './pages/Trivias';
+import Legal from './pages/Legal';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
+          <Route path="/legal/:type" element={<Legal />} />
 
           <Route path="*" element={<div className="p-8 text-center text-2xl font-bold text-red-500">404 - Not Found</div>} />
         </Route>

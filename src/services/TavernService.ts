@@ -1,8 +1,7 @@
 import { supabase } from '../lib/supabase';
-import type { TavernThread, TavernReply, ThreadCategory } from '../types/tavern';
+import type { TavernThread, ThreadCategory } from '../types/tavern';
 
 const THREADS_PAGE_SIZE = 15;
-const REPLIES_PAGE_SIZE = 20;
 
 export interface BringThreadsResult {
     threads: TavernThread[];

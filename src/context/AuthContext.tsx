@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const checkMaintenance = async () => {
         const mode = await SystemService.getGlobalSetting('maintenance_mode', false);
-        setMaintenanceMode(mode === true || mode === 'true');
+        setMaintenanceMode(mode === true);
     };
 
     const signOut = async () => {

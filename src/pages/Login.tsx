@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Github, Play } from 'lucide-react'; // Fallback icons for Google shape
+import { Eye, EyeOff } from 'lucide-react'; // Fallback icons for Google shape
 
 export default function Login() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,6 +16,7 @@ export default function Login() {
     const [message, setMessage] = useState<string | null>(null);
 
     const [isResetMode, setIsResetMode] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +33,7 @@ export default function Login() {
             setError(error.message);
         } else {
             // It will automatically update the AuthContext and layout
-            // you could optionally redirect here using react-router useNavigate
+            navigate('/');
         }
         setLoading(false);
     };
@@ -64,7 +67,7 @@ export default function Login() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[70vh] animate-fade-in px-4">
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] animate-fade-in px-4 py-12 md:py-20">
             <div className="bg-[var(--bg-secondary)] border border-[var(--ui-border)] w-full max-w-md p-8 rounded-3xl shadow-xl shadow-[var(--brand-primary)]/5">
 
                 <div className="text-center mb-8">
@@ -112,15 +115,24 @@ export default function Login() {
                             <label className="block text-sm font-bold text-text-sub mb-1 ml-1" htmlFor="password">
                                 {t('auth.passwordLabel')}
                             </label>
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-bg-sub text-text-main px-4 py-3 rounded-xl border border-border-theme hover:border-text-sub focus:border-brand-primary focus:outline-none transition-colors"
-                                placeholder={t('auth.passwordPlaceholder')}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-bg-sub text-text-main px-4 py-3 rounded-xl border border-border-theme hover:border-text-sub focus:border-brand-primary focus:outline-none transition-colors pr-12"
+                                    placeholder={t('auth.passwordPlaceholder')}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-brand-primary transition-colors p-1"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -165,6 +177,15 @@ export default function Login() {
                             </button>
                         </>
                     )}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-divider-theme flex flex-wrap justify-center gap-x-6 gap-y-2">
+                    <Link to="/legal/terms" className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors">
+                        {t('auth.termsAndConditions', 'Términos y Condiciones')}
+                    </Link>
+                    <Link to="/legal/privacy" className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors">
+                        {t('auth.privacyPolicy', 'Política de Privacidad')}
+                    </Link>
                 </div>
 
             </div>

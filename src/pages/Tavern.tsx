@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HomeIcon, Flame, Clock, MessageSquare, ArrowUp, ArrowDown, Share2, MoreHorizontal, Copy, Edit2, Loader2, PlusCircle } from 'lucide-react';
+import { MessageSquare, Loader2, PlusCircle, Home as HomeIcon, Flame, Clock } from 'lucide-react';
 import { useTavernThreads } from '../hooks/useTavern';
 import { ThreadCard } from '../components/Tavern/ThreadCard';
 import type { ThreadCategory } from '../types/tavern';
@@ -144,11 +144,11 @@ export default function Tavern() {
                         <img
                             alt="User Avatar"
                             className="h-full w-full object-cover"
-                            src={user?.avatar_url ? getAvatarSource(user.avatar_url) : "/assets/avatars/dragon_24.png"}
+                            src={user?.user_metadata?.avatar_url ? getAvatarSource(user.user_metadata.avatar_url) : "/assets/avatars/dragon_24.png"}
                         />
                     </div>
                     <div className="bg-bg-sub w-full rounded-full px-4 py-2 text-sm text-text-muted group-hover:bg-bg-sub/80 transition">
-                        {t('tavern.createThread', { name: user?.username || t('common.user') })}
+                        {t('tavern.createThread', { name: user?.user_metadata?.username || t('common.user') })}
                     </div>
                     <PlusCircle className="text-brand-primary" size={24} />
                 </div>

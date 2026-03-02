@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 export default function Home() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const { profile } = useProfile(user?.id);
+    const { profile, wallet } = useProfile(user?.id);
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
@@ -97,7 +97,10 @@ export default function Home() {
                 <div className="border-t border-divider-theme my-4"></div>
 
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => {
+                        if (!user) return alert(t('auth.signInToPlay', 'Debes iniciar sesión para publicar eventos'));
+                        setIsCreateModalOpen(true);
+                    }}
                     className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20"
                 >
                     <PlusCircle className="mr-2" size={20} />
@@ -174,35 +177,44 @@ export default function Home() {
             {/* RIGHT SIDEBAR (Wallet & Trends) */}
             <aside className="hidden xl:block xl:col-span-3 space-y-6">
 
-                <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden relative">
-                    <div className="h-1 bg-gradient-to-r from-brand-primary to-brand-secondary w-full"></div>
-                    <div className="p-6">
-                        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">{t('profile.wallet')}</h3>
+                {user && (
+                    <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden relative">
+                        <div className="h-1 bg-gradient-to-r from-brand-primary to-brand-secondary w-full"></div>
+                        <div className="p-6">
+                            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">{t('profile.wallet')}</h3>
 
-                        <div className="bg-white p-2 rounded-lg mx-auto w-40 h-40 shadow-inner mb-4 flex items-center justify-center border-2 border-dashed border-border-theme">
-                            {/* QR Code Placeholder */}
-                            <img alt="Wallet QR" className="w-full h-full opacity-90 object-contain mix-blend-multiply" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=FRIKI:QR_9c8297f2-fc66-43d2" />
-                        </div>
+                            <div className="bg-white p-2 rounded-lg mx-auto w-40 h-40 shadow-inner mb-4 flex items-center justify-center border-2 border-dashed border-border-theme">
+                                {/* QR Code Placeholder */}
+                                <img
+                                    alt="Wallet QR"
+                                    className="w-full h-full opacity-90 object-contain mix-blend-multiply"
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet?.deposit_qr || `FRIKI:QR_${user.id}`}`}
+                                />
+                            </div>
 
-                        <div className="text-center mb-6">
-                            <p className="text-xs text-text-muted mb-1 font-mono break-all">FRIKI:QR_9c8297f2-fc66-43d2...</p>
-                        </div>
+                            <div className="text-center mb-6">
+                                <p className="text-xs text-text-muted mb-1 font-mono break-all font-bold">
+                                    {(wallet?.deposit_qr || `FRIKI:QR_${user.id}`).substring(0, 30)}...
+                                </p>
+                            </div>
 
-                        <div className="bg-bg-sub rounded-lg p-4 text-center">
-                            <p className="text-xs text-text-sub mb-1">{t('profile.balanceLabel')}</p>
-                            <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-secondary">
-                                86.892
+                            <div className="bg-bg-sub rounded-lg p-4 text-center">
+                                <p className="text-[10px] items-center font-black uppercase text-text-muted mb-2 tracking-widest">{t('profile.balanceLabel')}</p>
+                                <div className="flex items-center justify-center gap-2 text-3xl font-black text-brand-secondary italic">
+                                    {(wallet?.balance || 0).toLocaleString()}
+                                    <span className="text-xs not-italic text-text-muted ml-1 opacity-60">FKC</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="bg-bg-sub/50 px-6 py-3 border-t border-border-theme flex justify-between items-center">
-                        <span className="text-xs text-text-muted">{t('wallet.balanceOverview', 'Balance Total')}</span>
-                        <Link to="/wallet" className="text-sm font-medium text-brand-primary hover:text-brand-primary-light flex items-center transition-colors">
-                            {t('profile.wallet')} <ChevronRight size={16} className="ml-1" />
-                        </Link>
+                        <div className="bg-bg-sub/50 px-6 py-3 border-t border-border-theme flex justify-between items-center">
+                            <span className="text-xs text-text-muted">{t('wallet.balanceOverview', 'Balance Total')}</span>
+                            <Link to="/wallet" className="text-sm font-medium text-brand-primary hover:text-brand-primary-light flex items-center transition-colors">
+                                {t('profile.wallet')} <ChevronRight size={16} className="ml-1" />
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">
                     <h3 className="text-sm font-semibold text-text-main mb-4">{t('profile.interests')} & {t('common.trends', 'Tendencias')}</h3>

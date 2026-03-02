@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, ArrowUp, ArrowDown, MessageSquare, Loader2, Send, Shield, Edit2, Trash2, Clock, Check, Share2 } from 'lucide-react';
+import { X, ArrowUp, ArrowDown, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TavernService } from '../../services/TavernService';
 import type { TavernThread, TavernReply } from '../../types/tavern';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
 import { supabase } from '../../lib/supabase';
-import { ContentRenderer } from './ContentRenderer';
+import ContentRenderer from './ContentRenderer';
 
 interface ThreadDetailsModalProps {
     isOpen: boolean;
@@ -159,6 +159,17 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
         }
     };
 
+    const handleVote = async (targetId: string, targetType: 'thread' | 'reply', interactionType: 'like' | 'dislike') => {
+        if (!user) return alert(t('tavern.loginToVote'));
+        try {
+            const { error } = await TavernService.interact(targetId, targetType, interactionType);
+            if (error) throw error;
+            fetchThreadDetails();
+        } catch (err) {
+            console.error('Error voting:', err);
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -189,7 +200,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                             {/* Author Info */}
                             <div className="flex items-center gap-3 mb-4">
                                 <img
-                                    src={getAvatarSource(thread.author_avatar_url)}
+                                    src={getAvatarSource(thread.author_avatar_url || null)}
                                     className="h-10 w-10 rounded-full border border-border-theme"
                                     alt="Avatar"
                                 />
@@ -247,7 +258,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                     replies.map(reply => (
                                         <div key={reply.id} className="flex gap-3 pt-4 border-t border-divider-theme">
                                             <img
-                                                src={getAvatarSource(reply.author_avatar_url)}
+                                                src={getAvatarSource(reply.author_avatar_url || null)}
                                                 className="h-8 w-8 rounded-full flex-shrink-0"
                                                 alt="Avatar"
                                             />

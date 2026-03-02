@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
@@ -7,11 +7,15 @@ import { getAvatarSource } from '../config/avatars';
 import { Search, Bell, Grid, Wallet, LogOut, MessageSquare, BarChart2, Gamepad2, Home, Languages } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
+import Footer from './Footer';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
     const { session, signOut, user } = useAuth();
+    const location = useLocation();
     const { profile, wallet } = useProfile(user?.id);
+
+    const isLoginOrMaintenance = location.pathname === '/login' || location.pathname === '/maintenance';
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -121,10 +125,11 @@ export default function RootLayout() {
                 </div>
             </nav>
 
-            {/* Main Content Area */}
             <main className="flex-1 w-full relative pb-16 md:pb-0">
                 <Outlet />
             </main>
+
+            {!isLoginOrMaintenance && <Footer />}
 
             {/* Mobile Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg-side border-t border-border-theme flex items-center justify-around h-16 safe-padding">

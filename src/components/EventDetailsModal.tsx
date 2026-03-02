@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Trash2, Send } from 'lucide-react';
+import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Send } from 'lucide-react';
+import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { EventService } from '../services/EventService';
@@ -40,25 +41,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
         ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
         : null;
 
-    const renderCommentWithMedia = (comment: string) => {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return comment.split(urlRegex).map((part, i) => {
-            if (part.match(urlRegex)) {
-                // Check if it's an image
-                if (part.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
-                    return (
-                        <div key={i} className="my-2">
-                            <img src={part} alt="comment attachment" className="max-w-full md:max-w-md h-auto rounded-lg border border-border-theme shadow-sm cursor-zoom-in" />
-                        </div>
-                    );
-                }
-                return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline break-all font-medium inline-flex items-center gap-1">
-                    {part} <ExternalLink size={12} />
-                </a>;
-            }
-            return part;
-        });
-    };
+
 
     useEffect(() => {
         if (isOpen && event && activeTab === 'reviews') {
@@ -193,9 +176,9 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                             {/* Description */}
                             <div>
                                 <h3 className="text-lg font-bold text-text-main mb-2">{t('events.about', 'Acerca del Evento')}</h3>
-                                <p className="text-text-sub leading-relaxed whitespace-pre-line text-sm">
-                                    {event.description || t('events.noDescription', 'Sin descripción.')}
-                                </p>
+                                <div className="text-text-sub leading-relaxed whitespace-pre-line text-sm">
+                                    {renderTextWithMedia(event.description || t('events.noDescription', 'Sin descripción.'))}
+                                </div>
                             </div>
 
                             {/* Tags */}
@@ -322,7 +305,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                         <div key={review.id} className="border-b border-divider-theme pb-4">
                                             <div className="flex items-center gap-3 mb-3">
                                                 <img
-                                                    src={getAvatarSource(review.user?.avatar_url)}
+                                                    src={getAvatarSource(review.user?.avatar_url || null)}
                                                     alt="Avatar"
                                                     className="w-10 h-10 rounded-full border border-divider-theme bg-bg-sub"
                                                 />
@@ -346,7 +329,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                                 </div>
                                             </div>
                                             <div className="text-text-sub text-sm leading-relaxed bg-bg-main/30 p-3 rounded-xl border border-divider-theme/50">
-                                                {renderCommentWithMedia(review.comment)}
+                                                {renderTextWithMedia(review.comment)}
                                             </div>
                                         </div>
                                     ))}

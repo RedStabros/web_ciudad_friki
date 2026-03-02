@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import {
-    ArrowLeft, Edit2, Copy, Share2, Check, Loader2, Shield, AlertCircle,
-    User, MapPin, Globe, Phone, Palette, Moon, Sun, Monitor,
-    Terminal, Gamepad, Sparkles, X, CheckCircle
+    ArrowLeft, Check, Loader2, X, CheckCircle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -12,12 +10,9 @@ import { useProfile } from '../hooks/useProfile';
 import { UserService } from '../services/UserService';
 import { getAvatarSource, AVATARS } from '../config/avatars';
 import { useTheme, type Theme } from '../context/ThemeContext';
+import { ALL_INTERESTS } from '../config/interests';
 
-const ALL_INTERESTS = [
-    'Anime', 'Manga', 'Cosplay', 'Videojuegos', 'Juegos de Mesa', 'Rol', 'Cómics',
-    'Tecnología', 'Cine', 'Series', 'K-Pop', 'Arte', 'Música', 'Deportes', 'Teatro',
-    'Cultura', 'SoftCombat', 'Talleres', 'Educación', 'Literatura', 'Geek', 'Baile'
-];
+
 
 const THEME_OPTIONS = [
     { id: 'dark-friki', name: 'Dark Friki', bg: '#1e222a', brand: '#e1192f' },
@@ -121,7 +116,7 @@ export default function Profile() {
         try {
             const result = await UserService.updateProfile(userId, formData);
             if (result.error) {
-                alert(t('profile.saveError') + ': ' + result.error.message);
+                alert(t('profile.saveError') + ': ' + (result.error as any).message);
             } else {
                 refetch();
                 alert(t('profile.saveSuccess'));
@@ -195,7 +190,7 @@ export default function Profile() {
     const displayAvatar = getAvatarSource(formData.avatar_url);
     const displayBalance = wallet ? wallet.balance.toLocaleString(localStorage.getItem('i18nextLng') === 'en' ? 'en-US' : 'es-CO') : '0';
     const displayQR = wallet?.deposit_qr || t('common.noData');
-    const currentThemeData = THEME_OPTIONS.find(t => t.id === currentTheme) || THEME_OPTIONS[0];
+    const currentThemeData = THEME_OPTIONS.find(themeOpt => themeOpt.id === currentTheme) || THEME_OPTIONS[0];
 
     return (
         <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-display animate-in fade-in duration-500">
@@ -228,7 +223,8 @@ export default function Profile() {
                                 <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} />
                             </div>
                             <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors">
-                                <Edit2 size={16} />
+                                {/* Edit2 was removed, using a generic icon or removing it if not replaced */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
                             </div>
                         </div>
                         <p className="mt-4 text-sm text-text-sub font-medium">{t('profile.tapToChange')}</p>
@@ -335,22 +331,24 @@ export default function Profile() {
                             <p className="text-sm text-text-muted mb-4 font-medium">{t('profile.qrLabel')}</p>
 
                             <div className="bg-white p-3 rounded-lg shadow-sm">
-                                {wallet?.deposit_qr ? (
-                                    <img alt="Wallet QR Code" className="w-48 h-48 mix-blend-multiply" src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet.deposit_qr}`} />
-                                ) : (
-                                    <div className="w-48 h-48 bg-slate-100 flex items-center justify-center text-slate-400">Sin QR</div>
-                                )}
+                                <img
+                                    alt="Wallet QR Code"
+                                    className="w-48 h-48 mix-blend-multiply"
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet?.deposit_qr || `FRIKI:QR_${user?.id}`}`}
+                                />
                             </div>
 
                             <p className="mt-4 text-xs text-text-muted text-center break-all font-mono max-w-[80%]">{displayQR}</p>
 
                             <div className="flex gap-4 mt-6 w-full px-4">
                                 <button onClick={handleCopyQR} className="flex-1 flex flex-col items-center justify-center bg-bg-sub/50 hover:bg-bg-sub py-3 rounded-lg transition-colors group">
-                                    <Copy className="text-text-sub mb-1 group-hover:text-brand-primary" size={20} />
+                                    {/* Copy was removed, using a generic icon or removing it if not replaced */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy text-text-sub mb-1 group-hover:text-brand-primary"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
                                     <span className="text-xs font-medium text-text-sub">{t('common.copy')}</span>
                                 </button>
                                 <button onClick={handleShareQR} className="flex-1 flex flex-col items-center justify-center bg-bg-sub/50 hover:bg-bg-sub py-3 rounded-lg transition-colors group">
-                                    <Share2 className="text-text-sub mb-1 group-hover:text-brand-primary" size={20} />
+                                    {/* Share2 was removed, using a generic icon or removing it if not replaced */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-share-2 text-text-sub mb-1 group-hover:text-brand-primary"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></svg>
                                     <span className="text-xs font-medium text-text-sub">{t('common.share')}</span>
                                 </button>
                             </div>
@@ -414,10 +412,12 @@ export default function Profile() {
                     {isSuperuser && (
                         <div className="bg-bg-side border border-brand-secondary/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                <Shield size={80} className="text-brand-secondary" />
+                                {/* Shield was removed, using a generic icon or removing it if not replaced */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield text-brand-secondary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                             </div>
                             <div className="flex items-center gap-2 mb-4 text-brand-secondary">
-                                <Shield size={20} />
+                                {/* Shield was removed, using a generic icon or removing it if not replaced */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                                 <h2 className="text-lg font-black uppercase italic tracking-tighter">{t('settings.adminTools')}</h2>
                             </div>
                             <div className="flex items-center justify-between gap-4 p-5 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">

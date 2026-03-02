@@ -18,8 +18,6 @@ export interface FrikiEvent {
     tags?: string[];
     image_url: string | null;
     banner_url: string | null;
-    time?: string;
-    start_time?: string;
     status: 'draft' | 'approved' | 'rejected' | 'cancelled';
     is_sponsored: boolean;
     likes_count: number;

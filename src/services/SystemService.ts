@@ -33,7 +33,7 @@ export const SystemService = {
         try {
             const { error } = await supabase
                 .from('global_settings')
-                .upsert({ key, value, updated_at: new Date().toISOString() });
+                .upsert({ key, value });
 
             if (error) throw error;
             return { success: true, error: null };

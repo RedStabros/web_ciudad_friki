@@ -91,7 +91,7 @@ export function CreateThreadModal({ isOpen, onClose, onSuccess }: CreateThreadMo
                         <label className="block text-sm font-bold text-text-main mb-2">{t('tavern.modals.create.labelCategory')}</label>
                         <div className="flex flex-wrap gap-2">
                             {CATEGORIES.map(cat => {
-                                let displayLabel = cat;
+                                let displayLabel: string = cat;
                                 if (cat === 'Anime/Manga') displayLabel = t('tavern.categories.anime');
                                 else if (cat === 'Gaming/Tech') displayLabel = t('tavern.categories.gaming');
                                 else if (cat === 'Cultura/Arte') displayLabel = t('tavern.categories.culture');

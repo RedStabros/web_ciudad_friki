@@ -1,4 +1,4 @@
-﻿{
+{
     "nav": {
         "home": "Inicio",
         "tavern": "Taberna",
@@ -122,52 +122,6 @@
         "pastEvents": "Ver eventos pasados",
         "eventsTab": "Eventos"
     },
-    "events": {
-        "createTitle": "Publicar Evento",
-        "title": "Título del Evento",
-        "date": "Fecha",
-        "startTime": "Hora de Inicio",
-        "location": "Ubicación",
-        "description": "Descripción",
-        "imageUrl": "URL de Imagen (Banner)",
-        "imageHint": "Ingresa el enlace directo a una imagen (jpg, png) para el banner.",
-        "publish": "Publicar",
-        "placeholders": {
-            "title": "Ej: Torneo Super Smash Bros",
-            "location": "Ej: Centro Comercial Monterrey",
-            "description": "Describe las actividades, reglas o qué esperar del evento."
-        },
-        "success": "Evento publicado exitosamente.",
-        "error": "Error al crear el evento",
-        "sponsored": "Patrocinado",
-        "free": "Gratis",
-        "paid": "De Pago",
-        "noDate": "Fecha no especificada",
-        "about": "Acerca del Evento",
-        "noDescription": "No hay descripción disponible.",
-        "viewOnMaps": "Ver en Google Maps",
-        "contactWhatsApp": "Contactar por WhatsApp",
-        "officialWebsite": "Sitio Web Oficial",
-        "noEvents": "No hay eventos por ahora.",
-        "upcomingTitle": "Próximos Eventos",
-        "pastTitle": "Eventos Pasados"
-    },
-    "eventDetails": {
-        "details": "Detalles",
-        "reviews": {
-            "tab": "Reseñas",
-            "edit": "Editar mi reseña",
-            "share": "Comparte tu experiencia",
-            "placeholder": "Cuéntanos qué tal estuvo, puedes incluir links de fotos o videos...",
-            "update": "Actualizar Reseña",
-            "alreadySubmitted": "¡Ya dejaste tu reseña!",
-            "thanks": "Gracias por tu opinión.",
-            "wantToReview": "¿Quieres dejar una reseña?",
-            "waitToReview": "Podrás calificar el evento una vez que haya finalizado.",
-            "loginToReview": "Inicia sesión con tu cuenta para dejar una reseña en este evento pasado.",
-            "noReviews": "No hay reseñas todavía. ¡Sé el primero!"
-        }
-    },
     "tavern": {
         "title": "La Taberna",
         "description": "Donde los frikis se reúnen para debatir.",
@@ -190,9 +144,15 @@
             "hot": "Popular",
             "new": "Lo Último"
         },
+        "sort": {
+            "hot": "Picantes",
+            "new": "Nuevos"
+        },
         "createThread": "¿Qué estás pensando, {{name}}? Iniciar un hilo...",
-        "empty": "¡La Taberna está vacía!",
-        "emptyCategory": "Sé el primero en iniciar una conversación en {{category}}.",
+        "empty": "La taberna está silenciosa...",
+        "emptyCategory": "Nada de {{category}} por aquí...",
+        "emptySubtitle": "¡Pide la primera ronda y sé el primero en crear un hilo sobre este tema!",
+        "emptyButton": "Crear Primer Hilo",
         "loading": "Cargando la taberna...",
         "loadMore": "Cargar más publicaciones",
         "rules": {
@@ -201,12 +161,24 @@
             "nsfw": "No contenido NSFW fuera de 'Picantes'.",
             "tags": "Utiliza las etiquetas correctas."
         },
+        "create": {
+            "title": "Crear Hilo",
+            "topic": "Tema",
+            "topicPlaceholder": "Ej: ¿Por qué Guts es el mejor personaje?",
+            "content": "Contenido",
+            "contentPlaceholder": "Desarrolla tu idea aquí... recuerda ser respetuoso.",
+            "button": "Publicar Hilo",
+            "publishing": "Publicando..."
+        },
         "thread": {
             "replies": "Respuestas",
             "reply": "Responder",
             "share": "Compartir",
             "edit": "Editar",
             "delete": "Borrar",
+            "report": "Reportar",
+            "author": "Autor",
+            "edited": "Editado",
             "deleteConfirm": "¿Estás seguro de que quieres borrar este hilo?",
             "deleteError": "No se pudo borrar el hilo",
             "time": {
@@ -215,37 +187,34 @@
                 "h": "hace {{count}} h"
             }
         },
+        "report": {
+            "title": "Reportar Contenido",
+            "spam": "Spam o Publicidad",
+            "harassment": "Acoso o Insultos",
+            "nsfw": "Contenido Inapropiado (NSFW)",
+            "spoilers": "Spoilers sin marcar",
+            "other": "Otro motivo",
+            "button": "Enviar Reporte",
+            "success": "Reporte enviado. Un moderador lo revisará.",
+            "error": "No se pudo enviar el reporte."
+        },
         "loginToVote": "Inicia sesión para votar",
         "modals": {
             "create": {
                 "title": "Crear Nuevo Hilo",
-                "labelTitle": "Título",
-                "placeholderTitle": "Añade un título que llame la atención...",
-                "labelCategory": "Categoría",
-                "labelContent": "Contenido",
-                "placeholderContent": "¿De qué quieres hablar hoy?",
-                "charCount": "{{count}}/100 caracteres. Mínimo 5.",
-                "minContent": "Mínimo 10 caracteres.",
-                "submit": "Publicar Hilo"
+                "topic": "Tema del Hilo",
+                "topicPlaceholder": "¿Sobre qué quieres hablar?",
+                "contentLabel": "Contenido",
+                "contentPlaceholder": "Desarrolla tu idea aquí...",
+                "categoryLabel": "Categoría",
+                "submit": "Publicar Hilo",
+                "success": "¡Hilo creado!",
+                "error": "Error al crear el hilo"
             },
             "edit": {
                 "title": "Editar Hilo",
-                "labelTitle": "Título del Hilo",
-                "placeholderTitle": "Ej: ¿Cuál es el mejor anime de la temporada?",
-                "labelCategory": "Categoría",
-                "labelContent": "Contenido",
-                "placeholderContent": "Escribe aquí tu contenido...",
-                "submit": "Guardar Cambios"
-            },
-            "details": {
-                "loading": "Cargando hilo...",
-                "replies": "Respuestas",
-                "reply": "Respuesta",
-                "replyPlaceholder": "Escribe una respuesta...",
-                "noReplies": "No hay respuestas aún. Sé el primero.",
-                "share": "Compartir",
-                "deleteReplyConfirm": "¿Borrar esta respuesta?",
-                "loginToReply": "Inicia sesión para responder"
+                "success": "¡Hilo actualizado!",
+                "error": "Error al actualizar"
             }
         }
     },
@@ -833,40 +802,41 @@
         "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar este código y todas sus redenciones?"
     },
     "events": {
-        "title": "Eventos",
-        "create": "Publicar Evento",
-        "myEvents": "Mis Eventos",
+        "title": "Título del Evento",
+        "description": "Descripción",
+        "startDate": "Fecha Inicio",
+        "startTime": "Hora Inicio",
+        "endDate": "Fecha Fin (Opcional)",
+        "endTime": "Hora Fin (Opcional)",
+        "locationName": "Lugar del Evento",
+        "mapLink": "Link del Mapa (Google/Waze)",
+        "ticketValue": "Valor Inicial Tickets",
+        "freeEvent": "Evento Gratuito",
+        "externalLink": "Link Web / Venta Tickets (Opcional)",
+        "whatsapp": "WhatsApp de Contacto",
+        "tagsHint": "Selecciona los intereses que mejor definan tu evento para mejorar el filtrado.",
+        "clickToUpload": "Haz clic para subir la imagen",
+        "publish": "Publicar Evento",
+        "create": "Crear Evento",
         "createTitle": "Crear Nuevo Evento",
         "editTitle": "Editar Evento",
-        "moderation": "Moderación de Eventos",
-        "form": {
-            "banner": "Banner del Evento (16:9)",
-            "selectImage": "Seleccionar Imagen",
-            "changeImage": "Cambiar Imagen",
-            "title": "Título del Evento",
-            "description": "Descripción",
-            "date": "Fecha Inicio",
-            "endDate": "Fecha Fin (Opcional)",
-            "startTime": "Hora Inicio",
-            "endTime": "Hora Fin",
-            "locationName": "Nombre del Lugar",
-            "locationUrl": "Link de Mapa (Google/Waze)",
-            "price": "Precio",
-            "isFree": "Es Gratuito",
-            "externalLink": "Link Externo (Web/Entradas)",
-            "whatsapp": "WhatsApp de Contacto",
-            "tags": "Etiquetas (Intereses)",
-            "submit": "Enviar a Revisión",
-            "update": "Actualizar Evento",
-            "descriptionPlaceholder": "Detalles del evento, cronograma, invitados especiales, reglamento, etc.",
+        "sections": {
+            "basics": "Información Básica",
+            "schedule": "Horarios",
             "location": "Ubicación",
-            "priceAndTickets": "Precio y Entradas",
-            "contact": "Contacto"
+            "tickets": "Tickets & Valor",
+            "contact": "Contacto",
+            "tags": "Categorías e Intereses",
+            "image": "Flyer del Evento"
         },
-        "tabs": {
-            "published": "Publicados",
-            "saved": "Guardados"
+        "placeholders": {
+            "title": "Ej: Gran Torneo de Cosplay",
+            "description": "Cuéntanos de qué trata tu evento...",
+            "place": "Ej: Centro de Eventos, Parque, Local...",
+            "location": "Dirección o nombre del lugar"
         },
+        "success": "¡Evento creado exitosamente!",
+        "error": "Error al crear el evento",
         "status": {
             "pending": "En Revisión",
             "approved": "Publicado",
@@ -874,36 +844,27 @@
             "cancelled": "Cancelado",
             "delayed": "Aplazado",
             "finished": "Finalizado"
-        },
-        "errors": {
-            "imageRequired": "El banner es obligatorio",
-            "titleRequired": "El título es obligatorio",
-            "dateRequired": "La fecha es obligatoria",
-            "locationRequired": "El lugar es obligatorio",
-            "createSuccess": "Evento enviado a revisión correctamente",
-            "createError": "Error al crear el evento",
-            "uploadError": "Error al subir la imagen"
-        },
-        "empty": {
-            "published": "No has publicado eventos aún",
-            "saved": "No tienes eventos guardados"
-        },
-        "infoCard": {
-            "title": "Proceso de Publicación y Edición",
-            "step1": "1. Envía tu evento: Quedará en estado 'Pendiente' hasta ser aprobado por un Admin.",
-            "step2": "2. Una vez publicado: Podrás Cancelarlo o Aplazarlo desde 'Mis Eventos'.",
-            "step3": "3. Edición: Si editas un evento aprobado, volverá a estado 'Pendiente' para nueva revisión.",
-            "gotIt": "Entendido"
-        },
-        "actions": {
-            "edit": "Editar",
-            "cancel": "Cancelar",
-            "postpone": "Aplazar",
-            "delete": "Eliminar",
-            "editWarning": "Advertencia: Al editar este evento, volverá a estado 'Pendiente' y dejará de ser visible hasta ser aprobado nuevamente.",
-            "cancelWarning": "¿Estás seguro de cancelar este evento? Se mostrará como 'Cancelado' a los usuarios.",
-            "postponeWarning": "¿Estás seguro de marcar este evento como 'Aplazado'?"
         }
+    },
+    "empty": {
+        "published": "No has publicado eventos aún",
+        "saved": "No tienes eventos guardados"
+    },
+    "infoCard": {
+        "title": "Proceso de Publicación y Edición",
+        "step1": "1. Envía tu evento: Quedará en estado 'Pendiente' hasta ser aprobado por un Admin.",
+        "step2": "2. Una vez publicado: Podrás Cancelarlo o Aplazarlo desde 'Mis Eventos'.",
+        "step3": "3. Edición: Si editas un evento aprobado, volverá a estado 'Pendiente' para nueva revisión.",
+        "gotIt": "Entendido"
+    },
+    "actions": {
+        "edit": "Editar",
+        "cancel": "Cancelar",
+        "postpone": "Aplazar",
+        "delete": "Eliminar",
+        "editWarning": "Advertencia: Al editar este evento, volverá a estado 'Pendiente' y dejará de ser visible hasta ser aprobado nuevamente.",
+        "cancelWarning": "¿Estás seguro de cancelar este evento? Se mostrará como 'Cancelado' a los usuarios.",
+        "postponeWarning": "¿Estás seguro de marcar este evento como 'Aplazado'?"
     },
     "myEvents": {
         "reminder": {
@@ -913,7 +874,10 @@
         }
     },
     "eventDetails": {
+        "details": "Detalles",
         "reviews": {
+            "tab": "Reseñas",
+            "share": "Comparte tu experiencia",
             "title": "Reseñas",
             "yourReview": "Tu reseña",
             "writeReview": "Escribir una reseña",
@@ -1046,47 +1010,6 @@
             "incomplete": "Por favor completa la pregunta y selecciona una categoría",
             "emptyOptions": "Todas las opciones deben tener texto",
             "loadError": "No se pudo enviar la pregunta"
-        }
-    },
-    "tavern": {
-        "title": "La Taberna",
-        "sort": {
-            "hot": "Picantes",
-            "new": "Nuevos"
-        },
-        "empty": {
-            "all": "La taberna está silenciosa...",
-            "category": "Nada de {{category}} por aquí...",
-            "subtitle": "¡Pide la primera ronda y sé el primero en crear un hilo sobre este tema!",
-            "button": "Crear Primer Hilo"
-        },
-        "create": {
-            "title": "Crear Hilo",
-            "topic": "Tema",
-            "topicPlaceholder": "Ej: ¿Por qué Guts es el mejor personaje?",
-            "content": "Contenido",
-            "contentPlaceholder": "Desarrolla tu idea aquí... recuerda ser respetuoso.",
-            "button": "Publicar Hilo",
-            "publishing": "Publicando..."
-        },
-        "thread": {
-            "reply": "Responder",
-            "edit": "Editar",
-            "delete": "Eliminar",
-            "report": "Reportar",
-            "author": "Autor",
-            "edited": "Editado"
-        },
-        "report": {
-            "title": "Reportar Contenido",
-            "spam": "Spam o Publicidad",
-            "harassment": "Acoso o Insultos",
-            "nsfw": "Contenido Inapropiado (NSFW)",
-            "spoilers": "Spoilers sin marcar",
-            "other": "Otro motivo",
-            "button": "Enviar Reporte",
-            "success": "Reporte enviado. Un moderador lo revisará.",
-            "error": "No se pudo enviar el reporte."
         }
     }
 }

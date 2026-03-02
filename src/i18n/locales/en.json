@@ -1,4 +1,4 @@
-﻿{
+{
     "nav": {
         "home": "Home",
         "tavern": "Tavern",
@@ -121,52 +121,6 @@
         },
         "pastEvents": "View past events",
         "eventsTab": "Events"
-    },
-    "events": {
-        "createTitle": "Publish Event",
-        "title": "Event Title",
-        "date": "Date",
-        "startTime": "Start Time",
-        "location": "Location",
-        "description": "Description",
-        "imageUrl": "Image URL (Banner)",
-        "imageHint": "Enter the direct link to an image (jpg, png) for the banner.",
-        "publish": "Publish",
-        "placeholders": {
-            "title": "Ex: Super Smash Bros Tournament",
-            "location": "Ex: Monterrey Shopping Center",
-            "description": "Describe the activities, rules, or what to expect from the event."
-        },
-        "success": "Event published successfully.",
-        "error": "Error creating event",
-        "sponsored": "Sponsored",
-        "free": "Free",
-        "paid": "Paid",
-        "noDate": "Date not specified",
-        "about": "About the Event",
-        "noDescription": "No description available.",
-        "viewOnMaps": "View on Google Maps",
-        "contactWhatsApp": "Contact by WhatsApp",
-        "officialWebsite": "Official Website",
-        "noEvents": "No events found.",
-        "upcomingTitle": "Upcoming Events",
-        "pastTitle": "Past Events"
-    },
-    "eventDetails": {
-        "details": "Details",
-        "reviews": {
-            "tab": "Reviews",
-            "edit": "Edit my review",
-            "share": "Share your experience",
-            "placeholder": "Tell us how it was, you can include links to photos or videos...",
-            "update": "Update Review",
-            "alreadySubmitted": "You already left your review!",
-            "thanks": "Thanks for your opinion.",
-            "wantToReview": "Want to leave a review?",
-            "waitToReview": "You'll be able to rate the event once it has finished.",
-            "loginToReview": "Sign in with your account to leave a review on this past event.",
-            "noReviews": "No reviews yet. Be the first!"
-        }
     },
     "tavern": {
         "title": "The Tavern",
@@ -819,40 +773,41 @@
         "deleteConfirmMessage": "Are you sure you want to delete this code and all its redemptions?"
     },
     "events": {
-        "title": "Events",
-        "create": "Publish Event",
-        "myEvents": "My Events",
+        "title": "Event Title",
+        "description": "Description",
+        "startDate": "Start Date",
+        "startTime": "Start Time",
+        "endDate": "End Date (Optional)",
+        "endTime": "End Time (Optional)",
+        "locationName": "Event Venue",
+        "mapLink": "Map Link (Google/Waze)",
+        "ticketValue": "Initial Ticket Price",
+        "freeEvent": "Free Event",
+        "externalLink": "Web Link / Tickets (Optional)",
+        "whatsapp": "Contact WhatsApp",
+        "tagsHint": "Select interests that best define your event to improve filtering.",
+        "clickToUpload": "Click to upload image",
+        "publish": "Publish Event",
+        "create": "Create Event",
         "createTitle": "Create New Event",
         "editTitle": "Edit Event",
-        "moderation": "Event Moderation",
-        "form": {
-            "banner": "Event Banner (16:9)",
-            "selectImage": "Select Image",
-            "changeImage": "Change Image",
-            "title": "Event Title",
-            "description": "Description",
-            "date": "Start Date",
-            "endDate": "End Date (Optional)",
-            "startTime": "Start Time",
-            "endTime": "End Time",
-            "locationName": "Venue Name",
-            "locationUrl": "Map Link (Google/Waze)",
-            "price": "Price",
-            "isFree": "Free Event",
-            "externalLink": "External Link (Web/Tickets)",
-            "whatsapp": "WhatsApp Contact",
-            "tags": "Tags (Interests)",
-            "submit": "Submit for Review",
-            "update": "Update Event",
-            "descriptionPlaceholder": "Event details, schedule, special guests, rules, etc.",
+        "sections": {
+            "basics": "Basic Info",
+            "schedule": "Schedule",
             "location": "Location",
-            "priceAndTickets": "Price & Tickets",
-            "contact": "Contact"
+            "tickets": "Tickets & Pricing",
+            "contact": "Contact",
+            "tags": "Categories & Interests",
+            "image": "Event Flyer"
         },
-        "tabs": {
-            "published": "Published",
-            "saved": "Saved"
+        "placeholders": {
+            "title": "Ex: Grand Cosplay Tournament",
+            "description": "Tell us what your event is about...",
+            "place": "Ex: Convention Center, Park, Venue...",
+            "location": "Address or venue name"
         },
+        "success": "Event created successfully!",
+        "error": "Error creating event",
         "status": {
             "pending": "Under Review",
             "approved": "Published",
@@ -861,35 +816,26 @@
             "delayed": "Delayed",
             "finished": "Finished"
         },
-        "errors": {
-            "imageRequired": "Banner is required",
-            "titleRequired": "Title is required",
-            "dateRequired": "Date is required",
-            "locationRequired": "Location is required",
-            "createSuccess": "Event submitted for review successfully",
-            "createError": "Error creating event",
-            "uploadError": "Error uploading image"
-        },
         "empty": {
             "published": "You haven't published any events yet",
             "saved": "No saved events"
-        },
-        "infoCard": {
-            "title": "Publishing & Editing Process",
-            "step1": "1. Submit your event: It will remain 'Pending' until approved by an Admin.",
-            "step2": "2. Once published: You can Cancel or Postpone it from 'My Events'.",
-            "step3": "3. Editing: If you edit an approved event, it will revert to 'Pending' for re-review.",
-            "gotIt": "Got it"
-        },
-        "actions": {
-            "edit": "Edit",
-            "cancel": "Cancel",
-            "postpone": "Postpone",
-            "delete": "Delete",
-            "editWarning": "Warning: Editing this event will revert it to 'Pending' status and hide it until re-approved.",
-            "cancelWarning": "Are you sure you want to cancel this event? It will appear as 'Cancelled' to users.",
-            "postponeWarning": "Are you sure you want to mark this event as 'Delayed'?"
         }
+    },
+    "infoCard": {
+        "title": "Publishing & Editing Process",
+        "step1": "1. Submit your event: It will remain 'Pending' until approved by an Admin.",
+        "step2": "2. Once published: You can Cancel or Postpone it from 'My Events'.",
+        "step3": "3. Editing: If you edit an approved event, it will revert to 'Pending' for re-review.",
+        "gotIt": "Got it"
+    },
+    "actions": {
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "postpone": "Postpone",
+        "delete": "Delete",
+        "editWarning": "Warning: Editing this event will revert it to 'Pending' status and hide it until re-approved.",
+        "cancelWarning": "Are you sure you want to cancel this event? It will appear as 'Cancelled' to users.",
+        "postponeWarning": "Are you sure you want to mark this event as 'Delayed'?"
     },
     "myEvents": {
         "reminder": {
@@ -899,21 +845,28 @@
         }
     },
     "eventDetails": {
+        "details": "Details",
         "reviews": {
+            "tab": "Reviews",
+            "share": "Share your experience",
             "title": "Reviews",
             "yourReview": "Your review",
             "writeReview": "Write a review",
             "editReview": "Edit your review",
-            "placeholder": "Write your opinion... (minimum 10 characters)",
+            "placeholder": "Tell us how it was, you can include links to photos or videos... (minimum 10 characters or media)",
             "submit": "Submit",
-            "update": "Update",
+            "update": "Update Review",
             "edit": "Edit",
             "delete": "Delete",
             "cancel": "Cancel",
             "sending": "Sending...",
             "unavailable": "Reviews will be available once the event has ended.",
             "beFirst": "Be the first to share your opinion about this event.",
-            "thankYou": "Thank you for your feedback!",
+            "thanks": "Thanks for your opinion.",
+            "wantToReview": "Want to leave a review?",
+            "waitToReview": "You'll be able to rate the event once it has finished.",
+            "loginToReview": "Sign in with your account to leave a review on this past event.",
+            "noReviews": "No reviews yet. Be the first!",
             "commentRequired": "Please write a comment.",
             "deleteConfirm": "Are you sure?",
             "deleteTitle": "Delete review",

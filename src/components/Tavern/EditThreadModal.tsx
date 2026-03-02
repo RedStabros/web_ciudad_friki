@@ -100,7 +100,7 @@ export function EditThreadModal({ isOpen, onClose, thread, onSuccess }: EditThre
                             className="w-full bg-bg-main border border-divider-theme rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none text-text-main"
                         >
                             {categories.map(cat => {
-                                let label = cat;
+                                let label: string = cat;
                                 if (cat === 'Todas') label = t('tavern.categories.all');
                                 else if (cat === 'Anime/Manga') label = t('tavern.categories.anime');
                                 else if (cat === 'Gaming/Tech') label = t('tavern.categories.gaming');

@@ -10,13 +10,13 @@ export function MaintenancePage() {
         <div className="min-h-screen bg-bg-main flex items-center justify-center p-6 text-center transition-colors duration-300">
             <div className="max-w-md w-full animate-in fade-in zoom-in duration-500">
                 {/* Maintenance Image */}
-                <div className="mb-10 relative mx-auto w-64 h-64">
-                    <div className="absolute inset-0 bg-brand-primary/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="relative z-10 w-full h-full p-6 bg-bg-side rounded-3xl shadow-2xl border border-divider-theme flex items-center justify-center">
+                <div className="mb-10 relative mx-auto w-72 h-72">
+                    <div className="absolute inset-0 bg-brand-primary/30 rounded-[3rem] blur-2xl animate-pulse"></div>
+                    <div className="relative z-10 w-full h-full p-2 bg-bg-side rounded-[3rem] shadow-2xl border border-divider-theme overflow-hidden flex items-center justify-center">
                         <img
-                            src="/assets/logo_ciudad_friki.png"
-                            alt="Ciudad Friki"
-                            className="w-32 h-32 object-contain filter grayscale opacity-50 contrast-125"
+                            src="/assets/maintenance.png"
+                            alt="Ciudad Friki Under Construction"
+                            className="w-full h-full object-cover rounded-[2.5rem]"
                         />
                     </div>
                 </div>

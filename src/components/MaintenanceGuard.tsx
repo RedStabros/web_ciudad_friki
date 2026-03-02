@@ -7,7 +7,7 @@ interface MaintenanceGuardProps {
 }
 
 export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
-    const { maintenanceMode, isSuperuser, isLoading, user } = useAuth();
+    const { maintenanceMode, isSuperuser, isLoading } = useAuth();
     const location = useLocation();
 
     if (isLoading) {

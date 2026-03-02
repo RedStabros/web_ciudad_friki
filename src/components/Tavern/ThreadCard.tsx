@@ -2,10 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { ArrowUp, ArrowDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2 } from 'lucide-react';
 import type { TavernThread } from '../../types/tavern';
 import { getAvatarSource } from '../../config/avatars';
-import { ContentRenderer } from './ContentRenderer';
+import ContentRenderer from './ContentRenderer';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
-import { TavernService } from '../../services/TavernService';
 
 interface ThreadCardProps {
     thread: TavernThread;
@@ -80,7 +79,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                             <img
                                 alt={thread.author_username || 'User'}
                                 className="h-full w-full object-cover"
-                                src={getAvatarSource(thread.author_avatar_url)}
+                                src={getAvatarSource(thread.author_avatar_url || null)}
                             />
                         </div>
                         <div>
