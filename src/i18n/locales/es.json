@@ -45,7 +45,8 @@
         "tbd": "Por Definir",
         "community": "Comunidad",
         "past": "Pasados",
-        "interested": "Me Interesa"
+        "interested": "Me Interesa",
+        "status": "Estado"
     },
     "auth": {
         "welcome": "Bienvenido a Ciudad Friki",
@@ -215,6 +216,10 @@
                 "title": "Editar Hilo",
                 "success": "¡Hilo actualizado!",
                 "error": "Error al actualizar"
+            },
+            "details": {
+                "replies": "Respuestas",
+                "replyPlaceholder": "Escribe una respuesta..."
             }
         }
     },
@@ -361,7 +366,7 @@
         "pastSurveysHistory": "Historial de Encuestas Pasadas",
         "versionHistory": "Historial de Versiones",
         "currentVersion": "Versión Actual",
-        "madeWith": "Hecho con",
+        "madeWith": "Hecho con amor por",
         "byCiudadFriki": "por @RedStabros",
         "totalResponses": "Respuestas",
         "totalSpent": "Gastado",
@@ -462,7 +467,17 @@
         "enterQr": "Ingresa o escanea el código",
         "reward": "Recompensa",
         "cameraPermissionRequired": "Se requiere permiso de cámara para escanear",
-        "cameraPermissionDenied": "Permiso de cámara denegado"
+        "cameraPermissionDenied": "Permiso de cámara denegado",
+        "syncing": "Sincronizando con el Banco Central Friki...",
+        "totalAvailable": "Total Disponible",
+        "transactionalId": "Tu Identidad Transaccional",
+        "records": "RÉCORDS",
+        "income": "INGRESO",
+        "expense": "EGRESO",
+        "completed": "COMPLETADO",
+        "noActivity": "Sin actividad reciente",
+        "infoDisclaimer": "Esta billetera es de carácter informativo. Para transferencias, utiliza la aplicación móvil oficial de Ciudad Friki.",
+        "loadError": "Error al cargar billetera"
     },
     "surveys": {
         "title": "Encuestas",
@@ -521,6 +536,8 @@
         "loading": "Cargando trivias...",
         "question": "Pregunta",
         "of": "de",
+        "earnCoins": "Gana Frikicoins respondiendo correctamente",
+        "questionCount": "Preguntas",
         "timeRemaining": "Tiempo restante",
         "finish": "Finalizar Trivia",
         "confirmFinish": "¿Finalizar trivia?",
@@ -809,11 +826,12 @@
         "endDate": "Fecha Fin (Opcional)",
         "endTime": "Hora Fin (Opcional)",
         "locationName": "Lugar del Evento",
-        "mapLink": "Link del Mapa (Google/Waze)",
-        "ticketValue": "Valor Inicial Tickets",
+        "mapLink": "Enlace de Mapa (Google/Waze)",
+        "ticketValue": "Precio inicial de entrada",
         "freeEvent": "Evento Gratuito",
-        "externalLink": "Link Web / Venta Tickets (Opcional)",
+        "externalLink": "Link Web / Entradas (Opcional)",
         "whatsapp": "WhatsApp de Contacto",
+        "loadError": "Error al cargar los eventos. Verifica tu conexión.",
         "tagsHint": "Selecciona los intereses que mejor definan tu evento para mejorar el filtrado.",
         "clickToUpload": "Haz clic para subir la imagen",
         "publish": "Publicar Evento",
@@ -844,7 +862,18 @@
             "cancelled": "Cancelado",
             "delayed": "Aplazado",
             "finished": "Finalizado"
-        }
+        },
+        "viewOnMaps": "Ver en Mapas",
+        "contactWhatsApp": "Contactar por WhatsApp",
+        "officialWebsite": "Sitio Web Oficial",
+        "about": "Acerca del Evento",
+        "sponsored": "Patrocinado",
+        "free": "Gratis",
+        "paid": "De Pago",
+        "noDescription": "Sin descripción.",
+        "noDate": "Fecha TBD",
+        "date": "Fecha",
+        "startTime": "Hora de Inicio"
     },
     "empty": {
         "published": "No has publicado eventos aún",
@@ -898,7 +927,11 @@
             "deleteTitle": "Eliminar reseña",
             "deleteError": "No se pudo eliminar.",
             "saveError": "No se pudo guardar tu reseña.",
-            "moderationError": "Tu comentario contiene palabras no permitidas. Por favor sé respetuoso."
+            "moderationError": "Tu comentario contiene palabras no permitidas. Por favor sé respetuoso.",
+            "alreadySubmitted": "Ya has enviado una reseña para este evento.",
+            "wantToReview": "¿Quieres dejar una reseña?",
+            "waitToReview": "Podrás calificar el evento una vez que haya finalizado.",
+            "noReviews": "Aún no hay reseñas. ¡Sé el primero!"
         }
     },
     "staffCenter": {
@@ -1011,5 +1044,8 @@
             "emptyOptions": "Todas las opciones deben tener texto",
             "loadError": "No se pudo enviar la pregunta"
         }
+    },
+    "footer": {
+        "tagline": "Explora \u2022 Juega \u2022 Conecta"
     }
 }

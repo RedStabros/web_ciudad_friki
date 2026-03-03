@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Upload, Calendar as CalendarIcon, MapPin, Loader2, Globe, Phone, Ticket, Tag, Hash, Link, PlayCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { EventService } from '../services/EventService';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { supabase } from '../lib/supabase';
 import { ALL_INTERESTS } from '../config/interests';
@@ -29,14 +28,54 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
         tags: [] as string[]
     });
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<Blob | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /**
+     * Resize image to max 1080px wide and compress to JPEG 0.8
+     * Mirrors the mobile app's ImageManipulator logic:
+     *   manipulateAsync(uri, [{ resize: { width: 1080 } }], { compress: 0.8, format: JPEG })
+     */
+    const resizeAndCompressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                const MAX_WIDTH = 1080;
+                let { width, height } = img;
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(
+                    (blob) => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')),
+                    'image/jpeg',
+                    0.8 // quality 0.8 matches the app
+                );
+            };
+            img.onerror = reject;
+            img.src = objectUrl;
+        });
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
+            try {
+                const compressed = await resizeAndCompressImage(file);
+                setImageFile(compressed);
+                setImagePreview(URL.createObjectURL(compressed));
+            } catch {
+                // Fallback: use original if canvas fails
+                setImageFile(file);
+                setImagePreview(URL.createObjectURL(file));
+            }
         }
     };
 
@@ -49,13 +88,16 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
         }));
     };
 
+    // Mirrors sanitizeText() and sanitizeDescription() from mobile app utils/sanitize.ts
+    const sanitizeText = (text: string) => text.trim().replace(/<[^>]*>/g, '');
+    const sanitizeDescription = (text: string) => text.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return alert(t('common.loginRequired', 'Inicia sesión para crear eventos'));
 
-        // validations
         if (!formData.title || !formData.date || !formData.location || !formData.startTime) {
             return alert(t('common.errorHighlight', 'Por favor llena los campos requeridos (*).'));
         }
@@ -63,62 +105,61 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
         setIsSubmitting(true);
 
         try {
-            let uploadedUrl = null;
-
-            // Handle Image Upload to Storage
+            // 1. Upload image (already compressed by handleFileChange)
+            let bannerUrl: string | null = null;
             if (imageFile) {
-                const fileExt = imageFile.name.split('.').pop();
-                const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-                const filePath = `events/${fileName}`;
+                const fileName = `${user.id}_${Date.now()}.jpg`;
 
-                const { error: uploadError } = await (supabase.storage as any)
-                    .from('event-images')
-                    .upload(filePath, imageFile);
+                const { error: uploadError } = await supabase.storage
+                    .from('event-banners')
+                    .upload(fileName, imageFile, { contentType: 'image/jpeg' });
 
                 if (uploadError) {
                     console.error('Storage error:', uploadError);
-                    alert("Error subiendo la imagen: " + uploadError.message + "\n(Verifica que el bucket 'event-images' exista).");
-                    // Continue without image in case they just didn't set up the bucket
-                } else {
-                    const { data: publicURLData } = supabase.storage
-                        .from('event-images')
-                        .getPublicUrl(filePath);
-                    uploadedUrl = publicURLData.publicUrl;
+                    alert(t('events.errors.uploadError', 'Error subiendo la imagen. Intenta de nuevo.'));
+                    setIsSubmitting(false);
+                    return;
                 }
+
+                const { data: publicURLData } = supabase.storage
+                    .from('event-banners')
+                    .getPublicUrl(fileName);
+                bannerUrl = publicURLData.publicUrl;
             }
 
-            // Map to FrikiEvent payload.
-            const result = await EventService.createEvent({
-                title: formData.title,
-                description: formData.description,
+            // 2. Build payload — mirrors mobile app's handleSubmit() exactly
+            const eventData = {
+                title: sanitizeText(formData.title),
+                description: sanitizeDescription(formData.description),
                 date: formData.date,
-                end_date: formData.endDate || undefined,
+                end_date: formData.endDate || null,
                 start_time: formData.startTime,
-                end_time: formData.endTime || undefined,
-                location: formData.location,
-                maps_location_url: formData.maps_location_url || undefined,
-                price_min: formData.is_free ? 0 : Number(formData.price_min),
-                is_free: formData.is_free,
-                external_link: formData.external_link || undefined,
-                whatsapp: formData.whatsapp || undefined,
+                end_time: formData.endTime || null,
+                location: sanitizeText(formData.location),
+                maps_location_url: formData.maps_location_url || null,
+                price_min: formData.is_free ? 0 : (formData.price_min ? Number(formData.price_min) : null),
+                external_link: formData.external_link || null,
+                whatsapp: sanitizeText(formData.whatsapp),
+                organizer_email: user.email,          // mobile app: organizerEmail || user.email
                 tags: formData.tags,
-                image_url: uploadedUrl || null,
-                status: 'approved', // assuming immediate approval for testing
-                is_sponsored: false,
-                likes_count: 0,
-                saved_count: 0
-            });
+                banner_url: bannerUrl,            // app uses banner_url (not image_url)
+                created_by: user.id,              // app always sends created_by
+                status: 'pending',            // app sends 'pending' → goes through review
+            };
 
-            if (result.error) {
-                alert(t('events.error') + ': ' + result.error.message);
-            } else {
-                alert(t('events.success'));
-                onCreated();
-                onClose();
-            }
+            // 3. Insert
+            const { error } = await supabase
+                .from('events')
+                .insert(eventData);
+
+            if (error) throw error;
+
+            alert(t('events.success', '¡Evento enviado! Quedará pendiente de revisión.'));
+            onCreated();
+            onClose();
         } catch (err: any) {
             console.error('Submit error:', err);
-            alert("Error: " + err.message);
+            alert(t('events.errors.createError', 'Error al crear el evento: ') + err.message);
         } finally {
             setIsSubmitting(false);
         }

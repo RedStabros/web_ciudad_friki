@@ -1,19 +1,5 @@
 import { supabase } from '../lib/supabase';
 
-export interface Survey {
-    id: string;
-    title: string;
-    description: string;
-    expires_at: string;
-    id_reward: string;
-    created_at: string;
-    is_active: boolean;
-    options: SurveyOption[];
-    user_voted?: boolean;
-    reward_amount?: number;
-    total_votes?: number;
-}
-
 export interface SurveyOption {
     id: string;
     survey_id: string;
@@ -21,85 +7,67 @@ export interface SurveyOption {
     votes_count: number;
 }
 
+export interface Survey {
+    id: string;
+    title: string;
+    description: string;
+    questions: any[];          // raw JSONB questions array from DB
+    reward_amount: number;
+    expire_date: string | null;
+    already_completed: boolean; // mirrors mobile's field name
+    user_voted?: boolean;       // alias kept for compat
+    // Derived for the voting UI (built from questions)
+    options: SurveyOption[];
+}
+
 export class SurveyService {
     /**
-     * Fetch all surveys from the real database schema.
-     * The database uses a 'questions' JSONB column for survey options.
+     * Fetch active surveys for the current user via RPC.
+     * Mirrors mobile's: supabase.rpc('get_active_surveys', { p_user_id: userId })
+     * The RPC returns: id, title, description, questions, reward_amount,
+     * expire_date, already_completed (user_completed alias).
      */
-    static async getSurveys() {
+    static async getSurveys(): Promise<{ surveys: Survey[]; error: any }> {
         try {
-            const { data: surveys, error: surveysError } = await supabase
-                .from('surveys')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const { data: { user } } = await supabase.auth.getUser();
 
-            if (surveysError) throw surveysError;
+            const { data, error } = await supabase
+                .rpc('get_active_surveys', { p_user_id: user?.id ?? null });
 
-            // Transform surveys to match the UI expectations (flattening the first MCQ question)
-            const formattedSurveys = (surveys || []).map(s => {
+            if (error) throw error;
+
+            // Map user_completed → already_completed (same as mobile) and build options
+            const surveys: Survey[] = (data || []).map((s: any) => {
+                const alreadyCompleted = s.user_completed || s.already_completed || false;
+
+                // Build voting options from JSONB questions (same structure as mobile SurveyRenderer)
                 let options: SurveyOption[] = [];
-
-                // s.questions is an array of questions in the actual DB
                 if (s.questions && Array.isArray(s.questions)) {
-                    // We look for the first question that defines choices
-                    const firstPollQuestion = s.questions.find((q: any) => q.options && Array.isArray(q.options));
-                    if (firstPollQuestion) {
-                        options = firstPollQuestion.options.map((opt: string, idx: number) => ({
-                            id: `${s.id}_idx_${idx}`,
+                    const firstPollQ = s.questions.find((q: any) => q.type === 'multiple_choice' || (q.options && Array.isArray(q.options)));
+                    if (firstPollQ?.options) {
+                        options = firstPollQ.options.map((opt: string, idx: number) => ({
+                            id: `${s.id}_q0_${idx}`,
                             survey_id: s.id,
                             text: opt,
-                            votes_count: 0 // Placeholder: aggregation usually happens via survey_responses
+                            votes_count: firstPollQ.vote_counts?.[idx] ?? 0,
                         }));
                     }
                 }
 
                 return {
                     id: s.id,
-                    title: s.title || 'Encuesta sin título',
+                    title: s.title,
                     description: s.description || '',
-                    expires_at: s.expire_date || s.publish_date || new Date().toISOString(),
-                    id_reward: s.reward_amount?.toString() || '0',
-                    created_at: s.created_at,
-                    is_active: s.status === 'active' || s.status === 'open',
-                    options: options,
-                    user_voted: false,
+                    questions: s.questions || [],
                     reward_amount: s.reward_amount || 0,
-                    total_votes: 0 // Will be populated below
+                    expire_date: s.expire_date || null,
+                    already_completed: alreadyCompleted,
+                    user_voted: alreadyCompleted,
+                    options,
                 } as Survey;
             });
 
-            // If user is logged in, check which surveys they have voted on
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: responses } = await supabase
-                    .from('survey_responses')
-                    .select('survey_id')
-                    .eq('user_id', user.id);
-
-                if (responses) {
-                    const votedIds = new Set(responses.map(r => r.survey_id));
-                    formattedSurveys.forEach(s => {
-                        if (votedIds.has(s.id)) s.user_voted = true;
-                    });
-                }
-            }
-
-            // Get total votes count per survey for all users
-            const { data: allVotes } = await supabase
-                .from('survey_responses')
-                .select('survey_id');
-
-            if (allVotes) {
-                const counts: Record<string, number> = {};
-                allVotes.forEach(v => {
-                    counts[v.survey_id] = (counts[v.survey_id] || 0) + 1;
-                });
-                formattedSurveys.forEach(s => {
-                    s.total_votes = counts[s.id] || 0;
-                });
-            }
-
-            return { surveys: formattedSurveys, error: null };
+            return { surveys, error: null };
         } catch (error) {
             console.error('Error fetching surveys:', error);
             return { surveys: [], error };
@@ -107,30 +75,67 @@ export class SurveyService {
     }
 
     /**
-     * Submit a vote for a survey option
+     * Submit survey answers.
+     * Mirrors mobile's SurveyModal.handleSubmit():
+     *   insert into 'survey_responses' { survey_id, user_id, answers }
+     * The 'answers' field is the full answers Record<questionId, any> from SurveyRenderer.
      */
-    static async vote(surveyId: string, optionId: string) {
+    static async submitSurvey(surveyId: string, answers: Record<string, any>): Promise<{ data: any; error: any }> {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
-            // The optionId is virtual (surveyId_idx_N). We extract the index.
-            const indexMatch = optionId.match(/_idx_(\d+)$/);
-            const optionIndex = indexMatch ? parseInt(indexMatch[1]) : 0;
+            const { data, error } = await supabase
+                .from('survey_responses')
+                .insert({
+                    survey_id: surveyId,
+                    user_id: user.id,
+                    answers: answers,
+                });
 
-            // This usually calls a stored procedure to handle logic
-            const { data, error } = await supabase.rpc('vote_survey', {
-                p_survey_id: surveyId,
-                p_option_id: optionId, // Keep original if RPC expects it
-                p_option_index: optionIndex, // or add index if needed
-                p_user_id: user.id
-            });
+            if (error) {
+                // 23505 = UNIQUE constraint (already completed)
+                if (error.code === '23505') {
+                    throw new Error('already_completed');
+                }
+                throw error;
+            }
 
-            if (error) throw error;
             return { data, error: null };
         } catch (error) {
-            console.error('Error voting in survey:', error);
+            console.error('Error submitting survey:', error);
             return { data: null, error };
+        }
+    }
+
+    /**
+     * Legacy vote helper — kept for backward compat with SurveyVotingModal.
+     * Wraps submitSurvey with a single-option answer format.
+     */
+    static async vote(surveyId: string, optionId: string): Promise<{ data: any; error: any }> {
+        // Build a simple answers object: { "q0": optionId }
+        return this.submitSurvey(surveyId, { q0: optionId });
+    }
+
+    /**
+     * Get count of active surveys the user hasn't completed yet.
+     * Mirrors mobile pattern: uses the same RPC and counts uncompleted items.
+     */
+    static async getActiveCount(userId?: string): Promise<number> {
+        try {
+            const { data, error } = await supabase
+                .rpc('get_active_surveys', { p_user_id: userId ?? null });
+
+            if (error || !data) return 0;
+
+            // Count surveys not yet completed by the user
+            const uncompleted = (data as any[]).filter(
+                (s: any) => !(s.user_completed || s.already_completed)
+            );
+            return uncompleted.length;
+        } catch (error) {
+            console.error('Error fetching survey active count:', error);
+            return 0;
         }
     }
 }

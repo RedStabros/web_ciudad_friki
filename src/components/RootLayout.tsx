@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
 import { getAvatarSource } from '../config/avatars';
-import { Search, Bell, Grid, Wallet, LogOut, MessageSquare, BarChart2, Gamepad2, Home, Languages } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
+import { SurveyService } from '../services/SurveyService';
+import { TriviaService } from '../services/TriviaService';
+import { supabase } from '../lib/supabase';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
@@ -19,6 +22,60 @@ export default function RootLayout() {
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isWalletOpen, setIsWalletOpen] = useState(false);
+
+    // Dynamic badge counts
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [surveyBadge, setSurveyBadge] = useState(0);
+    const [triviaBadge, setTriviaBadge] = useState(0);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        // Load all badge counts
+        const loadBadges = async () => {
+            try {
+                const [surveys, trivias] = await Promise.all([
+                    SurveyService.getActiveCount(user.id),
+                    TriviaService.getActiveCount(user.id),
+                ]);
+                setSurveyBadge(surveys);
+                setTriviaBadge(trivias);
+            } catch (e) {
+                console.error('Error loading nav badges:', e);
+            }
+        };
+
+        // Load unread notifications count from profiles
+        const loadUnread = async () => {
+            const { data } = await supabase
+                .from('profiles')
+                .select('unread_count')
+                .eq('id', user.id)
+                .single();
+            setUnreadCount(data?.unread_count || 0);
+        };
+
+        loadBadges();
+        loadUnread();
+
+        // Realtime subscription for notifications
+        const notifSub = supabase
+            .channel(`notif_badge_${user.id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+                () => loadUnread())
+            .subscribe();
+
+        return () => { supabase.removeChannel(notifSub); };
+    }, [user?.id]);
+
+    // When notification modal closes, refresh unread count
+    const handleNotificationsClose = () => {
+        setIsNotificationsOpen(false);
+        if (user?.id) {
+            supabase.from('profiles').select('unread_count').eq('id', user.id).single()
+                .then(({ data }) => setUnreadCount(data?.unread_count || 0));
+        }
+    };
 
     const toggleLanguage = () => {
         const nextLang = i18n.language === 'es' ? 'en' : 'es';
@@ -40,20 +97,10 @@ export default function RootLayout() {
 
                         <div className="hidden lg:flex items-center gap-1 ml-4 border-l border-border-theme pl-4">
                             <NavLink to="/" icon={<Home size={18} />} label={t('nav.home')} />
-                            <NavLink to="/tavern" icon={<MessageSquare size={18} />} label={t('nav.tavern')} />
-                            <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} />
-                            <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} />
-                        </div>
-
-                        <div className="hidden md:block ml-4 mr-6 relative w-64 lg:w-80">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="text-text-muted" size={20} />
-                            </span>
-                            <input
-                                className="block w-full pl-10 pr-3 py-2 border border-border-theme rounded-full leading-5 bg-bg-sub text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary sm:text-sm transition duration-150 ease-in-out"
-                                placeholder={t('common.search')}
-                                type="text"
-                            />
+                            <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} />
+                            <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
+                            <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} badge={triviaBadge} />
+                            <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" />
                         </div>
                     </div>
 
@@ -83,14 +130,20 @@ export default function RootLayout() {
                                 <button
                                     onClick={() => setIsNotificationsOpen(true)}
                                     className="p-2 rounded-full text-text-sub hover:text-brand-primary hover:bg-bg-sub transition relative"
+                                    aria-label={t('notifications.title')}
                                 >
                                     <Bell size={24} />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] bg-accent-red text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </span>
+                                    )}
                                 </button>
 
-                                <div className="relative ml-2 flex items-center gap-2 cursor-pointer p-1 pr-3 rounded-full hover:bg-bg-sub transition group">
-                                    <img alt="User Avatar" className="h-9 w-9 rounded-full object-cover border-2 border-brand-primary bg-bg-sub" src={getAvatarSource(profile?.avatar_url || null)} />
-                                    <div className="hidden md:block text-sm text-left">
-                                        <p className="font-semibold text-text-main leading-tight">
+                                <div className="relative ml-2 flex items-center gap-3 cursor-pointer p-1.5 px-3 rounded-full hover:bg-bg-sub transition-all group">
+                                    <img alt="User Avatar" className="h-9 w-9 rounded-full object-cover border-2 border-brand-primary bg-bg-sub shrink-0" src={getAvatarSource(profile?.avatar_url || null)} />
+                                    <div className="hidden md:block text-sm text-left whitespace-nowrap overflow-hidden">
+                                        <p className="font-semibold text-text-main leading-tight truncate max-w-[120px]">
                                             {profile?.username || t('common.loading')}
                                         </p>
                                         <p className="text-xs text-text-muted capitalize">
@@ -126,7 +179,7 @@ export default function RootLayout() {
             </nav>
 
             <main className="flex-1 w-full relative pb-16 md:pb-0">
-                <Outlet />
+                <Outlet context={{ setIsWalletOpen }} />
             </main>
 
             {!isLoginOrMaintenance && <Footer />}
@@ -134,9 +187,10 @@ export default function RootLayout() {
             {/* Mobile Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg-side border-t border-border-theme flex items-center justify-around h-16 safe-padding">
                 <MobileNavLink to="/" icon={<Home size={22} />} label={t('nav.home')} />
-                <MobileNavLink to="/tavern" icon={<MessageSquare size={22} />} label={t('nav.tavern')} />
-                <MobileNavLink to="/surveys" icon={<BarChart2 size={22} />} label={t('nav.surveys')} />
-                <MobileNavLink to="/trivias" icon={<Gamepad2 size={22} />} label={t('nav.trivias')} />
+                <MobileNavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-6 h-6 object-contain" />} label={t('nav.tavern')} />
+                <MobileNavLink to="/surveys" icon={<BarChart2 size={22} />} label={t('nav.surveys')} badge={surveyBadge} />
+                <MobileNavLink to="/trivias" icon={<Gamepad2 size={22} />} label={t('nav.trivias')} badge={triviaBadge} />
+                <MobileNavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="VS" className="w-6 h-6 object-contain" />} label="VS" />
                 <MobileNavLink to="/profile" icon={<Grid size={22} />} label={t('nav.profile')} />
             </nav>
 
@@ -145,7 +199,7 @@ export default function RootLayout() {
                 <>
                     <NotificationsModal
                         isOpen={isNotificationsOpen}
-                        onClose={() => setIsNotificationsOpen(false)}
+                        onClose={handleNotificationsClose}
                         userId={user.id}
                     />
                     <WalletModal
@@ -160,25 +214,37 @@ export default function RootLayout() {
     );
 }
 
-function NavLink({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) {
+function NavLink({ to, icon, label, badge }: { to: string; icon: React.ReactNode; label: string; badge?: number }) {
     return (
         <Link
             to={to}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-text-sub hover:text-brand-primary transition-all hover:bg-bg-sub font-bold text-sm tracking-tight"
+            className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-text-sub hover:text-brand-primary transition-all hover:bg-bg-sub font-bold text-sm tracking-tight"
         >
             {icon}
             <span>{label}</span>
+            {badge != null && badge > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-brand-primary text-text-inv text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                    {badge > 9 ? '9+' : badge}
+                </span>
+            )}
         </Link>
     );
 }
 
-function MobileNavLink({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) {
+function MobileNavLink({ to, icon, label, badge }: { to: string; icon: React.ReactNode; label: string; badge?: number }) {
     return (
         <Link
             to={to}
-            className="flex flex-col items-center justify-center p-2 rounded-lg text-text-sub hover:text-brand-primary transition-all"
+            className="relative flex flex-col items-center justify-center p-2 rounded-lg text-text-sub hover:text-brand-primary transition-all"
         >
-            {icon}
+            <span className="relative">
+                {icon}
+                {badge != null && badge > 0 && (
+                    <span className="absolute -top-1 -right-1.5 min-w-[14px] h-3.5 bg-brand-primary text-text-inv text-[8px] font-black rounded-full flex items-center justify-center px-0.5 leading-none">
+                        {badge > 9 ? '9+' : badge}
+                    </span>
+                )}
+            </span>
             <span className="text-[10px] uppercase font-black tracking-tighter mt-1">{label}</span>
         </Link>
     );

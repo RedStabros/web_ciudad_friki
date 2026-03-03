@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import {
-    ArrowLeft, Check, Loader2, X, CheckCircle
+    ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -223,8 +223,7 @@ export default function Profile() {
                                 <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} />
                             </div>
                             <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors">
-                                {/* Edit2 was removed, using a generic icon or removing it if not replaced */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                <Pencil size={16} />
                             </div>
                         </div>
                         <p className="mt-4 text-sm text-text-sub font-medium">{t('profile.tapToChange')}</p>
@@ -256,7 +255,7 @@ export default function Profile() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-text-sub mb-2">Email</label>
+                                <label className="block text-sm font-medium text-text-sub mb-2">{t('auth.emailLabel')}</label>
                                 <input
                                     className="w-full bg-bg-sub border border-border-theme text-text-main rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none transition-all opacity-75 cursor-not-allowed"
                                     readOnly
@@ -342,13 +341,11 @@ export default function Profile() {
 
                             <div className="flex gap-4 mt-6 w-full px-4">
                                 <button onClick={handleCopyQR} className="flex-1 flex flex-col items-center justify-center bg-bg-sub/50 hover:bg-bg-sub py-3 rounded-lg transition-colors group">
-                                    {/* Copy was removed, using a generic icon or removing it if not replaced */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy text-text-sub mb-1 group-hover:text-brand-primary"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                                    <Copy size={20} className="text-text-sub mb-1 group-hover:text-brand-primary" />
                                     <span className="text-xs font-medium text-text-sub">{t('common.copy')}</span>
                                 </button>
                                 <button onClick={handleShareQR} className="flex-1 flex flex-col items-center justify-center bg-bg-sub/50 hover:bg-bg-sub py-3 rounded-lg transition-colors group">
-                                    {/* Share2 was removed, using a generic icon or removing it if not replaced */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-share-2 text-text-sub mb-1 group-hover:text-brand-primary"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></svg>
+                                    <Share2 size={20} className="text-text-sub mb-1 group-hover:text-brand-primary" />
                                     <span className="text-xs font-medium text-text-sub">{t('common.share')}</span>
                                 </button>
                             </div>
@@ -412,19 +409,17 @@ export default function Profile() {
                     {isSuperuser && (
                         <div className="bg-bg-side border border-brand-secondary/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                {/* Shield was removed, using a generic icon or removing it if not replaced */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield text-brand-secondary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                <Shield size={80} className="text-brand-secondary" />
                             </div>
                             <div className="flex items-center gap-2 mb-4 text-brand-secondary">
-                                {/* Shield was removed, using a generic icon or removing it if not replaced */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                <Shield size={20} />
                                 <h2 className="text-lg font-black uppercase italic tracking-tighter">{t('settings.adminTools')}</h2>
                             </div>
                             <div className="flex items-center justify-between gap-4 p-5 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
                                 <div className="space-y-1">
                                     <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.maintenanceMode')}</p>
                                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                        Estado: <span className={maintenanceMode ? 'text-brand-secondary' : 'text-text-muted opacity-50'}>{maintenanceMode ? t('settings.admin.active') : t('settings.admin.inactive')}</span>
+                                        {t('common.status')}: <span className={maintenanceMode ? 'text-brand-secondary' : 'text-text-muted opacity-50'}>{maintenanceMode ? t('settings.admin.active') : t('settings.admin.inactive')}</span>
                                     </p>
                                 </div>
                                 <button

@@ -51,7 +51,7 @@ export default function Login() {
         if (error) {
             setError(error.message);
         } else {
-            setMessage("¡Se ha enviado un correo para recuperar tu contraseña!");
+            setMessage(t('auth.recoveryEmailSent'));
         }
         setLoading(false);
     };
@@ -68,7 +68,7 @@ export default function Login() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] animate-fade-in px-4 py-12 md:py-20">
-            <div className="bg-[var(--bg-secondary)] border border-[var(--ui-border)] w-full max-w-md p-8 rounded-3xl shadow-xl shadow-[var(--brand-primary)]/5">
+            <div className="bg-bg-side border border-border-theme w-full max-w-md p-8 rounded-3xl shadow-xl shadow-brand-primary/5">
 
                 <div className="text-center mb-8">
                     <img src="/assets/adaptive-icon.png" alt="Dragon" className="w-20 h-20 mx-auto mb-4 drop-shadow-lg" />

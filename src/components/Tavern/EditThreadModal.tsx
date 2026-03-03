@@ -35,11 +35,8 @@ export function EditThreadModal({ isOpen, onClose, thread, onSuccess }: EditThre
         setIsSubmitting(true);
         setError(null);
         try {
-            const { error: updateError } = await TavernService.updateThread(thread.id, {
-                title: title.trim(),
-                content: content.trim(),
-                tag: category !== 'Todas' ? category : thread.tag
-            });
+            // Uses RPC edit_tavern_post — mirrors app's TavernService.editPost()
+            const { error: updateError } = await TavernService.editPost(thread.id, 'thread', content.trim(), title.trim());
 
             if (updateError) throw updateError;
 

@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { ArrowUp, ArrowDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check } from 'lucide-react';
 import type { TavernThread } from '../../types/tavern';
 import { getAvatarSource } from '../../config/avatars';
 import ContentRenderer from './ContentRenderer';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
+import { shareContent, buildThreadShare, registerCopiedCallback } from '../../utils/shareContent';
 
 interface ThreadCardProps {
     thread: TavernThread;
@@ -55,19 +56,15 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    const [copied, setCopied] = useState(false);
+
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const url = `${window.location.origin}/tavern?thread=${thread.id}`;
-        if (navigator.share) {
-            navigator.share({
-                title: thread.title,
-                text: thread.content.substring(0, 100),
-                url: url,
-            }).catch(console.error);
-        } else {
-            navigator.clipboard.writeText(url);
-            alert(t('common.copied', 'Enlace copiado al portapapeles'));
-        }
+        registerCopiedCallback(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2200);
+        });
+        shareContent(buildThreadShare(thread));
     };
 
     return (
@@ -136,9 +133,13 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                             <MessageSquare size={18} className="group-hover:text-brand-primary" />
                             <span className="text-sm font-medium">{thread.reply_count || 0} {t('tavern.thread.reply')}</span>
                         </button>
-                        <button className="flex items-center gap-2 text-text-sub hover:text-brand-primary transition group" onClick={handleShare}>
-                            <Share2 size={18} className="group-hover:text-brand-primary" />
-                            <span className="text-sm font-medium">{t('tavern.thread.share')}</span>
+                        <button
+                            className={`flex items-center gap-2 transition group ${copied ? 'text-accent-green' : 'text-text-sub hover:text-brand-primary'}`}
+                            onClick={handleShare}
+                            title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('tavern.thread.share')}
+                        >
+                            {copied ? <Check size={18} /> : <Share2 size={18} className="group-hover:text-brand-primary" />}
+                            <span className="text-sm font-medium">{copied ? t('common.linkCopied', '¡Copiado!') : t('tavern.thread.share')}</span>
                         </button>
                     </div>
                     <div className="flex items-center gap-2">

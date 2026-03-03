@@ -2,9 +2,16 @@ import { supabase } from '../lib/supabase';
 import type { TavernThread, ThreadCategory } from '../types/tavern';
 
 const THREADS_PAGE_SIZE = 15;
+const REPLIES_PAGE_SIZE = 20;
 
 export interface BringThreadsResult {
     threads: TavernThread[];
+    nextPage: number | null;
+    error: any;
+}
+
+export interface BringRepliesResult {
+    replies: any[];
     nextPage: number | null;
     error: any;
 }
@@ -125,50 +132,92 @@ export class TavernService {
     }
 
     /**
-     * Interact with a post (Like/Dislike)
-     * Note: This usually calls an RPC in the mobile app
+     * Fetch Replies for a Thread (mirrors app's getReplies)
+     */
+    static async getReplies(threadId: string, page: number = 0): Promise<BringRepliesResult> {
+        try {
+            const from = page * REPLIES_PAGE_SIZE;
+            const to = from + REPLIES_PAGE_SIZE - 1;
+
+            const { data, error, count } = await supabase
+                .from('tavern_replies')
+                .select(`
+                    *,
+                    profiles:author_id(username, avatar_url, role)
+                `, { count: 'exact' })
+                .eq('thread_id', threadId)
+                .eq('is_hidden', false)
+                .order('created_at', { ascending: true })
+                .range(from, to);
+
+            if (error) throw error;
+
+            const replies = (data || []).map((item: any) => ({
+                ...item,
+                upvotes: item.likes_count || 0,
+                downvotes: item.dislikes_count || 0,
+                author_username: item.profiles?.username,
+                author_avatar_url: item.profiles?.avatar_url,
+                author_role: item.profiles?.role,
+            }));
+
+            const nextPage = (count && to + 1 < count) ? page + 1 : null;
+            return { replies, nextPage, error: null };
+        } catch (error) {
+            console.error('Error fetching replies:', error);
+            return { replies: [], nextPage: null, error };
+        }
+    }
+
+    /**
+     * Create a Reply (mirrors app's createReply)
+     */
+    static async createReply(payload: { thread_id: string; content: string }) {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            const { data, error } = await supabase
+                .from('tavern_replies')
+                .insert({
+                    author_id: user.id,
+                    thread_id: payload.thread_id,
+                    content: payload.content,
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { reply: data, error: null };
+        } catch (error) {
+            console.error('Error creating reply:', error);
+            return { reply: null, error };
+        }
+    }
+
+    /**
+     * Interact with a post (Like/Dislike/Report)
+     * Mirrors app exactly — includes p_report_reason for reports.
      */
     static async interact(
         targetId: string,
         targetType: 'thread' | 'reply',
-        interactionType: 'like' | 'dislike' | 'report'
+        interactionType: 'like' | 'dislike' | 'report',
+        reportReason?: string
     ) {
         try {
             const { data, error } = await supabase.rpc('interact_tavern', {
                 p_target_id: targetId,
                 p_target_type: targetType,
-                p_interaction_type: interactionType
+                p_interaction_type: interactionType,
+                p_report_reason: reportReason || null,
             });
 
             if (error) throw error;
-            return { data, error: null };
+            return { data, error: null }; // returns { success, message, likes_count, dislikes_count }
         } catch (error) {
             console.error('Error interacting with post:', error);
             return { data: null, error };
-        }
-    }
-
-    /**
-     * Update a Thread
-     */
-    static async updateThread(id: string, payload: { title?: string; content?: string; tag?: string }) {
-        try {
-            const { data, error } = await supabase
-                .from('tavern_threads')
-                .update({
-                    ...payload,
-                    updated_at: new Date().toISOString(),
-                    is_edited: true
-                })
-                .eq('id', id)
-                .select()
-                .single();
-
-            if (error) throw error;
-            return { thread: data, error: null };
-        } catch (error) {
-            console.error('Error updating thread:', error);
-            return { thread: null, error };
         }
     }
 
@@ -191,30 +240,6 @@ export class TavernService {
     }
 
     /**
-     * Update a Reply
-     */
-    static async updateReply(id: string, content: string) {
-        try {
-            const { data, error } = await supabase
-                .from('tavern_replies')
-                .update({
-                    content,
-                    updated_at: new Date().toISOString(),
-                    is_edited: true
-                })
-                .eq('id', id)
-                .select()
-                .single();
-
-            if (error) throw error;
-            return { reply: data, error: null };
-        } catch (error) {
-            console.error('Error updating reply:', error);
-            return { reply: null, error };
-        }
-    }
-
-    /**
      * Delete a Reply (Soft delete)
      */
     static async deleteReply(id: string) {
@@ -229,6 +254,26 @@ export class TavernService {
         } catch (error) {
             console.error('Error deleting reply:', error);
             return { error };
+        }
+    }
+
+    /**
+     * Edit a post — uses RPC 'edit_tavern_post' (mirrors app exactly)
+     * Enforces 5-min window, no-replies rule, and author-only at DB level.
+     */
+    static async editPost(targetId: string, targetType: 'thread' | 'reply', content: string, title?: string) {
+        try {
+            const { data, error } = await supabase.rpc('edit_tavern_post', {
+                p_target_id: targetId,
+                p_target_type: targetType,
+                p_content: content,
+                p_title: title || null,
+            });
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error editing post:', error);
+            return { data: null, error };
         }
     }
 }

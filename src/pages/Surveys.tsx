@@ -102,7 +102,7 @@ function SurveyCard({ survey, onClick }: {
                 <div className="flex items-center gap-2 bg-brand-primary/10 px-3 py-1.5 rounded-xl border border-brand-primary/20">
                     <Clock size={14} className="text-brand-primary" />
                     <span className="text-[10px] font-black uppercase text-brand-primary tracking-widest">
-                        {survey.expires_at ? new Date(survey.expires_at).toLocaleDateString() : 'N/A'}
+                        {survey.expire_date ? new Date(survey.expire_date).toLocaleDateString() : 'N/A'}
                     </span>
                 </div>
                 {survey.reward_amount && survey.reward_amount > 0 && (
@@ -120,14 +120,7 @@ function SurveyCard({ survey, onClick }: {
 
             <div className="flex items-center justify-between pt-8 border-t border-divider-theme relative z-10">
                 <div className="flex flex-col">
-                    {survey.total_votes && survey.total_votes > 0 ? (
-                        <>
-                            <span className="text-[10px] font-black uppercase text-text-muted tracking-widest">{t('surveys.responses')}</span>
-                            <span className="font-black text-xl text-text-main italic">{survey.total_votes}</span>
-                        </>
-                    ) : (
-                        <span className="text-[10px] font-black uppercase text-text-muted tracking-widest">{t('surveys.new', '¡NUEVA!')}</span>
-                    )}
+                    <span className="text-[10px] font-black uppercase text-text-muted tracking-widest">{t('surveys.new', '¡NUEVA!')}</span>
                 </div>
                 <div className={`px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center gap-2 ${survey.user_voted ? 'bg-bg-sub text-text-muted' : 'bg-brand-primary text-text-inv group-hover:scale-105 active:scale-95 shadow-brand-primary/30'}`}>
                     {survey.user_voted ? t('surveys.completed') : t('nav.surveys')}
@@ -157,7 +150,7 @@ export default function Surveys() {
             const { surveys: data, error: fetchError } = await SurveyService.getSurveys();
             if (fetchError) throw fetchError;
             // Only active surveys as requested: "las pasadas no deben verse"
-            setSurveys((data || []).filter(s => s.is_active));
+            setSurveys(data || []);
         } catch (err: any) {
             console.error('Error fetching surveys:', err);
             setError(err.message || t('surveys.errorLoading'));
@@ -178,7 +171,7 @@ export default function Surveys() {
             const surveyData = (updatedSurveys.surveys || []).find(s => s.id === surveyId);
             if (surveyData) {
                 setSelectedSurvey(surveyData);
-                setSurveys((updatedSurveys.surveys || []).filter(s => s.is_active));
+                setSurveys(updatedSurveys.surveys || []);
             }
         } catch (err: any) {
             console.error('Error voting:', err);

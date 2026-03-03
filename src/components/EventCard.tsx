@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Calendar, Bookmark, Heart, Share2 } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Bookmark, Heart, Share2, Check } from 'lucide-react';
 import type { FrikiEvent } from '../services/EventService';
 import { getAvatarSource } from '../config/avatars';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
+import { shareContent, buildEventShare, registerCopiedCallback } from '../utils/shareContent';
 
 interface EventCardProps {
     event: FrikiEvent;
@@ -19,19 +21,15 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
     // Fallback simple parsing for display
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US') : t('events.noDate', 'TBD');
 
+    const [copied, setCopied] = useState(false);
+
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const url = `${window.location.origin}/events?id=${event.id}`;
-        if (navigator.share) {
-            navigator.share({
-                title: event.title,
-                text: event.description || event.location,
-                url: url,
-            }).catch(console.error);
-        } else {
-            navigator.clipboard.writeText(url);
-            alert(t('common.copied', 'Enlace copiado al portapapeles'));
-        }
+        registerCopiedCallback(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2200);
+        });
+        shareContent(buildEventShare(event));
     };
 
     return (
@@ -85,10 +83,11 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                         </button>
                         <button
                             onClick={handleShare}
-                            className="text-text-muted hover:text-brand-primary transition"
+                            className={`transition ${copied ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
                             aria-label="Compartir evento"
+                            title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('common.share', 'Compartir')}
                         >
-                            <Share2 size={20} />
+                            {copied ? <Check size={20} /> : <Share2 size={20} />}
                         </button>
                     </div>
                 </div>

@@ -10,6 +10,7 @@ import { ThreadDetailsModal } from '../components/Tavern/ThreadDetailsModal';
 import { CreateThreadModal } from '../components/Tavern/CreateThreadModal';
 import { EditThreadModal } from '../components/Tavern/EditThreadModal';
 import { getAvatarSource } from '../config/avatars';
+import { useProfile } from '../hooks/useProfile';
 
 export default function Tavern() {
     const { t } = useTranslation();
@@ -17,7 +18,7 @@ export default function Tavern() {
     const [category, setCategory] = useState<ThreadCategory>('Todas');
     const [sortBy, setSortBy] = useState<'HOT' | 'NEW'>('NEW');
 
-    // Modal states
+    const { profile } = useProfile(user?.id);
     const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -144,11 +145,11 @@ export default function Tavern() {
                         <img
                             alt="User Avatar"
                             className="h-full w-full object-cover"
-                            src={user?.user_metadata?.avatar_url ? getAvatarSource(user.user_metadata.avatar_url) : "/assets/avatars/dragon_24.png"}
+                            src={getAvatarSource(profile?.avatar_url || null)}
                         />
                     </div>
                     <div className="bg-bg-sub w-full rounded-full px-4 py-2 text-sm text-text-muted group-hover:bg-bg-sub/80 transition">
-                        {t('tavern.createThread', { name: user?.user_metadata?.username || t('common.user') })}
+                        {t('tavern.createThread', { name: profile?.username || t('common.user') })}
                     </div>
                     <PlusCircle className="text-brand-primary" size={24} />
                 </div>

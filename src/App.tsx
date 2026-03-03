@@ -8,6 +8,7 @@ import { MaintenancePage } from './pages/Maintenance';
 import { MaintenanceGuard } from './components/MaintenanceGuard';
 import Surveys from './pages/Surveys';
 import Trivias from './pages/Trivias';
+import FrikiVS from './pages/FrikiVS';
 import Legal from './pages/Legal';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           {/* Gamification */}
           <Route path="/surveys" element={<Surveys />} />
           <Route path="/trivias" element={<Trivias />} />
+          <Route path="/friki-vs" element={<FrikiVS />} />
 
           {/* Events Feed (Now unified with Home) */}
           <Route path="/events" element={<Home />} />

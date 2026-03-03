@@ -5,8 +5,8 @@ import { TavernService } from '../../services/TavernService';
 import type { TavernThread, TavernReply } from '../../types/tavern';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
-import { supabase } from '../../lib/supabase';
 import ContentRenderer from './ContentRenderer';
+import { shareContent, buildThreadShare, buildReplyShare, registerCopiedCallback } from '../../utils/shareContent';
 
 interface ThreadDetailsModalProps {
     isOpen: boolean;
@@ -26,6 +26,25 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
     const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
     const [editReplyContent, setEditReplyContent] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [copiedId, setCopiedId] = useState<string | null>(null); // 'thread' | replyId
+
+    const handleShare = (type: 'thread' | 'reply', replyId?: string, replyAuthor?: string, replyContent?: string) => {
+        const opts = type === 'thread' || !thread
+            ? buildThreadShare(thread!)
+            : buildReplyShare({
+                threadId: thread!.id,
+                replyId: replyId!,
+                author_username: replyAuthor,
+                content: replyContent!,
+                threadTitle: thread!.title,
+            });
+        const key = type === 'thread' ? 'thread' : replyId!;
+        registerCopiedCallback(() => {
+            setCopiedId(key);
+            setTimeout(() => setCopiedId(k => k === key ? null : k), 2200);
+        });
+        shareContent(opts);
+    };
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -49,25 +68,9 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
             if (threadError) throw threadError;
             setThread(threadData);
 
-            // In a real app we'd also fetch replies here
-            // For now, let's assume getThreadById might include some or we have a getReplies
-            const { data: repliesData, error: repliesError } = await (supabase as any)
-                .from('tavern_replies')
-                .select(`
-                    *,
-                    profiles:author_id(username, avatar_url, role)
-                `)
-                .eq('thread_id', threadId)
-                .eq('is_hidden', false)
-                .order('created_at', { ascending: true });
-
+            const { replies: repliesData, error: repliesError } = await TavernService.getReplies(threadId);
             if (repliesError) throw repliesError;
-            setReplies(repliesData.map((r: any) => ({
-                ...r,
-                author_username: r.profiles?.username,
-                author_avatar_url: r.profiles?.avatar_url,
-                author_role: r.profiles?.role,
-            })));
+            setReplies(repliesData);
 
         } catch (error) {
             console.error('Error fetching thread details:', error);
@@ -82,13 +85,10 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
 
         setIsSubmitting(true);
         try {
-            const { error } = await (supabase as any)
-                .from('tavern_replies')
-                .insert({
-                    thread_id: thread.id,
-                    author_id: user.id,
-                    content: replyContent.trim()
-                });
+            const { error } = await TavernService.createReply({
+                thread_id: thread.id,
+                content: replyContent.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''),
+            });
 
             if (error) throw error;
             setReplyContent('');
@@ -104,7 +104,8 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
         if (!editReplyContent.trim()) return;
         setIsSubmitting(true);
         try {
-            const { error } = await TavernService.updateReply(replyId, editReplyContent.trim());
+            // Uses RPC edit_tavern_post (mirrors app's editPost)
+            const { error } = await TavernService.editPost(replyId, 'reply', editReplyContent.trim());
             if (error) throw error;
             setEditingReplyId(null);
             fetchThreadDetails();
@@ -143,21 +144,6 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleShare = (title: string, content: string, replyId?: string) => {
-        let url = `${window.location.origin}/tavern?thread=${thread?.id}`;
-        if (replyId) url += `&reply=${replyId}`;
-
-        if (navigator.share) {
-            navigator.share({
-                title: title,
-                text: content.substring(0, 100),
-                url: url,
-            }).catch(console.error);
-        } else {
-            navigator.clipboard.writeText(url);
-            alert(t('common.copied', 'Enlace copiado al portapapeles'));
-        }
-    };
 
     const handleVote = async (targetId: string, targetType: 'thread' | 'reply', interactionType: 'like' | 'dislike') => {
         if (!user) return alert(t('tavern.loginToVote'));
@@ -242,10 +228,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                     <MessageSquare size={18} /> {replies.length} {t('tavern.modals.details.replies')}
                                 </div>
                                 <button
-                                    onClick={() => handleShare(thread.title, thread.content)}
-                                    className="flex items-center gap-2 text-text-muted hover:text-brand-primary text-sm font-medium transition"
+                                    onClick={() => handleShare('thread')}
+                                    className={`flex items-center gap-2 text-sm font-medium transition ${copiedId === 'thread' ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
                                 >
-                                    <Share2 size={18} /> {t('tavern.modals.details.share')}
+                                    {copiedId === 'thread' ? <Check size={18} /> : <Share2 size={18} />}
+                                    {copiedId === 'thread' ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
                                 </button>
                             </div>
 
@@ -307,11 +294,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                             <ArrowDown size={14} fill={reply.user_vote === 'dislike' ? 'currentColor' : 'none'} /> {reply.dislikes_count}
                                                         </button>
                                                         <button
-                                                            onClick={() => handleShare(`Respuesta de ${reply.author_username}`, reply.content, reply.id)}
-                                                            className="flex items-center gap-1 text-text-muted hover:text-brand-primary transition text-xs"
-                                                            title={t('tavern.modals.details.share')}
+                                                            onClick={() => handleShare('reply', reply.id, reply.author_username, reply.content)}
+                                                            className={`flex items-center gap-1 transition text-xs ${copiedId === reply.id ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
+                                                            title={copiedId === reply.id ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
                                                         >
-                                                            <Share2 size={14} />
+                                                            {copiedId === reply.id ? <Check size={14} /> : <Share2 size={14} />}
                                                         </button>
                                                     </div>
 

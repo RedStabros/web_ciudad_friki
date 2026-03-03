@@ -7,58 +7,58 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="bg-bg-side border-t border-divider-theme pt-12 pb-24 md:pb-12 mt-auto">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-                    {/* Brand & Copyright */}
-                    <div className="flex flex-col items-center md:items-start gap-2">
-                        <div className="flex items-center gap-2">
-                            <img src="/assets/logo_ciudad_friki.png" alt="Ciudad Friki" className="h-8 w-auto opacity-80" />
-                            <span className="font-black text-lg tracking-tighter text-text-main italic uppercase">
-                                Ciudad Friki <span className="text-brand-primary">Web</span>
-                            </span>
-                        </div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">
-                            &copy; {currentYear} Ciudad Friki &bull; v2.0-web
-                        </p>
+        <footer className="bg-bg-side border-t border-divider-theme mt-auto">
+            <div className="max-w-3xl mx-auto px-6 py-8 pb-28 md:pb-8">
+                <div className="flex flex-col items-center gap-5">
+
+                    {/* Logo + Brand */}
+                    <div className="flex items-center gap-2.5">
+                        <img src="/assets/logo_ciudad_friki.png" alt="Ciudad Friki" className="h-7 w-auto opacity-70" />
+                        <span className="font-black text-base tracking-tighter text-text-main italic uppercase">
+                            Ciudad Friki <span className="text-brand-primary">Web</span>
+                        </span>
                     </div>
 
-                    {/* Credit */}
-                    <div className="flex flex-col items-center gap-1">
-                        <p className="flex items-center gap-2 text-sm font-bold text-text-sub">
-                            {t('settings.madeWith')}
-                            <span className="text-brand-secondary font-black tracking-tight flex items-center gap-1.5 ml-1">
-                                RedStabros <Heart size={14} className="fill-brand-secondary text-brand-secondary animate-pulse" />
-                            </span>
-                        </p>
-                        <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-brand-secondary/30 to-transparent"></div>
-                    </div>
+                    {/* Divider */}
+                    <div className="w-24 h-px bg-gradient-to-r from-transparent via-divider-theme to-transparent" />
 
-                    {/* Legal Links */}
-                    <div className="flex items-center gap-6">
+                    {/* Legal links */}
+                    <div className="flex items-center gap-4 flex-wrap justify-center">
                         <Link
                             to="/legal/terms"
-                            className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors border-b border-transparent hover:border-brand-primary pb-0.5"
+                            className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors"
                         >
                             {t('auth.termsAndConditions', 'Términos y Condiciones')}
                         </Link>
-                        <div className="w-1 h-1 bg-divider-theme rounded-full"></div>
+                        <span className="w-1 h-1 rounded-full bg-divider-theme" />
                         <Link
                             to="/legal/privacy"
-                            className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors border-b border-transparent hover:border-brand-primary pb-0.5"
+                            className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-brand-primary transition-colors"
                         >
                             {t('auth.privacyPolicy', 'Política de Privacidad')}
                         </Link>
                     </div>
-                </div>
 
-                {/* Bottom decorative line */}
-                <div className="mt-12 text-center">
-                    <div className="inline-block px-4 py-1 rounded-full bg-bg-sub/50 border border-divider-theme">
-                        <p className="text-[9px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-40">
-                            Explora • Juega • Conecta
+                    {/* Credit + Copyright */}
+                    <div className="flex items-center gap-3 flex-wrap justify-center">
+                        <p className="flex items-center gap-1.5 text-[10px] font-bold text-text-muted opacity-60">
+                            <Heart size={10} className="fill-brand-secondary text-brand-secondary animate-pulse flex-shrink-0" />
+                            {t('settings.madeWith')}
+                            <span className="text-brand-secondary font-black">RedStabros</span>
+                        </p>
+                        <span className="w-1 h-1 rounded-full bg-divider-theme opacity-40" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted opacity-60">
+                            &copy; {currentYear} Ciudad Friki &bull; v2.0-web
                         </p>
                     </div>
+
+                    {/* Tagline pill */}
+                    <div className="inline-block px-3 py-1 rounded-full bg-bg-sub/50 border border-divider-theme">
+                        <p className="text-[9px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-40">
+                            {t('footer.tagline')}
+                        </p>
+                    </div>
+
                 </div>
             </div>
         </footer>

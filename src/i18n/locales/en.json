@@ -163,6 +163,11 @@
             "delete": "Delete",
             "deleteConfirm": "Are you sure you want to delete this thread?",
             "deleteError": "Could not delete the thread",
+            "edit": {
+                "title": "Edit Thread",
+                "success": "Thread updated!",
+                "error": "Error updating"
+            },
             "time": {
                 "moments": "just now",
                 "min": "{{count}} min ago",
@@ -346,7 +351,7 @@
         "pastSurveysHistory": "Past Surveys History",
         "versionHistory": "Version History",
         "currentVersion": "Current Version",
-        "madeWith": "Made with",
+        "madeWith": "Made with love by",
         "byCiudadFriki": "by @RedStabros",
         "totalResponses": "Responses",
         "totalSpent": "Spent",
@@ -445,7 +450,17 @@
         "to": "To",
         "enterAmount": "Enter amount",
         "enterQr": "Enter or scan code",
-        "reward": "Reward"
+        "reward": "Reward",
+        "syncing": "Syncing with the Friki Central Bank...",
+        "totalAvailable": "Total Available",
+        "transactionalId": "Your Transactional Identity",
+        "records": "RECORDS",
+        "income": "INCOME",
+        "expense": "EXPENSE",
+        "completed": "COMPLETED",
+        "noActivity": "No recent activity",
+        "infoDisclaimer": "This wallet is for informational purposes only. For transfers, use the official Ciudad Friki mobile app.",
+        "loadError": "Error loading wallet"
     },
     "surveys": {
         "title": "Surveys",
@@ -504,6 +519,8 @@
         "loading": "Loading trivias...",
         "question": "Question",
         "of": "of",
+        "earnCoins": "Earn Frikicoins by answering correctly",
+        "questionCount": "Questions",
         "timeRemaining": "Time remaining",
         "finish": "Finish Trivia",
         "confirmFinish": "Finish trivia?",
@@ -816,10 +833,20 @@
             "delayed": "Delayed",
             "finished": "Finished"
         },
+        "viewOnMaps": "View on Maps",
+        "contactWhatsApp": "Contact via WhatsApp",
+        "officialWebsite": "Official Website",
+        "about": "About the Event",
+        "sponsored": "Sponsored",
+        "free": "Free",
+        "paid": "Paid",
+        "noDescription": "No description provided.",
+        "noDate": "Date TBD",
         "empty": {
             "published": "You haven't published any events yet",
             "saved": "No saved events"
-        }
+        },
+        "loadError": "Error loading events. Please check your connection."
     },
     "infoCard": {
         "title": "Publishing & Editing Process",
@@ -872,7 +899,8 @@
             "deleteTitle": "Delete review",
             "deleteError": "Could not delete.",
             "saveError": "Could not save your review.",
-            "moderationError": "Your comment contains inappropriate language. Please be respectful."
+            "moderationError": "Your comment contains inappropriate language. Please be respectful.",
+            "alreadySubmitted": "You've already submitted a review for this event."
         }
     },
     "staffCenter": {
@@ -933,5 +961,8 @@
         "adminResponse": "Admin Response:",
         "markInProgress": "Mark In Progress",
         "markResolved": "Resolve"
+    },
+    "footer": {
+        "tagline": "Explore • Play • Connect"
     }
 }

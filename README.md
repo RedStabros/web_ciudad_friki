@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# 🏙️ Ciudad Friki - Versión Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bienvenido al repositorio de la versión Web de **Ciudad Friki**. Este proyecto traslada la experiencia de la aplicación móvil (React Native) a una plataforma web moderna, rápida y responsiva.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologías Principales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend:** React 19 + TypeScript + Vite 7
+- **Estilos:** Tailwind CSS 4 (Vanilla CSS + Modern Aesthetics)
+- **Backend/Base de Datos:** Supabase (Auth, RLS, Realtime)
+- **Internacionalización:** i18next (Soporte completo para Español e Inglés)
+- **Iconografía:** Lucide React
+- **Hosting:** Cloudflare Pages (CI/CD sincronizado con GitHub)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Estado Actual y Funcionalidades Implementadas
 
-## Expanding the ESLint configuration
+### ✅ Core & UI
+- **Sistema de Temas Dinámico:** Implementación robusta de variables CSS que permiten cambiar entre más de 20 temas idénticos a los de la app móvil.
+- **RootLayout:** Estructura de navegación persistente con Header responsivo.
+- **Perfil de Usuario:** Visualización de avatar, rango y nombre sincronizados con la tabla `profiles` de Supabase.
+- **Billetera (Wallet):** Modal informativo que muestra balance de Frikicoins e historial de transacciones.
+- **Modo Mantenimiento:** Controlado globalmente desde la base de datos para bloquear el acceso si es necesario.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🍺 La Taberna (Comunidad)
+- **Feed de Hilos:** Filtrado por categorías y ordenamiento (Lo Último / Popular).
+- **Detalle de Hilo:** Modal con renderizado de contenido, sistema de votos (Like/Dislike) y respuestas.
+- **Creación/Edición:** Flujo completo de creación de hilos con selección de categorías.
+- **Correcciones Recientes:** El avatar y nombre en la caja de creación ahora usan datos del perfil, no metadatos de Google.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📅 Eventos
+- **Dashboard:** Listado de eventos activos y pasados.
+- **Detalles de Evento:** Modal completo con información de ubicación, links (Maps, WhatsApp, Web), descripción y tags.
+- **Reseñas de Eventos:** Sistema de calificación y comentarios para eventos finalizados (con validación de tiempo y contenido).
+- **Traducciones:** Sincronización completa de todos los campos de eventos en ES/EN.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🧩 Otros
+- **Trivias & Encuestas:** Integración funcional con el backend.
+- **Search Bar:** Oculto temporalmente (Pendiente de implementación lógica).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🎨 Guía de Diseño (Para la IA)
+
+- **Estética:** "Rich Aesthetics". Uso intensivo de glassmorphism, gradientes sutiles y micro-animaciones. No usar placeholders; generar imágenes reales si es necesario.
+- **Tokens de Color:** No usar colores hardcodeados. Utilizar las variables definidas en el sistema de temas (ej: `text-brand-primary`, `bg-bg-side`).
+- **Responsividad:** Diseñado para Desktop, pero funcional en móviles. Las tarjetas en Web suelen organizarse en Grid.
+
+---
+
+## 🔧 Scripts Disponibles
+
+```bash
+# Iniciar servidor de desarrollo
+npm run dev
+
+# Construir para producción (compila TS y Vite)
+npm run build
+
+# Previsualizar la build localmente
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📝 Notas de Contexto Reciente (Marzo 2026)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Se corrigió el error de "Seguridad Bancaria" en el modal de la billetera.
+- Se resolvió el problema de traducción en el modal de reseñas (`alreadySubmitted`, `wantToReview`, etc.).
+- Se ajustó el padding del dropdown de perfil en el Header para evitar que el nombre se corte.
+- Se implementó `useOutletContext` en el `RootLayout` para permitir que las páginas hijas (como Home) abran el modal de la billetera directamente.

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Send } from 'lucide-react';
+import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Send, Share2, Check } from 'lucide-react';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { EventService } from '../services/EventService';
 import type { FrikiEvent, Review } from '../services/EventService';
 import { useAuth } from '../context/AuthContext';
 import { getAvatarSource } from '../config/avatars';
+import { shareContent, buildEventShare, registerCopiedCallback } from '../utils/shareContent';
 
 interface EventDetailsModalProps {
     isOpen: boolean;
@@ -27,6 +28,16 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
     const [myRating, setMyRating] = useState(5);
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const handleShare = () => {
+        if (!event) return;
+        registerCopiedCallback(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2200);
+        });
+        shareContent(buildEventShare(event));
+    };
 
     const isPastEvent = (dateStr: string) => {
         const today = new Date();
@@ -169,6 +180,13 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                     </button>
                                     <button onClick={onSaveToggle} className={`p-2 rounded-full border transition ${event.isSaved ? 'border-brand-secondary bg-brand-secondary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
                                         <Bookmark size={20} className={event.isSaved ? 'text-brand-secondary' : 'text-text-muted'} fill={event.isSaved ? 'currentColor' : 'none'} />
+                                    </button>
+                                    <button
+                                        onClick={handleShare}
+                                        title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('common.share', 'Compartir')}
+                                        className={`p-2 rounded-full border transition ${copied ? 'border-accent-green bg-accent-green/10 text-accent-green' : 'border-divider-theme hover:bg-bg-sub text-text-muted hover:text-brand-primary'}`}
+                                    >
+                                        {copied ? <Check size={20} /> : <Share2 size={20} />}
                                     </button>
                                 </div>
                             </div>

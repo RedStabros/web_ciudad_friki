@@ -1,22 +1,44 @@
-import { Link } from 'react-router-dom';
-import { Home as HomeIcon, MessageSquare, Calendar, PieChart, HelpCircle, PlusCircle, Loader2, ChevronRight } from 'lucide-react';
+import { Link, useOutletContext } from 'react-router-dom';
+import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import { EventCard } from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 import { CreateEventModal } from '../components/CreateEventModal';
 import { EventService } from '../services/EventService';
 import type { FrikiEvent } from '../services/EventService';
+import { TriviaService } from '../services/TriviaService';
+import { SurveyService } from '../services/SurveyService';
 import { useTranslation } from 'react-i18next';
 import { useProfile } from '../hooks/useProfile';
 import type { EventFeedType } from '../hooks/useEvents';
-import { useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { getAvatarSource } from '../config/avatars';
+
+interface VSWinner {
+    user_id: string;
+    username: string;
+    duels_won: number;
+    avatar_url?: string;
+}
+
+interface RecentActivity {
+    id: string;
+    type: 'duel_win' | 'trivia_complete' | 'event_like';
+    username: string;
+    avatar_url?: string;
+    detail: string;
+    created_at: string;
+}
+
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function Home() {
     const { t } = useTranslation();
     const { user } = useAuth();
     const { profile, wallet } = useProfile(user?.id);
+    const { setIsWalletOpen } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void }>();
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
@@ -24,18 +46,78 @@ export default function Home() {
 
     const [trendingTopics, setTrendingTopics] = useState<string[]>([]);
 
-    useEffect(() => {
-        const loadTrends = async () => {
-            const trends = await EventService.getTrendingTopics();
-            setTrendingTopics(trends);
-        };
-        loadTrends();
-    }, []);
+    // VS Leaderboard
+    const [vsWinners, setVsWinners] = useState<VSWinner[]>([]);
+    const [vsLoading, setVsLoading] = useState(true);
+
+    // Survey & Trivia counts
+    const [surveyCount, setSurveyCount] = useState(0);
+    const [triviaCount, setTriviaCount] = useState(0);
+
+    // Recent activity feed
+    const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+    const [activityLoading, setActivityLoading] = useState(true);
 
     // Modal state
     const [selectedEvent, setSelectedEvent] = useState<FrikiEvent | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const loadSidebarData = useCallback(async () => {
+        const [trends, winners, surveys, trivias] = await Promise.allSettled([
+            EventService.getTrendingTopics(),
+            TriviaService.getVSWinnersRanking(5),
+            SurveyService.getActiveCount(user?.id),
+            TriviaService.getActiveCount(user?.id),
+        ]);
+
+        if (trends.status === 'fulfilled') setTrendingTopics(trends.value);
+        if (winners.status === 'fulfilled') { setVsWinners(winners.value); setVsLoading(false); }
+        else setVsLoading(false);
+        if (surveys.status === 'fulfilled') setSurveyCount(surveys.value);
+        if (trivias.status === 'fulfilled') setTriviaCount(trivias.value);
+    }, [user?.id]);
+
+    const loadRecentActivity = useCallback(async () => {
+        setActivityLoading(true);
+        try {
+            // Fetch recent completed duels as activity
+            const { data: duels } = await supabase
+                .from('trivia_duels')
+                .select(`
+                    id,
+                    created_at,
+                    winner_id,
+                    profiles!trivia_duels_winner_id_fkey(username, avatar_url)
+                `)
+                .eq('status', 'completed')
+                .not('winner_id', 'is', null)
+                .order('created_at', { ascending: false })
+                .limit(8);
+
+            const activity: RecentActivity[] = (duels || [])
+                .filter((d: any) => d.profiles?.username)
+                .map((d: any) => ({
+                    id: d.id,
+                    type: 'duel_win' as const,
+                    username: d.profiles.username,
+                    avatar_url: d.profiles.avatar_url,
+                    detail: t('triviaVS.wonDuel', 'ganó un duelo VS'),
+                    created_at: d.created_at,
+                }));
+
+            setRecentActivity(activity);
+        } catch (e) {
+            console.error('Error loading recent activity:', e);
+        } finally {
+            setActivityLoading(false);
+        }
+    }, [t]);
+
+    useEffect(() => {
+        loadSidebarData();
+        loadRecentActivity();
+    }, [loadSidebarData, loadRecentActivity]);
 
     const handleEventClick = (event: FrikiEvent) => {
         setSelectedEvent(event);
@@ -44,9 +126,6 @@ export default function Home() {
 
     const handleLikeToggle = async (event: FrikiEvent) => {
         if (!user) return alert(t('common.loginRequired', 'Debes iniciar sesión para dar me gusta'));
-
-        // Optimistic update in UI requires lifting state, but for simplicity we rely on the DB and a refetch
-        // or local state mutator. We'll dispatch to DB and refetch fast.
         const wasLiked = event.isLiked || false;
         await EventService.toggleLikeEvent(user.id, event.id, wasLiked);
         refetch();
@@ -57,13 +136,21 @@ export default function Home() {
 
     const handleSaveToggle = async (event: FrikiEvent) => {
         if (!user) return alert(t('common.loginRequired', 'Debes iniciar sesión para guardar eventos'));
-
         const wasSaved = event.isSaved || false;
         await EventService.toggleSaveEvent(user.id, event.id, wasSaved);
         refetch();
         if (selectedEvent?.id === event.id) {
             setSelectedEvent(prev => prev ? { ...prev, isSaved: !wasSaved, saved_count: prev.saved_count + (wasSaved ? -1 : 1) } : null);
         }
+    };
+
+    const formatTimeAgo = (dateStr: string) => {
+        const diff = Date.now() - new Date(dateStr).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 60) return `${mins}m`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h`;
+        return `${Math.floor(hrs / 24)}d`;
     };
 
     return (
@@ -77,20 +164,34 @@ export default function Home() {
                         {t('nav.home')}
                     </Link>
                     <Link to="/tavern" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <MessageSquare className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
+                        <img src="/assets/tabern_icon.png" alt="Tavern" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
                         {t('nav.tavern')}
                     </Link>
                     <Link to="/events" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                         <Calendar className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
                         {t('dashboard.eventsTab')}
                     </Link>
-                    <Link to="/surveys" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <PieChart className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
-                        {t('nav.surveys')} <span className="ml-auto bg-brand-primary text-text-inv py-0.5 px-2 rounded-full text-xs">3</span>
+                    <Link to="/surveys" className="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                        <BarChart2 className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
+                        {t('nav.surveys')}
+                        {surveyCount > 0 && (
+                            <span className="ml-auto bg-brand-primary text-text-inv text-[9px] font-black px-2 py-0.5 rounded-full leading-none">
+                                {surveyCount}
+                            </span>
+                        )}
                     </Link>
-                    <Link to="/trivias" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <HelpCircle className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
+                    <Link to="/trivias" className="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                        <Gamepad2 className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
                         {t('nav.trivias')}
+                        {triviaCount > 0 && (
+                            <span className="ml-auto bg-brand-secondary text-bg-main text-[9px] font-black px-2 py-0.5 rounded-full leading-none">
+                                {triviaCount}
+                            </span>
+                        )}
+                    </Link>
+                    <Link to="/friki-vs" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                        <img src="/assets/icon_vs.png" alt="Friki VS" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
+                        Friki VS
                     </Link>
                 </nav>
 
@@ -145,8 +246,8 @@ export default function Home() {
                         <Loader2 className="animate-spin text-brand-primary" size={32} />
                     </div>
                 ) : error ? (
-                    <div className="text-center py-10 text-red-500">
-                        Error al cargar los eventos. Verifica tu conexión.
+                    <div className="text-center py-10 text-accent-red">
+                        {t('events.loadError')}
                     </div>
                 ) : events.length === 0 ? (
                     <div className="bg-bg-side border border-border-theme p-12 rounded-xl text-center">
@@ -174,9 +275,10 @@ export default function Home() {
                 )}
             </main>
 
-            {/* RIGHT SIDEBAR (Wallet & Trends) */}
+            {/* RIGHT SIDEBAR */}
             <aside className="hidden xl:block xl:col-span-3 space-y-6">
 
+                {/* Wallet Card */}
                 {user && (
                     <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden relative">
                         <div className="h-1 bg-gradient-to-r from-brand-primary to-brand-secondary w-full"></div>
@@ -184,7 +286,6 @@ export default function Home() {
                             <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">{t('profile.wallet')}</h3>
 
                             <div className="bg-white p-2 rounded-lg mx-auto w-40 h-40 shadow-inner mb-4 flex items-center justify-center border-2 border-dashed border-border-theme">
-                                {/* QR Code Placeholder */}
                                 <img
                                     alt="Wallet QR"
                                     className="w-full h-full opacity-90 object-contain mix-blend-multiply"
@@ -209,13 +310,112 @@ export default function Home() {
 
                         <div className="bg-bg-sub/50 px-6 py-3 border-t border-border-theme flex justify-between items-center">
                             <span className="text-xs text-text-muted">{t('wallet.balanceOverview', 'Balance Total')}</span>
-                            <Link to="/wallet" className="text-sm font-medium text-brand-primary hover:text-brand-primary-light flex items-center transition-colors">
+                            <button
+                                onClick={() => setIsWalletOpen(true)}
+                                className="text-sm font-medium text-brand-primary hover:text-brand-primary-light flex items-center transition-colors px-0 py-1"
+                            >
                                 {t('profile.wallet')} <ChevronRight size={16} className="ml-1" />
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 )}
 
+                {/* Top Friki VS Leaderboard */}
+                <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden">
+                    <div className="h-1 bg-gradient-to-r from-brand-primary via-accent-red to-brand-secondary w-full"></div>
+                    <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Swords size={18} className="text-brand-primary" />
+                                <h3 className="text-sm font-black text-text-main uppercase tracking-wider">Top Friki VS</h3>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full border border-brand-primary/20">
+                                {t('triviaVS.leaderboard.title', 'Líderes')}
+                            </span>
+                        </div>
+
+                        {vsLoading ? (
+                            <div className="flex justify-center py-6">
+                                <Loader2 className="animate-spin text-brand-primary opacity-40" size={24} />
+                            </div>
+                        ) : vsWinners.length === 0 ? (
+                            <div className="text-center py-6 opacity-40">
+                                <Trophy size={32} className="mx-auto mb-2 text-text-muted" />
+                                <p className="text-xs text-text-muted font-bold uppercase tracking-widest">{t('triviaVS.leaderboard.empty', 'Sin datos aún')}</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                {vsWinners.map((winner, idx) => (
+                                    <div
+                                        key={winner.user_id}
+                                        className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${idx === 0 ? 'bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/20' : 'hover:bg-bg-sub'}`}
+                                    >
+                                        <span className="text-lg w-6 text-center flex-shrink-0 font-black leading-none">
+                                            {idx < 3 ? MEDALS[idx] : <span className="text-sm text-text-muted">{idx + 1}</span>}
+                                        </span>
+                                        <img
+                                            src={getAvatarSource(winner.avatar_url || null)}
+                                            alt={winner.username}
+                                            className="w-7 h-7 rounded-full object-cover border border-border-theme flex-shrink-0"
+                                        />
+                                        <span className={`flex-1 text-sm font-bold truncate ${idx === 0 ? 'text-amber-400' : 'text-text-main'}`}>
+                                            @{winner.username}
+                                        </span>
+                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                            <Zap size={11} className="text-brand-primary" />
+                                            <span className="text-xs font-black text-brand-primary">{winner.duels_won}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <Link
+                            to="/friki-vs"
+                            className="mt-4 flex items-center justify-center gap-1 text-xs font-bold text-text-muted hover:text-brand-primary transition-colors py-1"
+                        >
+                            {t('triviaVS.viewAll', 'Ver todos los duelos')} <ChevronRight size={14} />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Recent Activity Feed */}
+                <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Clock size={16} className="text-text-muted" />
+                        <h3 className="text-sm font-bold text-text-main">{t('home.recentActivity', 'Actividad Reciente')}</h3>
+                    </div>
+
+                    {activityLoading ? (
+                        <div className="flex justify-center py-4">
+                            <Loader2 className="animate-spin text-brand-primary opacity-40" size={20} />
+                        </div>
+                    ) : recentActivity.length === 0 ? (
+                        <p className="text-xs text-text-muted text-center py-4">{t('common.noResults')}</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {recentActivity.map((activity) => (
+                                <div key={activity.id} className="flex items-center gap-2.5 group">
+                                    <img
+                                        src={getAvatarSource(activity.avatar_url || null)}
+                                        alt={activity.username}
+                                        className="w-8 h-8 rounded-full object-cover border border-border-theme flex-shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs leading-tight">
+                                            <span className="font-bold text-text-main">@{activity.username}</span>
+                                            {' '}
+                                            <span className="text-text-muted">{activity.detail}</span>
+                                        </p>
+                                    </div>
+                                    <span className="text-[10px] text-text-muted flex-shrink-0 font-mono">{formatTimeAgo(activity.created_at)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Trending Topics */}
                 <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">
                     <h3 className="text-sm font-semibold text-text-main mb-4">{t('profile.interests')} & {t('common.trends', 'Tendencias')}</h3>
                     <div className="flex flex-wrap gap-2">
