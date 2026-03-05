@@ -122,5 +122,57 @@ export const UserService = {
             console.error('UserService.getTransactions error:', error);
             return { transactions: [], error };
         }
+    },
+
+    /**
+     * Redeem an assignment code (ASSIGN:)
+     */
+    async redeemAssignment(assignmentId: string, userId: string): Promise<{ success: boolean; amount?: number; message?: string; error: any }> {
+        try {
+            const { data, error } = await supabase.rpc('redeem_assignment', {
+                p_assignment_id: assignmentId,
+                p_user_id: userId
+            });
+            if (error) throw error;
+            return { ...data, error: null };
+        } catch (error: any) {
+            console.error('Redeem Assignment error:', error);
+            return { success: false, error: error.message || error };
+        }
+    },
+
+    /**
+     * Redeem an event code (EVENT:)
+     */
+    async redeemEventCode(code: string, userId: string): Promise<{ success: boolean; amount?: number; message?: string; error: any }> {
+        try {
+            const { data, error } = await supabase.rpc('redeem_event_code', {
+                p_code: code,
+                p_user_id: userId
+            });
+            if (error) throw error;
+            return { ...data, error: null };
+        } catch (error: any) {
+            console.error('Redeem Event Code error:', error);
+            return { success: false, error: error.message || error };
+        }
+    },
+
+    /**
+     * Transfer Frikicoins to another user via QR code (FRIKI:)
+     */
+    async transferFrikicoins(senderId: string, recipientQr: string, amount: number): Promise<{ success: boolean; message?: string; error: any }> {
+        try {
+            const { data, error } = await supabase.rpc('transfer_frikicoins', {
+                p_sender_id: senderId,
+                p_recipient_qr: recipientQr,
+                p_amount: amount
+            });
+            if (error) throw error;
+            return { ...data, error: null };
+        } catch (error: any) {
+            console.error('Transfer error:', error);
+            return { success: false, error: error.message || error };
+        }
     }
 };

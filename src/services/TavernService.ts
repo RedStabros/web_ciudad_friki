@@ -17,6 +17,32 @@ export interface BringRepliesResult {
 }
 
 export class TavernService {
+
+    /**
+     * Get current user's votes for a set of target IDs
+     */
+    private static async getUserVotes(
+        targetIds: string[],
+        targetType: 'thread' | 'reply'
+    ): Promise<Record<string, 'like' | 'dislike'>> {
+        if (!targetIds.length) return {};
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return {};
+            const { data } = await supabase
+                .from('tavern_interactions')
+                .select('target_id, interaction_type')
+                .eq('user_id', user.id)
+                .eq('target_type', targetType)
+                .in('target_id', targetIds)
+                .in('interaction_type', ['like', 'dislike']);
+            const map: Record<string, 'like' | 'dislike'> = {};
+            (data || []).forEach((row: any) => { map[row.target_id] = row.interaction_type; });
+            return map;
+        } catch {
+            return {};
+        }
+    }
     /**
      * Fetch Threads with pagination, filtering by category and sorting
      */
@@ -57,12 +83,16 @@ export class TavernService {
 
             if (error) throw error;
 
+            const threadIds = (data || []).map((i: any) => i.id);
+            const voteMap = await TavernService.getUserVotes(threadIds, 'thread');
+
             const threads: TavernThread[] = (data || []).map((item: any) => ({
                 ...item,
                 category: item.tag as ThreadCategory,
                 author_username: item.profiles?.username,
                 author_avatar_url: item.profiles?.avatar_url,
                 author_role: item.profiles?.role,
+                user_vote: voteMap[item.id] ?? null,
             }));
 
             const nextPage = (count && to + 1 < count) ? page + 1 : null;
@@ -89,12 +119,15 @@ export class TavernService {
 
             if (error) throw error;
 
+            const voteMap = await TavernService.getUserVotes([data.id], 'thread');
+
             const thread: TavernThread = {
                 ...data,
                 category: data.tag as ThreadCategory,
                 author_username: data.profiles?.username,
                 author_avatar_url: data.profiles?.avatar_url,
                 author_role: data.profiles?.role,
+                user_vote: voteMap[data.id] ?? null,
             };
 
             return { thread, error: null };
@@ -152,6 +185,9 @@ export class TavernService {
 
             if (error) throw error;
 
+            const replyIds = (data || []).map((i: any) => i.id);
+            const voteMap = await TavernService.getUserVotes(replyIds, 'reply');
+
             const replies = (data || []).map((item: any) => ({
                 ...item,
                 upvotes: item.likes_count || 0,
@@ -159,6 +195,7 @@ export class TavernService {
                 author_username: item.profiles?.username,
                 author_avatar_url: item.profiles?.avatar_url,
                 author_role: item.profiles?.role,
+                user_vote: voteMap[item.id] ?? null,
             }));
 
             const nextPage = (count && to + 1 < count) ? page + 1 : null;

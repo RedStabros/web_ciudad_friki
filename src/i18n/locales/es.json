@@ -46,7 +46,9 @@
         "community": "Comunidad",
         "past": "Pasados",
         "interested": "Me Interesa",
-        "status": "Estado"
+        "status": "Estado",
+        "linkCopied": "¡Enlace copiado!",
+        "navigation": "Navegación"
     },
     "auth": {
         "welcome": "Bienvenido a Ciudad Friki",
@@ -203,25 +205,49 @@
         "modals": {
             "create": {
                 "title": "Crear Nuevo Hilo",
+                "labelTitle": "Título",
+                "placeholderTitle": "Escribe un título que llame la atención...",
+                "labelCategory": "Categoría",
+                "labelContent": "Contenido",
+                "placeholderContent": "¿Qué tienes en mente hoy?",
+                "charCount": "{{count}}/100 caracteres. Mínimo 5.",
+                "minContent": "Mínimo 10 caracteres.",
+                "submit": "Publicar Hilo",
                 "topic": "Tema del Hilo",
                 "topicPlaceholder": "¿Sobre qué quieres hablar?",
                 "contentLabel": "Contenido",
                 "contentPlaceholder": "Desarrolla tu idea aquí...",
                 "categoryLabel": "Categoría",
-                "submit": "Publicar Hilo",
                 "success": "¡Hilo creado!",
                 "error": "Error al crear el hilo"
             },
             "edit": {
                 "title": "Editar Hilo",
+                "labelTitle": "Título del Hilo",
+                "placeholderTitle": "Ej: ¿Cuál es el mejor anime de la temporada?",
+                "labelCategory": "Categoría",
+                "labelContent": "Contenido",
+                "placeholderContent": "Escribe tu contenido aquí...",
+                "submit": "Guardar Cambios",
                 "success": "¡Hilo actualizado!",
                 "error": "Error al actualizar"
             },
             "details": {
+                "loading": "Cargando hilo...",
                 "replies": "Respuestas",
-                "replyPlaceholder": "Escribe una respuesta..."
+                "noReplies": "¡Sé el primero en responder!",
+                "replyPlaceholder": "Escribe una respuesta...",
+                "loginToReply": "Inicia sesión para responder",
+                "share": "Compartir",
+                "deleteReplyConfirm": "¿Seguro que quieres borrar esta respuesta?"
             }
-        }
+        },
+        "reportSent": "¡Reporte enviado!",
+        "reportThanks": "Gracias por ayudar a mantener la comunidad.",
+        "reportTitle": "Reportar publicación",
+        "reportSubtitle": "Cuéntanos por qué consideras que viola las reglas.",
+        "reportPlaceholder": "Ej: Spam, contenido inapropiado, acoso...",
+        "report": "Reportar"
     },
     "onboarding": {
         "title": "¡Bienvenido a Ciudad Friki!",

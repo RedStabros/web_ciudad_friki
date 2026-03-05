@@ -108,7 +108,7 @@ function SurveyCard({ survey, onClick }: {
                 {survey.reward_amount && survey.reward_amount > 0 && (
                     <div className="flex items-center gap-1.5 text-brand-secondary bg-brand-secondary/10 px-3 py-1.5 rounded-xl border border-brand-secondary/20">
                         <Star size={14} className="fill-brand-secondary" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">+{survey.reward_amount} FKC</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">+{survey.reward_amount} FC</span>
                     </div>
                 )}
             </div>

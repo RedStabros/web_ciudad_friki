@@ -403,24 +403,29 @@ export class TriviaService {
      */
     static async getLobbyDuels(userId: string) {
         try {
-            const [myResult, publicResult] = await Promise.all([
-                supabase
-                    .from('trivia_duels')
-                    .select('*, triviaduels_categories(name, icon)')
-                    .eq('status', 'open')
-                    .eq('creator_id', userId)
-                    .order('created_at', { ascending: false }),
-                supabase
-                    .from('trivia_duels')
-                    .select('*, triviaduels_categories(name, icon), profiles!trivia_duels_creator_id_fkey(username, avatar_url)')
-                    .eq('status', 'open')
-                    .neq('creator_id', userId)
-                    .order('created_at', { ascending: false }),
-            ]);
+            // My pending duels
+            const { data: myPendingDuels, error: myError } = await supabase
+                .from('trivia_duels')
+                .select('*, triviaduels_categories(name, icon)')
+                .eq('status', 'open')
+                .eq('creator_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (myError) throw myError;
+
+            // Public open duels
+            const { data: publicOpenDuels, error: pubError } = await supabase
+                .from('trivia_duels')
+                .select('*, triviaduels_categories(name, icon), profiles!trivia_duels_creator_id_fkey(username, avatar_url)')
+                .eq('status', 'open')
+                .neq('creator_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (pubError) throw pubError;
 
             return {
-                myPendingDuels: myResult.data || [],
-                publicOpenDuels: publicResult.data || [],
+                myPendingDuels: myPendingDuels || [],
+                publicOpenDuels: publicOpenDuels || []
             };
         } catch (error) {
             console.error('Error fetching lobby duels:', error);
@@ -465,6 +470,27 @@ export class TriviaService {
         } catch (error) {
             console.error('Error fetching VS winners ranking:', error);
             return [];
+        }
+    }
+
+    // --- Crowdsourcing ---
+
+    static async submitQuestion(userId: string, categoryId: string, questionText: string, options: { text: string, is_correct: boolean }[]): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('triviaduels_submissions')
+                .insert({
+                    user_id: userId,
+                    category_id: categoryId,
+                    question_text: questionText,
+                    options: options,
+                    status: 'pending'
+                });
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error submitting question:', error);
+            throw error;
         }
     }
 }

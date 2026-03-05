@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getAvatarSource } from '../config/avatars';
 import { getTriviaIcon } from '../utils/triviaIcons';
+import TriviaSubmissionModal from '../components/TriviaSubmissionModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface VSCategory { id: string; name: string; icon: string; description?: string; }
@@ -341,6 +342,7 @@ export default function FrikiVS() {
 
     // Duel creation
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showSubmissionModal, setShowSubmissionModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<VSCategory | null>(null);
     const [wagerAmount, setWagerAmount] = useState(50);
     const [creating, setCreating] = useState(false);
@@ -369,19 +371,21 @@ export default function FrikiVS() {
     }, []);
 
     const loadData = useCallback(async () => {
-        if (!user) return;
         setLoading(true);
         try {
             const [duelsData, catsData] = await Promise.all([
-                TriviaService.getLobbyDuels(user.id),
+                TriviaService.getLobbyDuels(user?.id || ''),
                 TriviaService.getVSCategories(),
             ]);
             setPublicDuels(duelsData.publicOpenDuels || []);
             setMyDuels(duelsData.myPendingDuels || []);
             setCategories(catsData);
+
             // Load wallet balance for wager validation
-            const { data: wData } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
-            if (wData) setWalletBalance(Number(wData.balance) || 0);
+            if (user) {
+                const { data: wData } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
+                if (wData) setWalletBalance(Number(wData.balance) || 0);
+            }
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, [user]);
@@ -471,13 +475,21 @@ export default function FrikiVS() {
                     <p className="text-text-muted text-sm">{t('triviaVS.subtitle', 'Reta a la comunidad. Apuesta Frikicoins. Demuestra quién sabe más.')}</p>
                 </div>
                 {user && (
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="ml-auto flex items-center gap-2 bg-brand-primary text-text-inv px-5 py-3 rounded-2xl font-black shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-light transition-all hover:-translate-y-0.5"
-                    >
-                        <Zap size={18} />
-                        {t('triviaVS.createDuel', 'Crear Duelo')}
-                    </button>
+                    <div className="ml-auto flex flex-col md:flex-row items-end md:items-center gap-2">
+                        <button
+                            onClick={() => setShowSubmissionModal(true)}
+                            className="flex items-center gap-2 bg-bg-sub text-brand-primary border-2 border-brand-primary px-4 py-3 rounded-2xl font-black hover:bg-brand-primary/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                        >
+                            {t('crowdsourcing.title', 'Aportar Preguntas')}
+                        </button>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="flex items-center gap-2 bg-brand-primary text-text-inv px-5 py-3 rounded-2xl font-black shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-light transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                        >
+                            <Zap size={18} />
+                            {t('triviaVS.createDuel', 'Crear Duelo')}
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -634,6 +646,14 @@ export default function FrikiVS() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Submission Modal */}
+            {showSubmissionModal && user && (
+                <TriviaSubmissionModal
+                    userId={user.id}
+                    onClose={() => setShowSubmissionModal(false)}
+                />
             )}
         </div>
     );

@@ -10,7 +10,7 @@ interface CreateThreadModalProps {
     onSuccess?: () => void;
 }
 
-const CATEGORIES: ThreadCategory[] = ['Anime/Manga', 'Gaming/Tech', 'Cultura/Arte', 'Eventos', 'Off-topic', 'Picantes'];
+const CATEGORIES: ThreadCategory[] = ['Anime/Manga', 'Gaming/Tech', 'Cultura/Arte', 'Eventos', 'Off-topic'];
 
 export function CreateThreadModal({ isOpen, onClose, onSuccess }: CreateThreadModalProps) {
     const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import {
-    ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield
+    ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,9 @@ import { UserService } from '../services/UserService';
 import { getAvatarSource, AVATARS } from '../config/avatars';
 import { useTheme, type Theme } from '../context/ThemeContext';
 import { ALL_INTERESTS } from '../config/interests';
+import { ReportBugModal } from '../components/ReportBugModal';
+import { AdminBugReports } from '../components/AdminBugReports';
+import { BugReportService } from '../services/BugReportService';
 
 
 
@@ -75,7 +78,20 @@ export default function Profile() {
     const [isSaving, setIsSaving] = useState(false);
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+    const [isReportBugOpen, setIsReportBugOpen] = useState(false);
+    const [isAdminBugOpen, setIsAdminBugOpen] = useState(false);
+    const [pendingBugCount, setPendingBugCount] = useState(0);
     const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
+
+    // Fetch pending bug report count for admin badge
+    useEffect(() => {
+        if (profile?.role === 'admin') {
+            BugReportService.getAllReports().then(({ data }) => {
+                const pending = (data || []).filter(r => r.status === 'pending').length;
+                setPendingBugCount(pending);
+            });
+        }
+    }, [profile?.role]);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -318,6 +334,26 @@ export default function Profile() {
                         </div>
                     </div>
 
+                    {/* Report Bug Section */}
+                    <div className="bg-bg-side rounded-2xl p-4 md:p-5 border border-border-theme flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-accent-red/10 p-2.5 rounded-xl text-accent-red shrink-0">
+                                <Bug size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-sm font-bold text-text-main leading-tight">
+                                    {t('profile.bugReportTitle', 'Reportar Problema')}
+                                </h2>
+                                <p className="text-xs text-text-sub mt-0.5 max-w-sm">{t('profile.bugReportSubtitle', 'Ayúdanos a mejorar reportando errores')}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setIsReportBugOpen(true)}
+                            className="w-full sm:w-auto bg-accent-red/10 text-accent-red hover:bg-accent-red hover:text-white font-black text-[10px] uppercase tracking-widest py-2.5 px-6 rounded-xl transition-all shrink-0"
+                        >
+                            Reportar
+                        </button>
+                    </div>
                 </div>
 
                 {/* Right Column (Wallet & Meta) */}
@@ -433,6 +469,25 @@ export default function Profile() {
                                     {isTogglingMaintenance ? <Loader2 size={12} className="animate-spin" /> : (maintenanceMode ? t('common.finish') : t('common.active'))}
                                 </button>
                             </div>
+                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
+                                <div className="space-y-1">
+                                    <p className="font-black text-text-main text-sm uppercase tracking-tight">Reportes de Usuarios</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                        Gestión de bugs
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setIsAdminBugOpen(true)}
+                                    className="relative px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 bg-bg-sub border border-border-theme text-text-muted hover:text-text-main hover:border-brand-primary/50"
+                                >
+                                    Ver Panel
+                                    {pendingBugCount > 0 && (
+                                        <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-accent-red text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-md">
+                                            {pendingBugCount > 99 ? '99+' : pendingBugCount}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -516,6 +571,16 @@ export default function Profile() {
                 </div>
             </SelectionModal>
 
-        </div>
+            <ReportBugModal
+                isOpen={isReportBugOpen}
+                onClose={() => setIsReportBugOpen(false)}
+            />
+
+            <AdminBugReports
+                isOpen={isAdminBugOpen}
+                onClose={() => setIsAdminBugOpen(false)}
+            />
+
+        </div >
     );
 }

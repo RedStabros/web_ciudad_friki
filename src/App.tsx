@@ -3,6 +3,7 @@ import RootLayout from './components/RootLayout';
 import Home from './pages/Home';
 import Tavern from './pages/Tavern';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import { MaintenancePage } from './pages/Maintenance';
 import { MaintenanceGuard } from './components/MaintenanceGuard';
@@ -34,6 +35,7 @@ function App() {
           <Route path="/events" element={<Home />} />
 
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/legal/:type" element={<Legal />} />
 

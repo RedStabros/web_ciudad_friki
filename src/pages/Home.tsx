@@ -15,6 +15,7 @@ import { useProfile } from '../hooks/useProfile';
 import type { EventFeedType } from '../hooks/useEvents';
 import { supabase } from '../lib/supabase';
 import { getAvatarSource } from '../config/avatars';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 
 interface VSWinner {
     user_id: string;
@@ -62,6 +63,8 @@ export default function Home() {
     const [selectedEvent, setSelectedEvent] = useState<FrikiEvent | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const { onlineUsersCount, totalInteractions } = useOnlineUsers();
 
     const loadSidebarData = useCallback(async () => {
         const [trends, winners, surveys, trivias] = await Promise.allSettled([
@@ -202,11 +205,29 @@ export default function Home() {
                         if (!user) return alert(t('auth.signInToPlay', 'Debes iniciar sesión para publicar eventos'));
                         setIsCreateModalOpen(true);
                     }}
-                    className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20"
+                    className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20 mb-6"
                 >
                     <PlusCircle className="mr-2" size={20} />
                     {t('events.publish', 'Publicar Evento')}
                 </button>
+
+                {/* Info Card - Frikis Online */}
+                <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden mt-6">
+                    <div className="flex justify-between text-center items-center py-4 px-2">
+                        <div className="flex flex-col items-center justify-center flex-1 border-r border-divider-theme">
+                            <div className="font-bold text-text-main text-xl">{totalInteractions > 0 ? (totalInteractions >= 1000 ? `${(totalInteractions / 1000).toFixed(1)}k+` : totalInteractions) : '...'}</div>
+                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('dashboard.interactions', 'Obras Frikis')}</div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center flex-1">
+                            <div className="font-black text-text-main text-accent-green flex items-center gap-1.5 text-xl">
+                                <span className="w-2.5 h-2.5 bg-accent-green rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                                {onlineUsersCount}
+                            </div>
+                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('tavern.online', 'Frikis Online')}</div>
+                        </div>
+                    </div>
+                </div>
+
             </aside>
 
             {/* MAIN CONTENT (Events Feed) */}
@@ -303,7 +324,7 @@ export default function Home() {
                                 <p className="text-[10px] items-center font-black uppercase text-text-muted mb-2 tracking-widest">{t('profile.balanceLabel')}</p>
                                 <div className="flex items-center justify-center gap-2 text-3xl font-black text-brand-secondary italic">
                                     {(wallet?.balance || 0).toLocaleString()}
-                                    <span className="text-xs not-italic text-text-muted ml-1 opacity-60">FKC</span>
+                                    <span className="text-xs not-italic text-text-muted ml-1 opacity-60">FC</span>
                                 </div>
                             </div>
                         </div>

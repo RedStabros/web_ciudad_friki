@@ -53,7 +53,7 @@ export function EditThreadModal({ isOpen, onClose, thread, onSuccess }: EditThre
     if (!isOpen) return null;
 
     const categories: ThreadCategory[] = [
-        'Anime/Manga', 'Gaming/Tech', 'Cultura/Arte', 'Eventos', 'Off-topic', 'Picantes'
+        'Anime/Manga', 'Gaming/Tech', 'Cultura/Arte', 'Eventos', 'Off-topic'
     ];
 
     return (
@@ -104,7 +104,6 @@ export function EditThreadModal({ isOpen, onClose, thread, onSuccess }: EditThre
                                 else if (cat === 'Cultura/Arte') label = t('tavern.categories.culture');
                                 else if (cat === 'Eventos') label = t('tavern.categories.events');
                                 else if (cat === 'Off-topic') label = t('tavern.categories.offTopic');
-                                else if (cat === 'Picantes') label = t('tavern.categories.nsfw');
 
                                 return (
                                     <option key={cat} value={cat}>{label}</option>

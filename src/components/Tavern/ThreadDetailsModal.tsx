@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, ArrowUp, ArrowDown, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, ChevronUp, ChevronDown, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2, Flag, MoreHorizontal, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TavernService } from '../../services/TavernService';
 import type { TavernThread, TavernReply } from '../../types/tavern';
@@ -27,6 +27,12 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
     const [editReplyContent, setEditReplyContent] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date());
     const [copiedId, setCopiedId] = useState<string | null>(null); // 'thread' | replyId
+    const [reportingId, setReportingId] = useState<string | null>(null); // id being reported
+    const [reportReason, setReportReason] = useState('');
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+    const [reportDone, setReportDone] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null); // which ... menu is open
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const handleShare = (type: 'thread' | 'reply', replyId?: string, replyAuthor?: string, replyContent?: string) => {
         const opts = type === 'thread' || !thread
@@ -50,6 +56,17 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Close any open menu on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpenMenuId(null);
+            }
+        };
+        if (openMenuId) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [openMenuId]);
 
     useEffect(() => {
         if (isOpen && threadId) {
@@ -156,209 +173,349 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
         }
     };
 
+    const handleReport = async () => {
+        if (!reportingId || !reportReason.trim() || !user) return;
+        setReportSubmitting(true);
+        try {
+            const isThread = reportingId === thread?.id;
+            await TavernService.interact(reportingId, isThread ? 'thread' : 'reply', 'report', reportReason.trim());
+            setReportDone(true);
+            setTimeout(() => {
+                setReportingId(null);
+                setReportDone(false);
+                setReportReason('');
+            }, 1800);
+        } catch (err) {
+            console.error('Error reporting:', err);
+        } finally {
+            setReportSubmitting(false);
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
-        <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl"
-            onClick={onClose}
-        >
+        <>
             <div
-                className="bg-bg-side w-full max-w-3xl max-h-[90vh] rounded-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme"
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl"
+                onClick={onClose}
             >
+                <div
+                    className="bg-bg-side w-full max-w-3xl max-h-[90vh] rounded-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme"
+                    onClick={(e) => e.stopPropagation()}
+                >
 
-                {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-divider-theme">
-                    <h2 className="text-lg font-bold text-text-main truncate pr-8">
-                        {thread?.title || t('tavern.modals.details.loading')}
-                    </h2>
-                    <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-full transition text-text-sub absolute top-3 right-4">
-                        <X size={20} />
-                    </button>
-                </div>
+                    {/* Header */}
+                    <div className="flex justify-between items-center p-4 border-b border-divider-theme">
+                        <h2 className="text-lg font-bold text-text-main truncate pr-8">
+                            {thread?.title || t('tavern.modals.details.loading')}
+                        </h2>
+                        <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-full transition text-text-sub absolute top-3 right-4">
+                            <X size={20} />
+                        </button>
+                    </div>
 
-                <div className="flex-1 overflow-y-auto">
-                    {isLoading && !thread ? (
-                        <div className="flex justify-center p-12"><Loader2 className="animate-spin text-brand-primary" size={32} /></div>
-                    ) : thread ? (
-                        <div className="p-6">
-                            {/* Author Info */}
-                            <div className="flex items-center gap-3 mb-4">
-                                <img
-                                    src={getAvatarSource(thread.author_avatar_url || null)}
-                                    className="h-10 w-10 rounded-full border border-border-theme"
-                                    alt="Avatar"
-                                />
-                                <div>
-                                    <div className="flex items-center gap-1">
-                                        <span className="font-bold text-sm text-text-main">{thread.author_username}</span>
-                                        {thread.author_role === 'admin' && (
-                                            <span className="text-[10px] bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-1.5 rounded font-bold uppercase">Admin</span>
-                                        )}
+                    <div className="flex-1 overflow-y-auto">
+                        {isLoading && !thread ? (
+                            <div className="flex justify-center p-12"><Loader2 className="animate-spin text-brand-primary" size={32} /></div>
+                        ) : thread ? (
+                            <div className="p-6">
+                                {/* Author Info */}
+                                <div className="flex items-center gap-3 mb-4">
+                                    <img
+                                        src={getAvatarSource(thread.author_avatar_url || null)}
+                                        className="h-10 w-10 rounded-full border border-border-theme"
+                                        alt="Avatar"
+                                    />
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <span className="font-bold text-sm text-text-main">{thread.author_username}</span>
+                                            {thread.author_role === 'admin' && (
+                                                <span className="text-[10px] bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-1.5 rounded font-bold uppercase">Admin</span>
+                                            )}
+                                        </div>
+                                        <span className="text-xs text-text-muted">{new Date(thread.created_at).toLocaleString()}</span>
                                     </div>
-                                    <span className="text-xs text-text-muted">{new Date(thread.created_at).toLocaleString()}</span>
+                                    <span className="ml-auto px-3 py-1 rounded-full bg-bg-sub text-text-muted text-[10px] font-bold uppercase">
+                                        {thread.tag}
+                                    </span>
                                 </div>
-                                <span className="ml-auto px-3 py-1 rounded-full bg-bg-sub text-text-muted text-[10px] font-bold uppercase">
-                                    {thread.tag}
-                                </span>
-                            </div>
 
-                            {/* Thread Content */}
-                            <div className="mb-6">
-                                <h1 className="text-2xl font-bold text-text-main mb-4 leading-tight">{thread.title}</h1>
-                                <ContentRenderer
-                                    content={thread.content}
-                                    className="text-text-main leading-relaxed"
-                                />
-                            </div>
+                                {/* Thread Content */}
+                                <div className="mb-6">
+                                    <h1 className="text-2xl font-bold text-text-main mb-4 leading-tight">{thread.title}</h1>
+                                    <ContentRenderer
+                                        content={thread.content}
+                                        className="text-text-main leading-relaxed"
+                                    />
+                                    {(thread.is_edited || thread.edited_by_admin) && (
+                                        <div className={`flex items-center gap-1 text-[10px] font-semibold mt-3 ${thread.edited_by_admin ? 'text-accent-yellow' : 'text-text-muted'
+                                            }`}>
+                                            <Pencil size={10} />
+                                            {thread.edited_by_admin
+                                                ? t('tavern.thread.editedByAdmin', 'Editado por un administrador')
+                                                : t('tavern.thread.edited')}
+                                        </div>
+                                    )}
+                                </div>
 
-                            {/* Stats & Actions */}
-                            <div className="flex items-center gap-4 py-4 border-y border-divider-theme mb-8">
-                                <div className="flex items-center bg-bg-sub rounded-full px-2 py-1">
-                                    <button onClick={() => handleVote(thread.id, 'thread', 'like')} className="p-1.5 text-text-muted hover:text-accent-red transition">
-                                        <ArrowUp size={18} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
+                                {/* Stats & Actions */}
+                                <div className="flex items-center gap-4 py-4 border-y border-divider-theme mb-8">
+                                    <div className="flex items-center bg-bg-sub rounded-full px-2 py-1">
+                                        <button onClick={() => handleVote(thread.id, 'thread', 'like')} className={`p-1.5 transition ${thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
+                                            <ChevronUp size={20} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
+                                        </button>
+                                        <span className="font-bold text-sm px-2 text-text-main">{thread.likes_count - thread.dislikes_count}</span>
+                                        <button onClick={() => handleVote(thread.id, 'thread', 'dislike')} className={`p-1.5 transition ${thread.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
+                                            <ChevronDown size={20} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-text-muted text-sm font-medium">
+                                        <MessageSquare size={18} /> {replies.length} {t('tavern.modals.details.replies')}
+                                    </div>
+                                    <button
+                                        onClick={() => handleShare('thread')}
+                                        className={`flex items-center gap-2 text-sm font-medium transition ${copiedId === 'thread' ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
+                                    >
+                                        {copiedId === 'thread' ? <Check size={18} /> : <Share2 size={18} />}
+                                        {copiedId === 'thread' ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
                                     </button>
-                                    <span className="font-bold text-sm px-2 text-text-main">{thread.likes_count - thread.dislikes_count}</span>
-                                    <button onClick={() => handleVote(thread.id, 'thread', 'dislike')} className="p-1.5 text-text-muted hover:text-brand-secondary transition">
-                                        <ArrowDown size={18} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
-                                    </button>
-                                </div>
-                                <div className="flex items-center gap-2 text-text-muted text-sm font-medium">
-                                    <MessageSquare size={18} /> {replies.length} {t('tavern.modals.details.replies')}
-                                </div>
-                                <button
-                                    onClick={() => handleShare('thread')}
-                                    className={`flex items-center gap-2 text-sm font-medium transition ${copiedId === 'thread' ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
-                                >
-                                    {copiedId === 'thread' ? <Check size={18} /> : <Share2 size={18} />}
-                                    {copiedId === 'thread' ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
-                                </button>
-                            </div>
-
-                            {/* Replies List */}
-                            <div className="space-y-6">
-                                <h3 className="font-bold text-text-main mb-4">{t('tavern.modals.details.replies')}</h3>
-                                {replies.length === 0 ? (
-                                    <div className="text-center text-text-muted py-8 italic">{t('tavern.modals.details.noReplies')}</div>
-                                ) : (
-                                    replies.map(reply => (
-                                        <div key={reply.id} className="flex gap-3 pt-4 border-t border-divider-theme">
-                                            <img
-                                                src={getAvatarSource(reply.author_avatar_url || null)}
-                                                className="h-8 w-8 rounded-full flex-shrink-0"
-                                                alt="Avatar"
-                                            />
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-bold text-sm text-text-main">{reply.author_username}</span>
-                                                    <span className="text-[10px] text-text-muted">{new Date(reply.created_at).toLocaleDateString()}</span>
+                                    {/* Report thread — only for non-authors */}
+                                    {user && user.id !== thread.author_id && (
+                                        <div className="relative ml-auto" ref={openMenuId === thread.id ? menuRef : undefined}>
+                                            <button
+                                                onClick={() => setOpenMenuId(id => id === thread.id ? null : thread.id)}
+                                                className="p-1.5 text-text-muted hover:text-text-main rounded-full hover:bg-bg-sub transition"
+                                            >
+                                                <MoreHorizontal size={16} />
+                                            </button>
+                                            {openMenuId === thread.id && (
+                                                <div className="absolute right-0 bottom-full mb-1 w-40 bg-bg-pop border border-border-theme rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                                                    <button
+                                                        onClick={() => { setOpenMenuId(null); setReportingId(thread.id); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
+                                                    >
+                                                        <Flag size={14} />
+                                                        {t('tavern.thread.report', 'Reportar')}
+                                                    </button>
                                                 </div>
-                                                {editingReplyId === reply.id ? (
-                                                    <div className="flex flex-col gap-2 mb-3">
-                                                        <textarea
-                                                            value={editReplyContent}
-                                                            onChange={(e) => setEditReplyContent(e.target.value)}
-                                                            className="w-full bg-bg-sub border border-border-theme rounded-xl px-4 py-2 text-sm text-text-main focus:ring-2 focus:ring-brand-primary outline-none transition resize-none"
-                                                            rows={3}
-                                                        />
-                                                        <div className="flex justify-end gap-2">
-                                                            <button
-                                                                onClick={() => setEditingReplyId(null)}
-                                                                className="px-3 py-1 text-xs font-bold text-text-muted hover:bg-bg-sub rounded-lg transition"
-                                                            >
-                                                                {t('common.cancel')}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleEditReply(reply.id)}
-                                                                disabled={isSubmitting}
-                                                                className="px-4 py-1.5 bg-brand-primary text-text-inv text-xs font-bold rounded-lg shadow-md hover:bg-brand-primary-light transition flex items-center gap-1"
-                                                            >
-                                                                {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-                                                                {t('common.save', 'Guardar')}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <ContentRenderer
-                                                        content={reply.content}
-                                                        className="text-text-sub text-sm mb-3"
-                                                    />
-                                                )}
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-4 mr-auto">
-                                                        <button onClick={() => handleVote(reply.id, 'reply', 'like')} className="flex items-center gap-1 text-text-muted hover:text-accent-red transition text-xs">
-                                                            <ArrowUp size={14} fill={reply.user_vote === 'like' ? 'currentColor' : 'none'} /> {reply.likes_count}
-                                                        </button>
-                                                        <button onClick={() => handleVote(reply.id, 'reply', 'dislike')} className="flex items-center gap-1 text-text-muted hover:text-brand-secondary transition text-xs">
-                                                            <ArrowDown size={14} fill={reply.user_vote === 'dislike' ? 'currentColor' : 'none'} /> {reply.dislikes_count}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleShare('reply', reply.id, reply.author_username, reply.content)}
-                                                            className={`flex items-center gap-1 transition text-xs ${copiedId === reply.id ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
-                                                            title={copiedId === reply.id ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
-                                                        >
-                                                            {copiedId === reply.id ? <Check size={14} /> : <Share2 size={14} />}
-                                                        </button>
-                                                    </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
-                                                    {canEditReply(reply) && !editingReplyId && (
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="flex items-center gap-1 text-[10px] font-bold text-accent-yellow bg-accent-yellow/10 px-2 py-1 rounded-md border border-accent-yellow/20">
-                                                                <Clock size={10} />
-                                                                {getRemainingTime(reply.created_at)}
+                                {/* Replies List */}
+                                <div className="space-y-6">
+                                    <h3 className="font-bold text-text-main mb-4">{t('tavern.modals.details.replies')}</h3>
+                                    {replies.length === 0 ? (
+                                        <div className="text-center text-text-muted py-8 italic">{t('tavern.modals.details.noReplies')}</div>
+                                    ) : (
+                                        replies.map(reply => (
+                                            <div key={reply.id} className="flex gap-3 pt-4 border-t border-divider-theme">
+                                                <img
+                                                    src={getAvatarSource(reply.author_avatar_url || null)}
+                                                    className="h-8 w-8 rounded-full flex-shrink-0"
+                                                    alt="Avatar"
+                                                />
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="font-bold text-sm text-text-main">{reply.author_username}</span>
+                                                        <span className="text-[10px] text-text-muted">{new Date(reply.created_at).toLocaleDateString()}</span>
+                                                    </div>
+                                                    {editingReplyId === reply.id ? (
+                                                        <div className="flex flex-col gap-2 mb-3">
+                                                            <textarea
+                                                                value={editReplyContent}
+                                                                onChange={(e) => setEditReplyContent(e.target.value)}
+                                                                className="w-full bg-bg-sub border border-border-theme rounded-xl px-4 py-2 text-sm text-text-main focus:ring-2 focus:ring-brand-primary outline-none transition resize-none"
+                                                                rows={3}
+                                                            />
+                                                            <div className="flex justify-end gap-2">
+                                                                <button
+                                                                    onClick={() => setEditingReplyId(null)}
+                                                                    className="px-3 py-1 text-xs font-bold text-text-muted hover:bg-bg-sub rounded-lg transition"
+                                                                >
+                                                                    {t('common.cancel')}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleEditReply(reply.id)}
+                                                                    disabled={isSubmitting}
+                                                                    className="px-4 py-1.5 bg-brand-primary text-text-inv text-xs font-bold rounded-lg shadow-md hover:bg-brand-primary-light transition flex items-center gap-1"
+                                                                >
+                                                                    {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                                                                    {t('common.save', 'Guardar')}
+                                                                </button>
                                                             </div>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingReplyId(reply.id);
-                                                                    setEditReplyContent(reply.content);
-                                                                }}
-                                                                className="p-1.5 text-text-muted hover:text-brand-primary transition"
-                                                            >
-                                                                <Edit2 size={14} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteReply(reply.id)}
-                                                                className="p-1.5 text-text-muted hover:text-accent-red transition"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
                                                         </div>
+                                                    ) : (
+                                                        <>
+                                                            <ContentRenderer
+                                                                content={reply.content}
+                                                                className="text-text-sub text-sm mb-3"
+                                                            />
+                                                            {(reply.is_edited || reply.edited_by_admin) && (
+                                                                <div className={`flex items-center gap-1 text-[10px] font-semibold mb-2 ${reply.edited_by_admin ? 'text-accent-yellow' : 'text-text-muted'
+                                                                    }`}>
+                                                                    <Pencil size={10} />
+                                                                    {reply.edited_by_admin
+                                                                        ? t('tavern.thread.editedByAdmin', 'Editado por un administrador')
+                                                                        : t('tavern.thread.edited')}
+                                                                </div>
+                                                            )}
+                                                        </>
                                                     )}
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex items-center gap-4 mr-auto">
+                                                            <button onClick={() => handleVote(reply.id, 'reply', 'like')} className={`flex items-center gap-1 transition text-xs ${reply.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
+                                                                <ChevronUp size={14} fill={reply.user_vote === 'like' ? 'currentColor' : 'none'} /> {reply.likes_count}
+                                                            </button>
+                                                            <button onClick={() => handleVote(reply.id, 'reply', 'dislike')} className={`flex items-center gap-1 transition text-xs ${reply.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
+                                                                <ChevronDown size={14} fill={reply.user_vote === 'dislike' ? 'currentColor' : 'none'} /> {reply.dislikes_count}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleShare('reply', reply.id, reply.author_username, reply.content)}
+                                                                className={`flex items-center gap-1 transition text-xs ${copiedId === reply.id ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
+                                                                title={copiedId === reply.id ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
+                                                            >
+                                                                {copiedId === reply.id ? <Check size={14} /> : <Share2 size={14} />}
+                                                            </button>
+                                                            {/* Report reply — only for non-authors */}
+                                                            {user && user.id !== reply.author_id && (
+                                                                <div className="relative" ref={openMenuId === reply.id ? menuRef : undefined}>
+                                                                    <button
+                                                                        onClick={() => setOpenMenuId(id => id === reply.id ? null : reply.id)}
+                                                                        className="p-1 text-text-muted hover:text-text-main rounded-full hover:bg-bg-sub transition"
+                                                                    >
+                                                                        <MoreHorizontal size={14} />
+                                                                    </button>
+                                                                    {openMenuId === reply.id && (
+                                                                        <div className="absolute right-0 bottom-full mb-1 w-40 bg-bg-pop border border-border-theme rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                                                                            <button
+                                                                                onClick={() => { setOpenMenuId(null); setReportingId(reply.id); }}
+                                                                                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
+                                                                            >
+                                                                                <Flag size={14} />
+                                                                                {t('tavern.thread.report', 'Reportar')}
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {canEditReply(reply) && !editingReplyId && (
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="flex items-center gap-1 text-[10px] font-bold text-accent-yellow bg-accent-yellow/10 px-2 py-1 rounded-md border border-accent-yellow/20">
+                                                                    <Clock size={10} />
+                                                                    {getRemainingTime(reply.created_at)}
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setEditingReplyId(reply.id);
+                                                                        setEditReplyContent(reply.content);
+                                                                    }}
+                                                                    className="p-1.5 text-text-muted hover:text-brand-primary transition"
+                                                                >
+                                                                    <Edit2 size={14} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteReply(reply.id)}
+                                                                    className="p-1.5 text-text-muted hover:text-accent-red transition"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))
-                                )}
+                                        ))
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ) : null}
-                </div>
+                        ) : null}
+                    </div>
 
-                {/* Reply Input */}
-                <div className="p-4 border-t border-divider-theme bg-bg-sub/50">
-                    {user ? (
-                        <form onSubmit={handleReplySubmit} className="flex gap-3">
-                            <input
-                                value={replyContent}
-                                onChange={(e) => setReplyContent(e.target.value)}
-                                placeholder={t('tavern.modals.details.replyPlaceholder')}
-                                className="flex-1 bg-bg-side border border-border-theme rounded-full px-4 py-2 text-sm text-text-main focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none"
-                            />
-                            <button
-                                type="submit"
-                                disabled={isSubmitting || !replyContent.trim()}
-                                className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv p-2 rounded-full transition shadow-lg shadow-brand-primary/20"
-                            >
-                                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
-                            </button>
-                        </form>
-                    ) : (
-                        <div className="text-center text-sm text-text-muted py-2">{t('tavern.modals.details.loginToReply')}</div>
-                    )}
+                    {/* Reply Input */}
+                    <div className="p-4 border-t border-divider-theme bg-bg-sub/50">
+                        {user ? (
+                            <form onSubmit={handleReplySubmit} className="flex gap-3">
+                                <input
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    placeholder={t('tavern.modals.details.replyPlaceholder')}
+                                    className="flex-1 bg-bg-side border border-border-theme rounded-full px-4 py-2 text-sm text-text-main focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || !replyContent.trim()}
+                                    className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv p-2 rounded-full transition shadow-lg shadow-brand-primary/20"
+                                >
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="text-center text-sm text-text-muted py-2">{t('tavern.modals.details.loginToReply')}</div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Report Modal */}
+            {reportingId && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm"
+                    onClick={() => { setReportingId(null); setReportReason(''); setReportDone(false); }}
+                >
+                    <div
+                        className="bg-bg-side w-full max-w-sm rounded-2xl border border-border-theme shadow-2xl p-6 animate-in zoom-in-95 fade-in duration-200"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {reportDone ? (
+                            <div className="text-center py-4">
+                                <Check size={36} className="mx-auto mb-3 text-accent-green" />
+                                <p className="font-bold text-text-main">{t('tavern.reportSent', '¡Reporte enviado!')}</p>
+                                <p className="text-xs text-text-muted mt-1">{t('tavern.reportThanks', 'Gracias por ayudar a mantener la comunidad.')}</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-3 mb-5">
+                                    <div className="p-2.5 bg-accent-red/10 text-accent-red rounded-xl">
+                                        <Flag size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-text-main text-base">{t('tavern.reportTitle', 'Reportar publicación')}</h3>
+                                        <p className="text-xs text-text-muted">{t('tavern.reportSubtitle', 'Cuéntanos por qué consideras que viola las reglas.')}</p>
+                                    </div>
+                                </div>
+                                <textarea
+                                    value={reportReason}
+                                    onChange={e => setReportReason(e.target.value)}
+                                    placeholder={t('tavern.reportPlaceholder', 'Ej: Spam, contenido inapropiado, acoso...')}
+                                    className="w-full bg-bg-sub border border-border-theme rounded-xl px-4 py-3 text-sm text-text-main focus:outline-none focus:border-accent-red transition resize-none mb-4"
+                                    rows={3}
+                                    maxLength={300}
+                                />
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => { setReportingId(null); setReportReason(''); }}
+                                        className="flex-1 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted border border-border-theme rounded-xl hover:bg-bg-sub transition"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                    <button
+                                        onClick={handleReport}
+                                        disabled={!reportReason.trim() || reportSubmitting}
+                                        className="flex-1 py-2.5 text-xs font-black uppercase tracking-widest bg-accent-red text-white rounded-xl hover:bg-accent-red/80 disabled:opacity-50 transition"
+                                    >
+                                        {reportSubmitting ? '...' : t('tavern.report', 'Reportar')}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
-// End of file

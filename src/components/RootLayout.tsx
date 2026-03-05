@@ -18,7 +18,7 @@ export default function RootLayout() {
     const location = useLocation();
     const { profile, wallet } = useProfile(user?.id);
 
-    const isLoginOrMaintenance = location.pathname === '/login' || location.pathname === '/maintenance';
+    const isMaintenance = location.pathname === '/maintenance';
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -182,7 +182,7 @@ export default function RootLayout() {
                 <Outlet context={{ setIsWalletOpen }} />
             </main>
 
-            {!isLoginOrMaintenance && <Footer />}
+            {!isMaintenance && <Footer />}
 
             {/* Mobile Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg-side border-t border-border-theme flex items-center justify-around h-16 safe-padding">

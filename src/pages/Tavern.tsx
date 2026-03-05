@@ -11,6 +11,7 @@ import { CreateThreadModal } from '../components/Tavern/CreateThreadModal';
 import { EditThreadModal } from '../components/Tavern/EditThreadModal';
 import { getAvatarSource } from '../config/avatars';
 import { useProfile } from '../hooks/useProfile';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 
 export default function Tavern() {
     const { t } = useTranslation();
@@ -24,6 +25,8 @@ export default function Tavern() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [threadToEdit, setThreadToEdit] = useState<any>(null);
+
+    const { onlineUsersCount, tavernInteractions } = useOnlineUsers();
 
     const { threads, isLoading, error, hasMore, loadMore, refetch } = useTavernThreads(category, sortBy);
 
@@ -63,7 +66,6 @@ export default function Tavern() {
         { label: t('tavern.categories.culture'), value: 'Cultura/Arte', color: 'bg-emerald-500' },
         { label: t('tavern.categories.events'), value: 'Eventos', color: 'bg-amber-500' },
         { label: t('tavern.categories.offTopic'), value: 'Off-topic', color: 'bg-slate-400' },
-        { label: t('tavern.categories.nsfw'), value: 'Picantes', color: 'bg-orange-500' },
     ];
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -216,20 +218,19 @@ export default function Tavern() {
                             <p className="text-xs text-text-muted">{t('tavern.description')}</p>
                         </div>
 
-                        {/* 
-                        <div className="flex justify-between text-center border-t border-b border-divider-theme py-3 mb-4">
-                            <div>
-                                <div className="font-bold text-text-main">1.2k</div>
-                                <div className="text-xs text-text-muted">Miembros</div>
+                        <div className="flex justify-between text-center border-t border-b border-divider-theme py-3 mb-4 px-2">
+                            <div className="flex flex-col items-center justify-center flex-1 border-r border-divider-theme">
+                                <div className="font-bold text-text-main text-lg">{tavernInteractions > 0 ? (tavernInteractions >= 1000 ? `${(tavernInteractions / 1000).toFixed(1)}k+` : tavernInteractions) : '...'}</div>
+                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.posts', 'Posteos')}</div>
                             </div>
-                            <div>
-                                <div className="font-bold text-text-main text-accent-green flex items-center gap-1">
-                                    <span className="w-2 h-2 bg-accent-green rounded-full"></span> 48
+                            <div className="flex flex-col items-center justify-center flex-1">
+                                <div className="font-black text-text-main text-accent-green flex items-center gap-1.5 text-lg">
+                                    <span className="w-2 h-2 bg-accent-green rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                                    {onlineUsersCount}
                                 </div>
-                                <div className="text-xs text-text-muted">Online</div>
+                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.online', 'Frikis Online')}</div>
                             </div>
                         </div>
-                        */}
 
                         <div className="space-y-2">
                             <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">{t('tavern.rules.title')}</h4>
@@ -239,10 +240,6 @@ export default function Tavern() {
                             </div>
                             <div className="flex items-start gap-2 text-xs text-text-sub">
                                 <span className="font-bold text-brand-primary">2.</span>
-                                <span>{t('tavern.rules.nsfw')}</span>
-                            </div>
-                            <div className="flex items-start gap-2 text-xs text-text-sub">
-                                <span className="font-bold text-brand-primary">3.</span>
                                 <span>{t('tavern.rules.tags')}</span>
                             </div>
                         </div>
