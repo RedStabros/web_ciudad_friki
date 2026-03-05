@@ -46,3 +46,8 @@ lerna-debug.log*
 # --- Sistema Operativo ---
 .DS_Store
 Thumbs.db
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
