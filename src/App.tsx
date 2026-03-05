@@ -15,6 +15,7 @@ import Trivias from './pages/Trivias';
 import FrikiVS from './pages/FrikiVS';
 import Legal from './pages/Legal';
 import OnboardingModal from './components/OnboardingModal';
+import MyEvents from './pages/MyEvents';
 
 function OnboardingGate() {
   const { user, isLoading } = useAuth();
@@ -68,6 +69,7 @@ function App() {
 
           {/* Profile */}
           <Route path="/profile" element={<Profile />} />
+          <Route path="/my-events" element={<MyEvents />} />
 
           {/* Gamification */}
           <Route path="/surveys" element={<Surveys />} />

@@ -45,7 +45,8 @@
         "tbd": "TBD",
         "community": "Community",
         "past": "Past",
-        "interested": "Interested"
+        "interested": "Interested",
+        "publish": "Publish"
     },
     "auth": {
         "welcome": "Welcome to Ciudad Friki",

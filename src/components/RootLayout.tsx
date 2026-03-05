@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
 import { getAvatarSource } from '../config/avatars';
-import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
@@ -156,6 +156,10 @@ export default function RootLayout() {
                                         <div className="p-2">
                                             <Link to="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-bold hover:bg-bg-sub rounded-lg transition-colors">
                                                 {t('profile.title')}
+                                            </Link>
+                                            <Link to="/my-events" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
+                                                <Calendar size={14} className="text-text-muted" />
+                                                {t('events.myEvents', 'Mis Eventos')}
                                             </Link>
                                             <div className="my-1 border-t border-border-theme"></div>
                                             <button onClick={() => signOut()} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-accent-red font-bold hover:bg-accent-red/10 rounded-lg transition-colors">

@@ -48,7 +48,8 @@
         "interested": "Me Interesa",
         "status": "Estado",
         "linkCopied": "¡Enlace copiado!",
-        "navigation": "Navegación"
+        "navigation": "Navegación",
+        "publish": "Publicar"
     },
     "auth": {
         "welcome": "Bienvenido a Ciudad Friki",

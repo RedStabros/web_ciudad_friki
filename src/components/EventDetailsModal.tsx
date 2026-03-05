@@ -89,6 +89,9 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
     if (!isOpen || !event) return null;
 
+    // Derive free status: use is_free flag OR fallback to price_min
+    const isFreeEvent = event.is_free === true || (event as any).price_min === 0 || (event as any).price_min == null;
+
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     }) : t('events.noDate', 'Fecha TBD');
@@ -97,16 +100,24 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl"
+            className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-6 bg-ui-overlay backdrop-blur-sm overflow-y-auto"
             onClick={onClose}
         >
+            {/* Persistent close button — always visible even when scrolled */}
+            <button
+                onClick={onClose}
+                className="fixed top-5 right-5 z-[110] p-2 bg-black/60 hover:bg-black/90 text-white rounded-full transition shadow-lg"
+            >
+                <X size={18} />
+            </button>
+
             <div
-                className="bg-bg-side w-full max-w-3xl max-h-[90vh] rounded-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme shadow-2xl"
+                className="bg-bg-side w-full max-w-3xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme shadow-2xl mb-6"
                 onClick={(e) => e.stopPropagation()}
             >
 
-                {/* Header Image Area */}
-                <div className="relative h-48 md:h-64 flex-shrink-0">
+                {/* Header Image Area — scrolls with content */}
+                <div className="relative h-48 md:h-64">
                     <img
                         src={event.banner_url || event.image_url || defaultImage}
                         alt={event.title}
@@ -117,7 +128,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                             {event.is_sponsored && (
                                 <span className="bg-brand-secondary text-text-inv text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md shadow-lg">{t('events.sponsored', 'Patrocinado')}</span>
                             )}
-                            <span className="bg-brand-primary text-text-inv text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md shadow-lg">{event.is_free ? t('events.free', 'Gratis') : t('events.paid', 'De Pago')}</span>
+                            <span className="bg-brand-primary text-text-inv text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md shadow-lg">{isFreeEvent ? t('events.free', 'Gratis') : t('events.paid', 'De Pago')}</span>
                         </div>
                         <h2 className="text-3xl font-bold text-white mb-1">{event.title}</h2>
                         <div className="flex items-center gap-3 text-white/80 text-sm">
@@ -133,16 +144,10 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                             )}
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition"
-                    >
-                        <X size={20} />
-                    </button>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex border-b border-divider-theme">
+                {/* Tabs — sticky so they stay visible while scrolling */}
+                <div className="flex border-b border-divider-theme sticky top-0 z-10 bg-bg-side">
                     <button
                         className={`flex-1 py-4 font-bold text-sm text-center border-b-2 transition ${activeTab === 'details' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-muted hover:text-text-main'}`}
                         onClick={() => setActiveTab('details')}
@@ -157,8 +162,8 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                     </button>
                 </div>
 
-                {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-6">
+                {/* Content Area — no longer overflow-y-auto, parent modal scrolls */}
+                <div className="p-6">
                     {activeTab === 'details' ? (
                         <div className="space-y-6">
                             {/* Action Bar */}
