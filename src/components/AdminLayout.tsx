@@ -1,7 +1,7 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Activity, Loader2 } from 'lucide-react';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminLayout() {
@@ -33,7 +33,7 @@ export default function AdminLayout() {
         { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: 'Panel Trivias' },
         { path: '/admin/qrs', icon: <QrCode size={20} />, label: 'Eventos QR' },
         { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: 'Panel Taberna' },
-        ...(isSuperuser ? [{ path: '/admin/metrics', icon: <Activity size={20} />, label: 'Métricas Globales' }] : []),
+        ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: 'Panel GM' }] : []),
     ];
 
     return (

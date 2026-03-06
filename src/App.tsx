@@ -25,7 +25,7 @@ import AdminSurveys from './pages/admin/AdminSurveys';
 import AdminTrivias from './pages/admin/AdminTrivias';
 import AdminQRs from './pages/admin/AdminQRs';
 import AdminTavern from './pages/admin/AdminTavern';
-import AdminMetrics from './pages/admin/AdminMetrics';
+import AdminGM from './pages/admin/AdminGM';
 
 function OnboardingGate() {
   const { user, isLoading } = useAuth();
@@ -105,7 +105,7 @@ function App() {
             <Route path="trivias" element={<AdminTrivias />} />
             <Route path="qrs" element={<AdminQRs />} />
             <Route path="tavern" element={<AdminTavern />} />
-            <Route path="metrics" element={<AdminMetrics />} />
+            <Route path="gm" element={<AdminGM />} />
           </Route>
 
           <Route path="*" element={<div className="p-8 text-center text-2xl font-bold text-red-500">404 - Not Found</div>} />
