@@ -18,6 +18,14 @@ import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import FrikiMart from './pages/FrikiMart';
 import Notifications from './pages/NotificationSettings';
+import AdminLayout from './components/AdminLayout';
+import AdminRoles from './pages/admin/AdminRoles';
+import AdminEvents from './pages/admin/AdminEvents';
+import AdminSurveys from './pages/admin/AdminSurveys';
+import AdminTrivias from './pages/admin/AdminTrivias';
+import AdminQRs from './pages/admin/AdminQRs';
+import AdminTavern from './pages/admin/AdminTavern';
+import AdminMetrics from './pages/admin/AdminMetrics';
 
 function OnboardingGate() {
   const { user, isLoading } = useAuth();
@@ -87,6 +95,18 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/legal/:type" element={<Legal />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminRoles />} /> {/* Default admin route */}
+            <Route path="roles" element={<AdminRoles />} />
+            <Route path="events" element={<AdminEvents />} />
+            <Route path="surveys" element={<AdminSurveys />} />
+            <Route path="trivias" element={<AdminTrivias />} />
+            <Route path="qrs" element={<AdminQRs />} />
+            <Route path="tavern" element={<AdminTavern />} />
+            <Route path="metrics" element={<AdminMetrics />} />
+          </Route>
 
           <Route path="*" element={<div className="p-8 text-center text-2xl font-bold text-red-500">404 - Not Found</div>} />
         </Route>

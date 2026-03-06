@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
 import { getAvatarSource } from '../config/avatars';
-import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, ShieldAlert } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
@@ -20,6 +20,7 @@ export default function RootLayout() {
     const { profile, wallet } = useProfile(user?.id);
 
     const isMaintenance = location.pathname === '/maintenance';
+    const isAdmin = profile?.role === 'admin' || user?.id === import.meta.env.VITE_SUPERUSER_ID;
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -185,6 +186,12 @@ export default function RootLayout() {
                                                 <Bell size={14} className="text-text-muted" />
                                                 Notificaciones
                                             </Link>
+                                            {isAdmin && (
+                                                <Link to="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-bold hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">
+                                                    <ShieldAlert size={14} className="text-brand-primary" />
+                                                    Admin Panel
+                                                </Link>
+                                            )}
                                             <div className="my-1 border-t border-border-theme"></div>
                                             <button onClick={() => signOut()} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-accent-red font-bold hover:bg-accent-red/10 rounded-lg transition-colors">
                                                 <LogOut size={16} /> {t('dashboard.logout')}
