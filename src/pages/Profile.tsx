@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import {
-    ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug
+    ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug, Lock, ChevronDown, ChevronUp,
+    Eye, EyeOff, CheckCircle2, Circle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { SystemService } from '../services/SystemService';
 import { useProfile } from '../hooks/useProfile';
@@ -14,8 +16,27 @@ import { ALL_INTERESTS } from '../config/interests';
 import { ReportBugModal } from '../components/ReportBugModal';
 import { AdminBugReports } from '../components/AdminBugReports';
 import { BugReportService } from '../services/BugReportService';
+import { AdminFrikiMart } from '../components/AdminFrikiMart';
 
 
+
+const validatePassword = (password: string) => {
+    return {
+        minLength: password.length >= 8,
+        hasUppercase: /[A-Z]/.test(password),
+        hasLowercase: /[a-z]/.test(password),
+        hasNumber: /[0-9]/.test(password),
+        hasSymbol: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password),
+    };
+};
+
+const getPasswordStrength = (password: string): 'weak' | 'medium' | 'strong' => {
+    const rules = validatePassword(password);
+    const metRules = Object.values(rules).filter(Boolean).length;
+    if (metRules <= 2) return 'weak';
+    if (metRules <= 4) return 'medium';
+    return 'strong';
+};
 
 const THEME_OPTIONS = [
     { id: 'dark-friki', name: 'Dark Friki', bg: '#1e222a', brand: '#e1192f' },
@@ -80,8 +101,18 @@ export default function Profile() {
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
     const [isReportBugOpen, setIsReportBugOpen] = useState(false);
     const [isAdminBugOpen, setIsAdminBugOpen] = useState(false);
+    const [isAdminFrikiMartOpen, setIsAdminFrikiMartOpen] = useState(false);
     const [pendingBugCount, setPendingBugCount] = useState(0);
     const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
+    const [storeWebEnabled, setStoreWebEnabled] = useState(false);
+    const [isTogglingStoreWeb, setIsTogglingStoreWeb] = useState(false);
+
+    // Password change state
+    const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Fetch pending bug report count for admin badge
     useEffect(() => {
@@ -91,7 +122,11 @@ export default function Profile() {
                 setPendingBugCount(pending);
             });
         }
-    }, [profile?.role]);
+        if (isSuperuser) {
+            SystemService.getGlobalSetting<boolean>('store_web_enabled', false)
+                .then(val => setStoreWebEnabled(!!val));
+        }
+    }, [profile?.role, isSuperuser]);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -144,6 +179,33 @@ export default function Profile() {
         }
     };
 
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            return alert(t('auth.passwordsDoNotMatch', 'Las contraseñas no coinciden'));
+        }
+
+        const rules = validatePassword(passwordData.newPassword);
+        const allRulesMet = Object.values(rules).every(Boolean);
+        if (!allRulesMet) {
+            return alert(t('profile.passwordRules', 'Reglas de la contraseña') + ' ' + t('auth.fillAllFields', 'Debe cumplir todas las reglas.'));
+        }
+
+        setIsChangingPassword(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+            if (error) throw error;
+            alert(t('auth.passwordChangedSuccess', 'Contraseña actualizada con éxito'));
+            setPasswordData({ newPassword: '', confirmPassword: '' });
+            setIsPasswordSectionOpen(false);
+        } catch (err: any) {
+            console.error(err);
+            alert(err.message || t('common.error'));
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
     const toggleInterest = (interest: string) => {
         setFormData(prev => ({
             ...prev,
@@ -192,6 +254,20 @@ export default function Profile() {
             console.error(err);
         } finally {
             setIsTogglingMaintenance(false);
+        }
+    };
+
+    const handleToggleStoreWeb = async () => {
+        if (!isSuperuser) return;
+        setIsTogglingStoreWeb(true);
+        try {
+            const newVal = !storeWebEnabled;
+            await SystemService.updateGlobalSetting('store_web_enabled', newVal);
+            setStoreWebEnabled(newVal);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsTogglingStoreWeb(false);
         }
     };
 
@@ -332,6 +408,109 @@ export default function Profile() {
                                 />
                             </div>
                         </div>
+
+                        {/* Collapsible Password Change */}
+                        <div className="pt-6 border-t border-divider-theme">
+                            <button
+                                type="button"
+                                onClick={() => setIsPasswordSectionOpen(!isPasswordSectionOpen)}
+                                className="flex items-center justify-between w-full text-left focus:outline-none group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-bg-sub p-2 rounded-xl text-text-muted group-hover:text-brand-primary transition-colors">
+                                        <Lock size={20} />
+                                    </div>
+                                    <h3 className="font-bold text-text-main group-hover:text-brand-primary transition-colors">
+                                        {t('auth.changePassword', 'Cambiar Contraseña')}
+                                    </h3>
+                                </div>
+                                {isPasswordSectionOpen ? <ChevronUp size={20} className="text-text-muted" /> : <ChevronDown size={20} className="text-text-muted" />}
+                            </button>
+
+                            {isPasswordSectionOpen && (
+                                <div className="mt-6 space-y-4 animate-in slide-in-from-top-4 fade-in duration-300">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-text-sub mb-2">
+                                                {t('auth.newPassword', 'Nueva Contraseña')}
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    className="w-full bg-bg-sub border border-border-theme text-text-main rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none transition-all pr-12"
+                                                    value={passwordData.newPassword}
+                                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                    type={showNewPassword ? "text" : "password"}
+                                                    placeholder="••••••••"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-brand-primary transition-colors p-1"
+                                                >
+                                                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-text-sub mb-2">
+                                                {t('auth.confirmPassword', 'Confirmar Contraseña')}
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    className="w-full bg-bg-sub border border-border-theme text-text-main rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none transition-all pr-12"
+                                                    value={passwordData.confirmPassword}
+                                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    placeholder="••••••••"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-brand-primary transition-colors p-1"
+                                                >
+                                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {passwordData.newPassword.length > 0 && (
+                                            <div className="bg-bg-sub border border-border-theme p-4 rounded-xl space-y-3 mt-4 col-span-1 md:col-span-2 shadow-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-bold text-text-sub">{t('profile.passwordStrength', 'Fortaleza')}: </span>
+                                                    <span className={`text-sm font-black uppercase tracking-widest ${getPasswordStrength(passwordData.newPassword) === 'weak' ? 'text-accent-red' :
+                                                        getPasswordStrength(passwordData.newPassword) === 'medium' ? 'text-brand-secondary' : 'text-accent-green'
+                                                        }`}>
+                                                        {t(`profile.${getPasswordStrength(passwordData.newPassword)}`)}
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-y-2">
+                                                    {Object.entries(validatePassword(passwordData.newPassword)).map(([key, met]) => (
+                                                        <div key={key} className="flex items-center gap-2">
+                                                            {met ? <CheckCircle2 size={14} className="text-accent-green" /> : <Circle size={14} className="text-text-muted" />}
+                                                            <span className={`text-xs ${met ? 'text-accent-green' : 'text-text-sub'}`}>
+                                                                {t(`profile.rule${key.charAt(0).toUpperCase() + key.slice(1)}`)}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex justify-end pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleChangePassword}
+                                            disabled={isChangingPassword || !passwordData.newPassword}
+                                            className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv font-bold py-2 px-5 rounded-xl text-sm shadow-md transition-transform transform hover:scale-105 flex items-center gap-2"
+                                        >
+                                            {isChangingPassword ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
+                                            {t('common.update', 'Actualizar')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                     </div>
 
                     {/* Report Bug Section */}
@@ -488,6 +667,48 @@ export default function Profile() {
                                     )}
                                 </button>
                             </div>
+
+                            {/* FrikiMart Web Toggle */}
+                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
+                                <div className="flex items-center gap-3 flex-1">
+                                    <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
+                                    <div className="space-y-1">
+                                        <p className="font-black text-text-main text-sm uppercase tracking-tight">FrikiMart en Web</p>
+                                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                            {storeWebEnabled ? '🟢 Visible en la web' : '🔴 Oculto en la web (solo app)'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleToggleStoreWeb}
+                                    disabled={isTogglingStoreWeb}
+                                    className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95
+                                        ${storeWebEnabled
+                                            ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20'
+                                            : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
+                                >
+                                    {isTogglingStoreWeb ? <Loader2 size={12} className="animate-spin" /> : (storeWebEnabled ? 'Ocultar' : 'Activar')}
+                                </button>
+                            </div>
+
+                            {/* FrikiMart Admin Modal Toggle */}
+                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
+                                <div className="flex items-center gap-3 flex-1">
+                                    <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
+                                    <div className="space-y-1">
+                                        <p className="font-black text-amber-500 text-sm uppercase tracking-tight">Admin FrikiMart</p>
+                                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                            Gestión de pedidos e inventario
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsAdminFrikiMartOpen(true)}
+                                    className="px-6 py-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-amber-500/30"
+                                >
+                                    Abrir Panel
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -581,6 +802,11 @@ export default function Profile() {
                 onClose={() => setIsAdminBugOpen(false)}
             />
 
-        </div >
+            {/* Admin FrikiMart */}
+            <AdminFrikiMart
+                isOpen={isAdminFrikiMartOpen}
+                onClose={() => setIsAdminFrikiMartOpen(false)}
+            />
+        </div>
     );
 }

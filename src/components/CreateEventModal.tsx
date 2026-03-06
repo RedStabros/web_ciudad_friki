@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Upload, Calendar as CalendarIcon, MapPin, Loader2, Globe, Phone, Ticket, Tag, Hash, Link, PlayCircle } from 'lucide-react';
+import { X, Upload, Calendar as CalendarIcon, MapPin, Loader2, Globe, Phone, Ticket, Tag, Hash, Link, PlayCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { EventService } from '../services/EventService';
+import type { FrikiEvent } from '../services/EventService';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { supabase } from '../lib/supabase';
 import { ALL_INTERESTS } from '../config/interests';
 
-export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boolean, onClose: () => void, onCreated: () => void }) {
+export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { isOpen: boolean, onClose: () => void, onCreated: () => void, initialData?: FrikiEvent }) {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +32,36 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
 
     const [imageFile, setImageFile] = useState<Blob | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (isOpen && initialData) {
+            setFormData({
+                title: initialData.title || '',
+                description: initialData.description || '',
+                date: initialData.date || '',
+                startTime: initialData.start_time || '',
+                endDate: initialData.end_date || '',
+                endTime: initialData.end_time || '',
+                location: initialData.location || '',
+                maps_location_url: initialData.maps_location_url || '',
+                price_min: initialData.price_min || 0,
+                is_free: initialData.is_free || (initialData.price_min === 0),
+                external_link: initialData.external_link || '',
+                whatsapp: initialData.whatsapp || '',
+                tags: initialData.tags || []
+            });
+            setImagePreview(initialData.banner_url || null);
+            setImageFile(null); // No need to re-upload if unmodified
+        } else if (isOpen && !initialData) {
+            setFormData({
+                title: '', description: '', date: '', startTime: '', endDate: '', endTime: '',
+                location: '', maps_location_url: '', price_min: 0, is_free: false,
+                external_link: '', whatsapp: '', tags: []
+            });
+            setImagePreview(null);
+            setImageFile(null);
+        }
+    }, [isOpen, initialData]);
 
     /**
      * Resize image to max 1080px wide and compress to JPEG 0.8
@@ -106,7 +138,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
 
         try {
             // 1. Upload image (already compressed by handleFileChange)
-            let bannerUrl: string | null = null;
+            let bannerUrl: string | null = initialData?.banner_url || null;
             if (imageFile) {
                 const fileName = `${user.id}_${Date.now()}.jpg`;
 
@@ -144,17 +176,22 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
                 tags: formData.tags,
                 banner_url: bannerUrl,            // app uses banner_url (not image_url)
                 created_by: user.id,              // app always sends created_by
-                status: 'pending',            // app sends 'pending' → goes through review
+                status: 'pending' as const,            // app sends 'pending' → goes through review
             };
 
-            // 3. Insert
-            const { error } = await supabase
-                .from('events')
-                .insert(eventData);
+            // 3. Insert or Update
+            if (initialData) {
+                const { error } = await EventService.updateEvent(initialData.id, eventData as any);
+                if (error) throw error;
+                alert('¡Evento actualizado! Quedará pendiente de nueva revisión por los admins.');
+            } else {
+                const { error } = await supabase
+                    .from('events')
+                    .insert(eventData);
+                if (error) throw error;
+                alert(t('events.success', '¡Evento enviado! Quedará pendiente de revisión.'));
+            }
 
-            if (error) throw error;
-
-            alert(t('events.success', '¡Evento enviado! Quedará pendiente de revisión.'));
             onCreated();
             onClose();
         } catch (err: any) {
@@ -177,7 +214,9 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
 
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-divider-theme">
-                    <h2 className="text-xl font-bold text-text-main">{t('events.createTitle')}</h2>
+                    <h2 className="text-xl font-bold text-text-main">
+                        {initialData ? 'Editar Evento' : t('events.createTitle')}
+                    </h2>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition text-text-muted hover:text-text-main">
                         <X size={20} />
                     </button>
@@ -185,6 +224,17 @@ export function CreateEventModal({ isOpen, onClose, onCreated }: { isOpen: boole
 
                 {/* Body Form */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide">
+                    {initialData && (
+                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex gap-3 text-orange-400">
+                            <AlertTriangle size={24} className="shrink-0" />
+                            <div className="text-sm">
+                                <p className="font-bold mb-1">El evento volverá a revisión</p>
+                                <p className="text-orange-400/80 leading-relaxed">
+                                    Al editar tu evento, su estado cambiará a <strong>Pendiente</strong> y deberá ser aprobado de nuevo por un administrador antes de ser público.
+                                </p>
+                            </div>
+                        </div>
+                    )}
                     <form id="createForm" onSubmit={handleSubmit} className="space-y-8">
 
                         {/* Basic Info */}

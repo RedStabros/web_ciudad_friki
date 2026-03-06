@@ -16,6 +16,8 @@ import FrikiVS from './pages/FrikiVS';
 import Legal from './pages/Legal';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
+import FrikiMart from './pages/FrikiMart';
+import Notifications from './pages/NotificationSettings';
 
 function OnboardingGate() {
   const { user, isLoading } = useAuth();
@@ -70,6 +72,8 @@ function App() {
           {/* Profile */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-events" element={<MyEvents />} />
+          <Route path="/frikimart" element={<FrikiMart />} />
+          <Route path="/notifications" element={<Notifications />} />
 
           {/* Gamification */}
           <Route path="/surveys" element={<Surveys />} />

@@ -1,3 +1,14 @@
+export interface NotificationPreferences {
+    push_enabled: boolean;
+    in_app_enabled: boolean;
+    events_by_interests: boolean;
+    event_updates: boolean;
+    wallet_received: boolean;
+    wallet_sent: boolean;
+    surveys: boolean;
+    admin: boolean;
+}
+
 export interface ProfileData {
     username: string;
     full_name: string;
@@ -11,6 +22,7 @@ export interface ProfileData {
     avatar_url: string | null;
     website: string;
     role: 'user' | 'worker' | 'tecnico' | 'admin';
+    notification_preferences?: NotificationPreferences;
 }
 
 export interface WalletData {

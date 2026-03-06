@@ -39,7 +39,7 @@ export default function Home() {
     const { t } = useTranslation();
     const { user } = useAuth();
     const { profile, wallet } = useProfile(user?.id);
-    const { setIsWalletOpen } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void }>();
+    const { setIsWalletOpen, frikiMartVisible } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void, frikiMartVisible?: boolean }>();
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
@@ -196,6 +196,12 @@ export default function Home() {
                         <img src="/assets/icon_vs.png" alt="Friki VS" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
                         Friki VS
                     </Link>
+                    {frikiMartVisible && (
+                        <Link to="/frikimart" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                            <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
+                            FrikiMart
+                        </Link>
+                    )}
                 </nav>
 
                 <div className="border-t border-divider-theme my-4"></div>

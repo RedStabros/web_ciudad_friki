@@ -74,6 +74,7 @@ export default function MyEvents() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
+    const [eventToEdit, setEventToEdit] = useState<MyEvent | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ action: 'cancel' | 'postpone'; eventId: string } | null>(null);
     const [_savedIds, setSavedIds] = useState<string[]>([]);
@@ -232,7 +233,7 @@ export default function MyEvents() {
                             tab={tab}
                             actionLoading={actionLoading === event.id}
                             onView={() => setSelectedEvent(event)}
-                            onEdit={() => setSelectedEvent(event)}
+                            onEdit={() => setEventToEdit(event)}
                             onUnsave={() => handleUnsave(event.id)}
                             onConfirmAction={(action) => setConfirmModal({ action, eventId: event.id })}
                         />
@@ -286,11 +287,12 @@ export default function MyEvents() {
             )}
 
             {/* Create/New Event shortcut */}
-            {showCreateModal && (
+            {(showCreateModal || eventToEdit) && (
                 <CreateEventModal
-                    isOpen={showCreateModal}
-                    onClose={() => setShowCreateModal(false)}
-                    onCreated={() => { setShowCreateModal(false); fetchEvents(); }}
+                    isOpen={true}
+                    initialData={eventToEdit as any}
+                    onClose={() => { setShowCreateModal(false); setEventToEdit(null); }}
+                    onCreated={() => { setShowCreateModal(false); setEventToEdit(null); fetchEvents(); }}
                 />
             )}
         </div>

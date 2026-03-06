@@ -11,6 +11,7 @@ import Footer from './Footer';
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
+import { getFrikiMartVisibility } from '../pages/FrikiMart';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
@@ -27,6 +28,7 @@ export default function RootLayout() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [surveyBadge, setSurveyBadge] = useState(0);
     const [triviaBadge, setTriviaBadge] = useState(0);
+    const [frikiMartVisible, setFrikiMartVisible] = useState(false);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -58,6 +60,21 @@ export default function RootLayout() {
         loadBadges();
         loadUnread();
 
+        // FrikiMart visibility
+        getFrikiMartVisibility(user?.id).then(({ globalEnabled, webEnabled }) => {
+            setFrikiMartVisible(globalEnabled && webEnabled);
+        });
+
+        // Listen for global_settings changes (realtime)
+        const settingsSub = supabase
+            .channel('frikimart_visibility')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'global_settings' }, () => {
+                getFrikiMartVisibility(user?.id).then(({ globalEnabled, webEnabled }) => {
+                    setFrikiMartVisible(globalEnabled && webEnabled);
+                });
+            })
+            .subscribe();
+
         // Realtime subscription for notifications
         const notifSub = supabase
             .channel(`notif_badge_${user.id}`)
@@ -65,7 +82,7 @@ export default function RootLayout() {
                 () => loadUnread())
             .subscribe();
 
-        return () => { supabase.removeChannel(notifSub); };
+        return () => { supabase.removeChannel(notifSub); supabase.removeChannel(settingsSub); };
     }, [user?.id]);
 
     // When notification modal closes, refresh unread count
@@ -101,6 +118,9 @@ export default function RootLayout() {
                             <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
                             <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} badge={triviaBadge} />
                             <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" />
+                            {frikiMartVisible && (
+                                <NavLink to="/frikimart" icon={<img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-[18px] h-[18px] object-contain" />} label="FrikiMart" />
+                            )}
                         </div>
                     </div>
 
@@ -161,6 +181,10 @@ export default function RootLayout() {
                                                 <Calendar size={14} className="text-text-muted" />
                                                 {t('events.myEvents', 'Mis Eventos')}
                                             </Link>
+                                            <Link to="/notifications" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
+                                                <Bell size={14} className="text-text-muted" />
+                                                Notificaciones
+                                            </Link>
                                             <div className="my-1 border-t border-border-theme"></div>
                                             <button onClick={() => signOut()} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-accent-red font-bold hover:bg-accent-red/10 rounded-lg transition-colors">
                                                 <LogOut size={16} /> {t('dashboard.logout')}
@@ -183,7 +207,7 @@ export default function RootLayout() {
             </nav>
 
             <main className="flex-1 w-full relative pb-16 md:pb-0">
-                <Outlet context={{ setIsWalletOpen }} />
+                <Outlet context={{ setIsWalletOpen, frikiMartVisible }} />
             </main>
 
             {!isMaintenance && <Footer />}

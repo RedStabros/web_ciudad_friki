@@ -18,11 +18,12 @@ export interface FrikiEvent {
     tags?: string[];
     image_url: string | null;
     banner_url: string | null;
-    status: 'draft' | 'approved' | 'rejected' | 'cancelled';
+    status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'delayed';
     is_sponsored: boolean;
     likes_count: number;
     saved_count: number;
     average_rating?: number;
+    created_by?: string;
     // Transient UI properties
     isLiked?: boolean;
     isSaved?: boolean;
@@ -236,6 +237,22 @@ export const EventService = {
             return { data, error: null };
         } catch (error: any) {
             console.error('createEvent error:', error);
+            return { error, data: null };
+        }
+    },
+
+    async updateEvent(id: string, eventData: Partial<FrikiEvent>) {
+        try {
+            const { error, data } = await supabase
+                .from('events')
+                .update(eventData)
+                .eq('id', id)
+                .select()
+                .single();
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error: any) {
+            console.error('updateEvent error:', error);
             return { error, data: null };
         }
     },

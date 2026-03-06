@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { ProfileData } from '../types/profile';
+import type { ProfileData, NotificationPreferences } from '../types/profile';
 
 export interface Notification {
     id: string;
@@ -28,15 +28,37 @@ export const UserService = {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('username, full_name, avatar_url, role, interests, bio, phone, city, country, neighborhood, website, email')
+                .select('username, full_name, avatar_url, role, interests, bio, phone, city, country, neighborhood, website, email, notification_preferences(*)')
                 .eq('id', userId)
                 .single();
 
             if (error) throw error;
-            return { profile: data as ProfileData, error: null };
+
+            if (data.notification_preferences && Array.isArray(data.notification_preferences)) {
+                data.notification_preferences = data.notification_preferences[0];
+            }
+
+            return { profile: data as unknown as ProfileData, error: null };
         } catch (error) {
             console.error('UserService.getProfile error:', error);
             return { profile: null, error };
+        }
+    },
+
+    /**
+     * Update user notification preferences
+     */
+    async updateNotificationPreferences(userId: string, prefs: Partial<NotificationPreferences>) {
+        try {
+            const { error } = await supabase
+                .from('notification_preferences')
+                .upsert({ user_id: userId, ...prefs }, { onConflict: 'user_id' });
+
+            if (error) throw error;
+            return { error: null };
+        } catch (error) {
+            console.error('UserService.updateNotificationPreferences error:', error);
+            return { error };
         }
     },
 
@@ -102,6 +124,43 @@ export const UserService = {
         } catch (error) {
             console.error('UserService.getNotifications error:', error);
             return { notifications: [], error };
+        }
+    },
+
+    /**
+     * Mark a single notification as read
+     */
+    async markNotificationRead(notificationId: string) {
+        try {
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('id', notificationId);
+
+            if (error) throw error;
+            return { success: true, error: null };
+        } catch (error) {
+            console.error('UserService.markNotificationRead error:', error);
+            return { success: false, error };
+        }
+    },
+
+    /**
+     * Mark all notifications as read for a user
+     */
+    async markAllNotificationsRead(userId: string) {
+        try {
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('user_id', userId)
+                .eq('is_read', false);
+
+            if (error) throw error;
+            return { success: true, error: null };
+        } catch (error) {
+            console.error('UserService.markAllNotificationsRead error:', error);
+            return { success: false, error };
         }
     },
 
