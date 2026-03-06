@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AdminSurvey, SurveyData, SurveyStatus, SurveyAnalytics, SurveyResponseDetail } from '../types/survey';
+import type { AdminSurvey, SurveyData, SurveyStatus, SurveyAnalytics, SurveyResponseDetail } from '../types/survey';
 
 /**
  * Survey Admin Service for Web

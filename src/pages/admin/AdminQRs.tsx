@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
-    QrCode, PlusCircle, Filter, Loader2, Trash2, Edit3,
+    QrCode, PlusCircle, Loader2, Trash2, Edit3,
     PieChart, UserPlus, XCircle, Search, Power, Shield
 } from 'lucide-react';
-import { QRAdminService, EventCode, QRAssignment } from '../../services/QRAdminService';
+import { QRAdminService } from '../../services/QRAdminService';
+import type { EventCode, QRAssignment } from '../../services/QRAdminService';
 import { useAuth } from '../../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 

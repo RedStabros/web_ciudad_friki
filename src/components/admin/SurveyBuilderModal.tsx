@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     X, AlertCircle, PlusCircle, Trash2, ArrowUp, ArrowDown,
     Save, Play, FileText, CheckSquare, List, Star, Activity, Loader2
 } from 'lucide-react';
 import { SurveyAdminService } from '../../services/SurveyAdminService';
-import { AdminSurvey, SurveyQuestion, QuestionType, SurveyData } from '../../types/survey';
+import type { AdminSurvey, SurveyQuestion, QuestionType, SurveyData } from '../../types/survey';
 
 interface SurveyBuilderModalProps {
     isOpen: boolean;

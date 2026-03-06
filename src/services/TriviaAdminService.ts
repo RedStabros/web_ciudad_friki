@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Trivia, TriviaQuestion, TriviaStatus, TriviaParticipant } from '../types/trivia';
+import type { Trivia, TriviaQuestion, TriviaStatus } from '../types/trivia';
 
 export const TriviaAdminService = {
     async getAllTriviasWithStats(): Promise<Trivia[]> {

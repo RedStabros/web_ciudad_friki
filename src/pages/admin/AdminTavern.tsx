@@ -3,7 +3,8 @@ import {
     ShieldAlert, CheckCircle2, XCircle, FileText, MessageSquare,
     Settings, Loader2, Beer, AlertTriangle
 } from 'lucide-react';
-import { TavernAdminService, PendingReviewItem } from '../../services/TavernAdminService';
+import { TavernAdminService } from '../../services/TavernAdminService';
+import type { PendingReviewItem } from '../../services/TavernAdminService';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminTavern() {

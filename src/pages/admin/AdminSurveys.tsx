@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileText, Loader2, Play, Pause, XCircle, CheckCircle, Edit3, Trash2, PieChart, Star, PlusCircle, Filter } from 'lucide-react';
+import { FileText, Loader2, Play, Pause, XCircle, Edit3, PieChart, Star, PlusCircle, Filter } from 'lucide-react';
 import { SurveyAdminService } from '../../services/SurveyAdminService';
-import { AdminSurvey, SurveyStatus } from '../../types/survey';
+import type { AdminSurvey, SurveyStatus } from '../../types/survey';
 import { SurveyBuilderModal } from '../../components/admin/SurveyBuilderModal';
 import { useAuth } from '../../context/AuthContext';
 
@@ -139,8 +139,8 @@ export default function AdminSurveys() {
                         key={filter}
                         onClick={() => setActiveFilter(filter)}
                         className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap capitalize ${activeFilter === filter
-                                ? 'border-brand-primary text-brand-primary'
-                                : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                             }`}
                     >
                         {filter === 'all' ? 'Todas' : getStatusLabel(filter as SurveyStatus)}

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     X, PlusCircle, Trash2, ArrowUp, ArrowDown,
     Save, Play, Loader2
 } from 'lucide-react';
 import { TriviaAdminService } from '../../services/TriviaAdminService';
-import { Trivia, TriviaQuestion, TriviaQuestionOption } from '../../types/trivia';
+import type { Trivia, TriviaQuestion } from '../../types/trivia';
 
 interface TriviaBuilderModalProps {
     isOpen: boolean;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Gamepad2, Loader2, Play, Pause, XCircle, Edit3, PieChart, Timer, Target, PlusCircle, Filter } from 'lucide-react';
 import { TriviaAdminService } from '../../services/TriviaAdminService';
-import { Trivia, TriviaStatus } from '../../types/trivia';
+import type { Trivia, TriviaStatus } from '../../types/trivia';
 import { TriviaBuilderModal } from '../../components/admin/TriviaBuilderModal';
 import { useAuth } from '../../context/AuthContext';
 
@@ -140,8 +140,8 @@ export default function AdminTrivias() {
                         key={filter}
                         onClick={() => setActiveFilter(filter)}
                         className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap capitalize ${activeFilter === filter
-                                ? 'border-brand-primary text-brand-primary'
-                                : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                             }`}
                     >
                         {filter === 'all' ? 'Todas' : getStatusLabel(filter as TriviaStatus)}
