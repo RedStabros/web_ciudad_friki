@@ -11,7 +11,7 @@ import Footer from './Footer';
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
-import { getFrikiMartVisibility } from '../pages/FrikiMart';
+import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
@@ -29,7 +29,8 @@ export default function RootLayout() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [surveyBadge, setSurveyBadge] = useState(0);
     const [triviaBadge, setTriviaBadge] = useState(0);
-    const [frikiMartVisible, setFrikiMartVisible] = useState(false);
+    const { tavern, frikiVs, frikiMartGlobal, frikiMartWeb } = useGlobalFeatures(user?.id);
+    const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
 
     useEffect(() => {
         if (!user?.id) return;
@@ -61,20 +62,7 @@ export default function RootLayout() {
         loadBadges();
         loadUnread();
 
-        // FrikiMart visibility
-        getFrikiMartVisibility(user?.id).then(({ globalEnabled, webEnabled }) => {
-            setFrikiMartVisible(globalEnabled && webEnabled);
-        });
-
-        // Listen for global_settings changes (realtime)
-        const settingsSub = supabase
-            .channel('frikimart_visibility')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'global_settings' }, () => {
-                getFrikiMartVisibility(user?.id).then(({ globalEnabled, webEnabled }) => {
-                    setFrikiMartVisible(globalEnabled && webEnabled);
-                });
-            })
-            .subscribe();
+        // Listener for notifications
 
         // Realtime subscription for notifications
         const notifSub = supabase
@@ -83,7 +71,7 @@ export default function RootLayout() {
                 () => loadUnread())
             .subscribe();
 
-        return () => { supabase.removeChannel(notifSub); supabase.removeChannel(settingsSub); };
+        return () => { supabase.removeChannel(notifSub); };
     }, [user?.id]);
 
     // When notification modal closes, refresh unread count
@@ -115,10 +103,10 @@ export default function RootLayout() {
 
                         <div className="hidden lg:flex items-center gap-1 ml-4 border-l border-border-theme pl-4">
                             <NavLink to="/" icon={<Home size={18} />} label={t('nav.home')} />
-                            <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} />
+                            {tavern && <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} />}
                             <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
                             <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} badge={triviaBadge} />
-                            <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" />
+                            {frikiVs && <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" />}
                             {frikiMartVisible && (
                                 <NavLink to="/frikimart" icon={<img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-[18px] h-[18px] object-contain" />} label="FrikiMart" />
                             )}
@@ -222,10 +210,10 @@ export default function RootLayout() {
             {/* Mobile Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg-side border-t border-border-theme flex items-center justify-around h-16 safe-padding">
                 <MobileNavLink to="/" icon={<Home size={22} />} label={t('nav.home')} />
-                <MobileNavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-6 h-6 object-contain" />} label={t('nav.tavern')} />
+                {tavern && <MobileNavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-6 h-6 object-contain" />} label={t('nav.tavern')} />}
                 <MobileNavLink to="/surveys" icon={<BarChart2 size={22} />} label={t('nav.surveys')} badge={surveyBadge} />
                 <MobileNavLink to="/trivias" icon={<Gamepad2 size={22} />} label={t('nav.trivias')} badge={triviaBadge} />
-                <MobileNavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="VS" className="w-6 h-6 object-contain" />} label="VS" />
+                {frikiVs && <MobileNavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="VS" className="w-6 h-6 object-contain" />} label="VS" />}
                 <MobileNavLink to="/profile" icon={<Grid size={22} />} label={t('nav.profile')} />
             </nav>
 
