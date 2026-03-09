@@ -8,7 +8,7 @@ import type { PendingReviewItem } from '../../services/TavernAdminService';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminTavern() {
-    const { user } = useAuth();
+    const { user, isSuperuser } = useAuth();
 
     const [activeTab, setActiveTab] = useState<'pending' | 'settings'>('pending');
     const [pendingItems, setPendingItems] = useState<PendingReviewItem[]>([]);
@@ -88,13 +88,15 @@ export default function AdminTavern() {
                 >
                     <AlertTriangle size={18} /> Cola de AutoMod {pendingItems.length > 0 && `(${pendingItems.length})`}
                 </button>
-                <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
-                        }`}
-                >
-                    <Settings size={18} /> Ajustes Globales 🔒
-                </button>
+                {isSuperuser && (
+                    <button
+                        onClick={() => setActiveTab('settings')}
+                        className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
+                            }`}
+                    >
+                        <Settings size={18} /> Ajustes Globales 👑
+                    </button>
+                )}
             </div>
 
             {/* List */}
@@ -171,7 +173,7 @@ export default function AdminTavern() {
                             ))}
                         </div>
                     )
-                ) : (
+                ) : activeTab === 'settings' && isSuperuser ? (
                     <div className="max-w-2xl">
                         <h2 className="text-xl font-black text-text-main mb-6 flex items-center gap-2">
                             <Settings size={20} className="text-amber-500" /> Preferencias Globales
@@ -203,7 +205,7 @@ export default function AdminTavern() {
                             {savingSetting && <p className="text-xs text-brand-primary flex gap-1 items-center justify-end"><Loader2 className="animate-spin" size={12} /> Guardando...</p>}
                         </div>
                     </div>
-                )}
+                ) : null}
             </div>
         </div>
     );

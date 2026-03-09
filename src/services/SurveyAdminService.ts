@@ -102,9 +102,59 @@ export const SurveyAdminService = {
                     p_offset: offset
                 });
             if (error) throw error;
-            return { data: data as SurveyResponseDetail[], error: null };
+
+            const responses = data as SurveyResponseDetail[];
+            const userIds = [...new Set(responses.map(r => r.user_id))];
+
+            if (userIds.length > 0) {
+                const { data: profiles } = await supabase
+                    .from('profiles')
+                    .select('id, avatar_url')
+                    .in('id', userIds);
+
+                if (profiles) {
+                    const profileMap = new Map(profiles.map(p => [p.id, p]));
+                    responses.forEach(r => {
+                        const profile = profileMap.get(r.user_id);
+                        if (profile) r.avatar_url = profile.avatar_url;
+                    });
+                }
+            }
+
+            return { data: responses, error: null };
         } catch (error: any) {
             console.error('Error fetching survey responses:', error);
+            return { data: null, error };
+        }
+    },
+
+    async getAllSurveyResponses(surveyId: string) {
+        try {
+            const { data, error } = await supabase
+                .rpc('get_all_survey_responses', { p_survey_id: surveyId });
+            if (error) throw error;
+
+            const responses = data as SurveyResponseDetail[];
+            const userIds = [...new Set(responses.map(r => r.user_id))];
+
+            if (userIds.length > 0) {
+                const { data: profiles } = await supabase
+                    .from('profiles')
+                    .select('id, avatar_url')
+                    .in('id', userIds);
+
+                if (profiles) {
+                    const profileMap = new Map(profiles.map(p => [p.id, p]));
+                    responses.forEach(r => {
+                        const profile = profileMap.get(r.user_id);
+                        if (profile) r.avatar_url = profile.avatar_url;
+                    });
+                }
+            }
+
+            return { data: responses, error: null };
+        } catch (error: any) {
+            console.error('Error fetching all survey responses:', error);
             return { data: null, error };
         }
     }

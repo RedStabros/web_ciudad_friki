@@ -191,5 +191,78 @@ export const TriviaAdminService = {
         } catch (error) {
             return { error };
         }
+    },
+
+    async getTriviaAnalytics(triviaId: string) {
+        try {
+            // Get all attempts for this trivia
+            const { data: attempts, error: attemptsError } = await supabase
+                .from('trivia_attempts')
+                .select('id, user_id, score, completed_at')
+                .eq('trivia_id', triviaId)
+                .order('completed_at', { ascending: false });
+
+            if (attemptsError) throw attemptsError;
+
+            // Get trivia questions to calculate total questions
+            const questions = await this.getTriviaDetails(triviaId);
+            const totalQuestions = questions.length;
+            const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+
+            // Get unique user IDs
+            const userIds = [...new Set((attempts || []).map(a => a.user_id))];
+
+            // Fetch user profiles
+            const { data: profiles, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            if (profilesError) throw profilesError;
+
+            const profileMap = new Map(
+                (profiles || []).map(p => [p.id, p])
+            );
+
+            const processedAttempts = (attempts || []).map((attempt: any) => {
+                const profile = profileMap.get(attempt.user_id);
+                const pointsPerQuestion = totalQuestions > 0 ? totalPoints / totalQuestions : 10;
+                const correctCount = Math.round(attempt.score / pointsPerQuestion);
+
+                return {
+                    id: attempt.id,
+                    user_id: attempt.user_id,
+                    username: profile?.username || 'Usuario',
+                    avatar_url: profile?.avatar_url || null,
+                    score: attempt.score,
+                    correct_count: correctCount,
+                    total_questions: totalQuestions,
+                    completed_at: attempt.completed_at,
+                };
+            });
+
+            const totalAttempts = processedAttempts.length;
+            const totalCoinsDistributed = processedAttempts.reduce((sum, a) => sum + a.score, 0);
+            const averageScore = totalAttempts > 0
+                ? (processedAttempts.reduce((sum, a) => sum + (a.correct_count / a.total_questions * 100), 0) / totalAttempts)
+                : 0;
+
+            return {
+                attempts: processedAttempts,
+                stats: {
+                    totalAttempts,
+                    totalCoinsDistributed,
+                    averageScore,
+                },
+                error: null
+            };
+        } catch (error: any) {
+            console.error('Error getting trivia analytics:', error);
+            return {
+                attempts: [],
+                stats: { totalAttempts: 0, totalCoinsDistributed: 0, averageScore: 0 },
+                error
+            };
+        }
     }
 };

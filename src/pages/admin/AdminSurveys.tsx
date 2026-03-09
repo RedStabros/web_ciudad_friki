@@ -3,6 +3,7 @@ import { FileText, Loader2, Play, Pause, XCircle, Edit3, PieChart, Star, PlusCir
 import { SurveyAdminService } from '../../services/SurveyAdminService';
 import type { AdminSurvey, SurveyStatus } from '../../types/survey';
 import { SurveyBuilderModal } from '../../components/admin/SurveyBuilderModal';
+import { SurveyAnalyticsModal } from '../../components/admin/SurveyAnalyticsModal';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminSurveys() {
@@ -16,7 +17,9 @@ export default function AdminSurveys() {
 
     // Modals
     const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+    const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
     const [surveyToEdit, setSurveyToEdit] = useState<AdminSurvey | null>(null);
+    const [selectedSurveyAnalytics, setSelectedSurveyAnalytics] = useState<(AdminSurvey & { questions: any[] }) | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -42,6 +45,20 @@ export default function AdminSurveys() {
             }
         } catch (error) {
             console.error('Error loading admin surveys:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewResults = async (survey: AdminSurvey) => {
+        setLoading(true);
+        try {
+            const { data: questions, error } = await SurveyAdminService.getSurveyQuestions(survey.id);
+            if (error) throw error;
+            setSelectedSurveyAnalytics({ ...survey, questions: questions || [] });
+            setIsAnalyticsOpen(true);
+        } catch (error) {
+            alert('Error al cargar preguntas de la encuesta');
         } finally {
             setLoading(false);
         }
@@ -150,7 +167,7 @@ export default function AdminSurveys() {
 
             {/* Surveys List */}
             <div className="bg-bg-pop border border-t-0 border-border-theme rounded-b-2xl p-4 sm:p-6 shadow-sm min-h-[400px]">
-                {loading ? (
+                {loading && surveys.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin text-brand-primary mb-4" size={40} />
                         <p className="font-bold">Cargando Encuestas...</p>
@@ -237,7 +254,7 @@ export default function AdminSurveys() {
 
                                     {item.response_count > 0 && (
                                         <button
-                                            onClick={() => alert('Resultados en desarrollo...')}
+                                            onClick={() => handleViewResults(item)}
                                             className="w-full mt-2 flex items-center justify-center gap-2 py-2 text-sm font-black rounded-xl bg-brand-primary/10 text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-white transition"
                                         >
                                             <PieChart size={16} /> Ver Resultados
@@ -256,6 +273,12 @@ export default function AdminSurveys() {
                 userId={user?.id || ''}
                 surveyToEdit={surveyToEdit}
                 onSave={() => { setIsBuilderOpen(false); setSurveyToEdit(null); loadSurveys(); }}
+            />
+
+            <SurveyAnalyticsModal
+                isOpen={isAnalyticsOpen}
+                onClose={() => { setIsAnalyticsOpen(false); setSelectedSurveyAnalytics(null); }}
+                survey={selectedSurveyAnalytics}
             />
         </div>
     );

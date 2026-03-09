@@ -17,7 +17,8 @@ import Legal from './pages/Legal';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import FrikiMart from './pages/FrikiMart';
-import Notifications from './pages/NotificationSettings';
+import Notifications from './pages/Notifications';
+import NotificationSettings from './pages/NotificationSettings';
 import AdminLayout from './components/AdminLayout';
 import AdminRoles from './pages/admin/AdminRoles';
 import AdminEvents from './pages/admin/AdminEvents';
@@ -26,30 +27,49 @@ import AdminTrivias from './pages/admin/AdminTrivias';
 import AdminQRs from './pages/admin/AdminQRs';
 import AdminTavern from './pages/admin/AdminTavern';
 import AdminGM from './pages/admin/AdminGM';
+import AdminFrikiMartPage from './pages/admin/AdminFrikiMartPage';
+import AdminToolsPage from './pages/admin/AdminToolsPage';
 
 function OnboardingGate() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const [isChecking, setIsChecking] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
-  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      setNeedsOnboarding(false);
-      return;
+    let isMounted = true;
+
+    async function checkStatus() {
+      if (!user) {
+        if (isMounted) {
+          setNeedsOnboarding(false);
+          setIsChecking(false);
+        }
+        return;
+      }
+
+      setIsChecking(true);
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('profile_completed')
+          .eq('id', user.id)
+          .single();
+
+        if (isMounted) {
+          setNeedsOnboarding(data ? !data.profile_completed : false);
+        }
+      } catch (err) {
+        console.error('Onboarding check error:', err);
+      } finally {
+        if (isMounted) setIsChecking(false);
+      }
     }
-    setChecking(true);
-    supabase
-      .from('profiles')
-      .select('profile_completed')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => {
-        setNeedsOnboarding(data ? !data.profile_completed : false);
-        setChecking(false);
-      });
+
+    checkStatus();
+    return () => { isMounted = false; };
   }, [user?.id]);
 
-  if (isLoading || checking) return null;
+  if (authLoading || isChecking) return null;
 
   if (user && needsOnboarding) {
     return (
@@ -82,6 +102,7 @@ function App() {
           <Route path="/my-events" element={<MyEvents />} />
           <Route path="/frikimart" element={<FrikiMart />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/settings/notifications" element={<NotificationSettings />} />
 
           {/* Gamification */}
           <Route path="/surveys" element={<Surveys />} />
@@ -103,8 +124,10 @@ function App() {
             <Route path="events" element={<AdminEvents />} />
             <Route path="surveys" element={<AdminSurveys />} />
             <Route path="trivias" element={<AdminTrivias />} />
+            <Route path="frikimart" element={<AdminFrikiMartPage />} />
             <Route path="qrs" element={<AdminQRs />} />
             <Route path="tavern" element={<AdminTavern />} />
+            <Route path="tools" element={<AdminToolsPage />} />
             <Route path="gm" element={<AdminGM />} />
           </Route>
 

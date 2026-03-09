@@ -42,6 +42,22 @@ export function SurveyBuilderModal({
     const [hasResponses, setHasResponses] = useState(false);
 
     useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen]);
+
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen]);
+
+    useEffect(() => {
         if (isOpen) {
             if (surveyToEdit) {
                 setTitle(surveyToEdit.title);
@@ -206,7 +222,12 @@ export function SurveyBuilderModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in">
+        <div
+            className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in"
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+        >
             <div className="bg-bg-side w-full max-w-2xl h-full shadow-2xl flex flex-col border-l border-border-theme relative slide-in-from-right duration-300">
 
                 {/* Header */}
@@ -221,8 +242,12 @@ export function SurveyBuilderModal({
                             </p>
                         )}
                     </div>
-                    <button onClick={onClose} className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-bg-side transition">
-                        <X size={24} />
+                    <button
+                        onClick={onClose}
+                        className="group p-2 text-text-muted hover:text-accent-red rounded-full hover:bg-accent-red/10 transition-all duration-300"
+                        title="Cerrar (Esc)"
+                    >
+                        <X size={28} className="group-hover:rotate-90 transition-transform duration-300" />
                     </button>
                 </div>
 
@@ -381,9 +406,14 @@ export function SurveyBuilderModal({
                             <h2 className="text-lg font-black text-text-main flex items-center gap-2">
                                 {getIconForType(currentQuestion.type)} Editando Pregunta
                             </h2>
-                            <button onClick={saveCurrentQuestion} className="bg-brand-primary hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition">
-                                Hecho
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => { setCurrentQuestion(null); setEditingQuestionIndex(null); }} className="px-4 py-2 text-text-muted hover:text-text-main font-bold transition">
+                                    Cancelar
+                                </button>
+                                <button onClick={saveCurrentQuestion} className="bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded-xl text-sm font-bold transition shadow-md shadow-amber-500/20">
+                                    Hecho
+                                </button>
+                            </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             <div>
@@ -458,6 +488,6 @@ export function SurveyBuilderModal({
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

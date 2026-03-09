@@ -15,9 +15,10 @@ interface EventDetailsModalProps {
     event: FrikiEvent | null;
     onSaveToggle?: () => void;
     onLikeToggle?: () => void;
+    isAdminMode?: boolean;
 }
 
-export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLikeToggle }: EventDetailsModalProps) {
+export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLikeToggle, isAdminMode = false }: EventDetailsModalProps) {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
 
@@ -180,11 +181,13 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={onLikeToggle} className={`p-2 rounded-full border transition ${event.isLiked ? 'border-brand-primary bg-brand-primary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
+                                    <button onClick={onLikeToggle} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${event.isLiked ? 'border-brand-primary bg-brand-primary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
                                         <Heart size={20} className={event.isLiked ? 'text-brand-primary' : 'text-text-muted'} fill={event.isLiked ? 'currentColor' : 'none'} />
+                                        <span className={`text-sm font-bold ${event.isLiked ? 'text-brand-primary' : 'text-text-muted'}`}>{event.likes_count || 0}</span>
                                     </button>
-                                    <button onClick={onSaveToggle} className={`p-2 rounded-full border transition ${event.isSaved ? 'border-brand-secondary bg-brand-secondary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
+                                    <button onClick={onSaveToggle} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${event.isSaved ? 'border-brand-secondary bg-brand-secondary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
                                         <Bookmark size={20} className={event.isSaved ? 'text-brand-secondary' : 'text-text-muted'} fill={event.isSaved ? 'currentColor' : 'none'} />
+                                        {isAdminMode && <span className={`text-sm font-bold ${event.isSaved ? 'text-brand-secondary' : 'text-text-muted'}`}>{event.saved_count || 0}</span>}
                                     </button>
                                     <button
                                         onClick={handleShare}

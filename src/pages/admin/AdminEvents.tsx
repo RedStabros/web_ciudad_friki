@@ -384,6 +384,7 @@ export default function AdminEvents() {
                     isOpen={!!viewEvent}
                     onClose={() => setViewEvent(null)}
                     event={viewEvent}
+                    isAdminMode={true}
                 />
             )}
         </div>

@@ -1,6 +1,6 @@
 # 📚 Ciudad Friki — Web App: Contexto Completo del Proyecto
 
-> Última actualización: 2026-03-03
+> Última actualización: 2026-03-08
 > Este documento describe el estado actual de la web app y sirve como punto de entrada para continuar el desarrollo en nuevas sesiones de IA.
 
 ---
@@ -74,12 +74,14 @@ src/
 │   ├── Profile.tsx           # Perfil de usuario + edición
 │   ├── Login.tsx             # Autenticación
 │   ├── Maintenance.tsx       # Página de mantenimiento
+│   ├── AdminToolsPage.tsx    # Herramientas de Administrador (Stats, Whales, Online)
 │   └── Legal.tsx             # Términos y privacidad
 ├── services/
 │   ├── TriviaService.ts      # Trivias clásicas + VS duelos
 │   ├── EventService.ts       # Eventos (crear, listar, imagen)
 │   ├── TavernService.ts      # Taberna (hilos, respuestas, encuestas)
 │   ├── SurveyService.ts      # Encuestas independientes
+│   ├── AdminToolsService.ts  # Stats de administración, wallets y métricas
 │   ├── UserService.ts        # Perfil, avatar, balance
 │   └── SystemService.ts      # Config global (mantenimiento)
 ├── context/
@@ -282,6 +284,12 @@ opt.is_correct  // para detectar respuesta correcta
 ### ✅ Mantenimiento
 - `MaintenanceGuard.tsx` consulta `system_config` y bloquea la app si `maintenance_mode = true`
 
+### ✅ Herramientas Admin (`AdminToolsPage.tsx`)
+- Dashboard con estadísticas: Cuentas totales, Supply (Circulation/Admin), Encuestas (Activas/Drafts), Transacciones.
+- Lista de Whales: Top 5 usuarios con mayor balance (fetching optimizado de emails y avatares).
+- Presencia: Monitorización de admins online vía Presence Channels.
+- Moderación: Integración con `EventDetailsModal` para ver métricas de tráfico (likes/saves).
+
 ### ✅ Iconos de categorías VS
 - `utils/triviaIcons.ts` mapea el campo `icon` de `triviaduels_categories` a imágenes locales
 - Iconos copiados desde `D:\APP_development\Ciudad_friki\mobile\assets\icons`
@@ -358,7 +366,6 @@ El timer es **global para toda la trivia** (basado en `time_limit_seconds` de la
 
 - [ ] **VS Gameplay**: Verificar que el duelo recién creado siempre tenga `question_ids` al momento del SELECT inmediato (puede haber race condition si el RPC es lento)
 - [ ] **Offline / error states**: Algunos estados de error son básicos, mejorar UX de errores de red
-- [ ] **Admin panel**: No implementado en la web (solo en la app)
 - [ ] **Notificaciones push**: No implementadas en web
 - [ ] **Chat/mensajería directa**: No implementado en web
 - [ ] **Trivia VS ResultScreen completa**: El resultado post-duelo muestra datos básicos, comparar más en detalle con `TriviaVSResultScreen.tsx` de la app

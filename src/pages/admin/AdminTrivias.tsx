@@ -3,6 +3,7 @@ import { Gamepad2, Loader2, Play, Pause, XCircle, Edit3, PieChart, Timer, Target
 import { TriviaAdminService } from '../../services/TriviaAdminService';
 import type { Trivia, TriviaStatus } from '../../types/trivia';
 import { TriviaBuilderModal } from '../../components/admin/TriviaBuilderModal';
+import { TriviaAnalyticsModal } from '../../components/admin/TriviaAnalyticsModal';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminTrivias() {
@@ -16,7 +17,9 @@ export default function AdminTrivias() {
 
     // Modals
     const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+    const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
     const [triviaToEdit, setTriviaToEdit] = useState<Trivia | null>(null);
+    const [selectedTriviaAnalytics, setSelectedTriviaAnalytics] = useState<{ id: string, title: string } | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -41,6 +44,11 @@ export default function AdminTrivias() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleViewAnalytics = (trivia: Trivia) => {
+        setSelectedTriviaAnalytics({ id: trivia.id, title: trivia.title });
+        setIsAnalyticsOpen(true);
     };
 
     const handleStatusChange = async (triviaId: string, newStatus: TriviaStatus) => {
@@ -151,7 +159,7 @@ export default function AdminTrivias() {
 
             {/* Trivias List */}
             <div className="bg-bg-pop border border-t-0 border-border-theme rounded-b-2xl p-4 sm:p-6 shadow-sm min-h-[400px]">
-                {loading ? (
+                {loading && trivias.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin text-brand-primary mb-4" size={40} />
                         <p className="font-bold">Cargando Trivias...</p>
@@ -241,7 +249,7 @@ export default function AdminTrivias() {
 
                                     {(item.attempt_count || 0) > 0 && (
                                         <button
-                                            onClick={() => alert('Resultados y Analytics en desarrollo...')}
+                                            onClick={() => handleViewAnalytics(item)}
                                             className="w-full mt-2 flex items-center justify-center gap-2 py-2 text-sm font-black rounded-xl bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/30 hover:bg-brand-secondary hover:text-white transition"
                                         >
                                             <PieChart size={16} /> Ver Analytics
@@ -260,6 +268,15 @@ export default function AdminTrivias() {
                 triviaToEdit={triviaToEdit}
                 onSave={() => { setIsBuilderOpen(false); setTriviaToEdit(null); loadTrivias(); }}
             />
+
+            {selectedTriviaAnalytics && (
+                <TriviaAnalyticsModal
+                    isOpen={isAnalyticsOpen}
+                    onClose={() => { setIsAnalyticsOpen(false); setSelectedTriviaAnalytics(null); }}
+                    triviaId={selectedTriviaAnalytics.id}
+                    triviaTitle={selectedTriviaAnalytics.title}
+                />
+            )}
         </div>
     );
 }

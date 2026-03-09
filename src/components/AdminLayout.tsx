@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2 } from 'lucide-react';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard } from 'lucide-react';
+import { SuperAdminService } from '../services/SuperAdminService';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminLayout() {
@@ -12,6 +14,15 @@ export default function AdminLayout() {
 
     const isSuperuser = user?.id === import.meta.env.VITE_SUPERUSER_ID;
     const isAdmin = profile?.role === 'admin' || isSuperuser;
+    const [storeAdminVisible, setStoreAdminVisible] = useState(false);
+
+    useEffect(() => {
+        if (isAdmin) {
+            SuperAdminService.getGlobalSetting('store_admin_visible').then(val => {
+                setStoreAdminVisible(!!val);
+            });
+        }
+    }, [isAdmin]);
 
     if (authLoading || profileLoading) {
         return (
@@ -33,6 +44,8 @@ export default function AdminLayout() {
         { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: 'Panel Trivias' },
         { path: '/admin/qrs', icon: <QrCode size={20} />, label: 'Eventos QR' },
         { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: 'Panel Taberna' },
+        { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: 'Herramientas Admin' },
+        ...(isSuperuser || storeAdminVisible ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: 'Panel FrikiMart' }] : []),
         ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: 'Panel GM' }] : []),
     ];
 
