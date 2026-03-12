@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SEO } from '../components/SEO';
 import { MessageSquare, Loader2, PlusCircle, Home as HomeIcon, Flame, Clock } from 'lucide-react';
 import { useTavernThreads } from '../hooks/useTavern';
 import { ThreadCard } from '../components/Tavern/ThreadCard';
@@ -81,6 +82,12 @@ export default function Tavern() {
     ];
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <SEO 
+                title="La Taberna | Comunidad Geek"
+                description="Únete a la conversación en La Taberna de Ciudad Friki. Foros de debate sobre Anime, Videojuegos y Cultura Pop en Medellín y Colombia."
+                keywords="Foro Geek, Comunidad Anime, Debate Gaming, Medellín Friki, La Taberna"
+                image="/assets/seo/taberna_banner.png"
+            />
 
             {/* LEFT SIDEBAR (Tavern Categories & Navigation) */}
             <aside className="hidden lg:block lg:col-span-3">

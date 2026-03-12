@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /settings/
+
+# Sitemaps
+Sitemap: https://web-ciudad-friki.pages.dev/sitemap.xml

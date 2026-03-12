@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -254,6 +255,12 @@ export default function FrikiMart() {
 
     return (
         <div className="min-h-screen bg-bg-main pb-24">
+            <SEO 
+                title="FrikiMart | Canjea tus Frikicoins"
+                description="Visita la tienda oficial de Ciudad Friki. Canjea tus Frikicoins por artículos exclusivos, figuras de anime, accesorios geek y más."
+                keywords="Tienda Geek, Canje de Premios, Frikicoins, Anime Merch, Medellín"
+                image="/assets/seo/frikimart_banner.png"
+            />
             {/* Header */}
             <div className="sticky top-0 z-30 bg-bg-side border-b border-border-theme">
                 <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">

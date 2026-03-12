@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
     Trophy, ShieldCheck, Clock, Loader2,
-    Eye
+    Eye, Share2
 } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { shareContent } from '../../utils/shareContent';
 import { AdminToolsService, type AdminStats } from '../../services/AdminToolsService';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -18,6 +20,8 @@ export default function AdminToolsPage() {
     const [onlineCount, setOnlineCount] = useState(0);
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [showOnlineModal, setShowOnlineModal] = useState(false);
+    const [isSharingWhales, setIsSharingWhales] = useState(false);
+    const whalesRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         loadData();
@@ -73,6 +77,60 @@ export default function AdminToolsPage() {
         return () => {
             supabase.removeChannel(channel);
         };
+    };
+
+    const shareWhalesImage = async () => {
+        if (!whalesRef.current || isSharingWhales) return;
+
+        setIsSharingWhales(true);
+        const el = whalesRef.current;
+
+        // 1. Inyectamos estilos temporales para que la tabla se vea perfecta
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .no-scroll { overflow: visible !important; width: 100% !important; }
+        `;
+        document.head.appendChild(tempStyle);
+
+        // 2. Marcamos temporalmente lo que no queremos que salga
+        const button = el.querySelector('button');
+        const scrollArea = el.querySelector('.overflow-x-auto');
+        if (button) button.classList.add('share-hide');
+        if (scrollArea) scrollArea.classList.add('no-scroll');
+
+        try {
+            // 3. Capturamos a PNG (más estable que toBlob en algunos navegadores)
+            const dataUrl = await toPng(el, {
+                backgroundColor: '#0f172a',
+                pixelRatio: 2,
+                style: {
+                    borderRadius: '0'
+                }
+            });
+
+            // 4. Convertimos el dataUrl a Blob para compartir
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const file = new File([blob], 'top-fortunas-ciudad-friki.png', { type: 'image/png' });
+                await shareContent({
+                    title: 'Whales Top 5 | Ciudad Friki',
+                    text: '🏆 ¡Estas son las 5 mayores fortunas de Ciudad Friki en este momento!',
+                    url: window.location.origin,
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing image:', error);
+        } finally {
+            // 5. Limpieza absoluta
+            if (button) button.classList.remove('share-hide');
+            if (scrollArea) scrollArea.classList.remove('no-scroll');
+            document.head.removeChild(tempStyle);
+            setIsSharingWhales(false);
+        }
     };
 
     if (loading && !stats) {
@@ -233,13 +291,24 @@ export default function AdminToolsPage() {
             </div>
 
             {/* Top Users Table */}
-            <div className="bg-bg-pop border border-border-theme rounded-2xl overflow-hidden shadow-sm">
-                <div className="p-6 border-b border-border-theme bg-gradient-to-r from-bg-side to-transparent">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Trophy className="text-amber-500" size={20} />
-                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">Top 5 Fortunas (Whales)</h3>
+            <div ref={whalesRef} className="bg-bg-pop border border-border-theme rounded-2xl overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-border-theme bg-gradient-to-r from-bg-side to-transparent flex items-center justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Trophy className="text-amber-500" size={20} />
+                            <h3 className="font-black text-text-main uppercase tracking-wider text-sm">Top 5 Fortunas (Whales)</h3>
+                        </div>
+                        <p className="text-xs text-text-muted font-medium">Los usuarios con mayor balance de Frikicoins en la plataforma.</p>
                     </div>
-                    <p className="text-xs text-text-muted font-medium">Los usuarios con mayor balance de Frikicoins en la plataforma.</p>
+
+                    <button
+                        onClick={shareWhalesImage}
+                        disabled={isSharingWhales}
+                        className="p-3 bg-bg-pop border border-border-theme rounded-xl text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all shadow-sm disabled:opacity-50 group"
+                        title="Compartir Imagen"
+                    >
+                        {isSharingWhales ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} className="group-hover:scale-110 transition-transform" />}
+                    </button>
                 </div>
 
                 <div className="overflow-x-auto">

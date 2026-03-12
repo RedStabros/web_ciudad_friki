@@ -1,4 +1,5 @@
 import { Link, useOutletContext } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import { EventCard } from '../components/EventCard';
@@ -160,6 +161,11 @@ export default function Home() {
 
     return (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <SEO 
+                title="Eventos Geek, Anime y Videojuegos"
+                description="Descubre la comunidad definitiva para amantes del Anime, Cosplay y Videojuegos en Medellín y toda Colombia. Encuentra eventos, retos y más en Ciudad Friki."
+                keywords="Anime, Cosplay, Videojuegos, Geek, Medellín, Colombia, Manga, K-Pop, Rol, Cómics"
+            />
 
             {/* LEFT SIDEBAR (Navigation) */}
             <aside className="hidden lg:block lg:col-span-3 xl:col-span-2 space-y-6">

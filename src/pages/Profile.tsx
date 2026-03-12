@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import {
     ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug, Lock, ChevronDown, ChevronUp,
     Eye, EyeOff, CheckCircle2, Circle
@@ -286,6 +287,11 @@ export default function Profile() {
 
     return (
         <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-display animate-in fade-in duration-500">
+            <SEO 
+                title="Configurar Perfil"
+                description="Gestiona tu cuenta en Ciudad Friki. Personaliza tu avatar, actualiza tus intereses y revisa tu saldo de Frikicoins."
+                ogType="profile"
+            />
 
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">

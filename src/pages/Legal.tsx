@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Shield, FileText, Loader2 } from 'lucide-react';
 
@@ -37,6 +38,10 @@ export default function Legal() {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-12 animate-in fade-in duration-500">
+            <SEO 
+                title={type === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad'}
+                description="Documentos legales, términos de uso y políticas de privacidad de la plataforma Ciudad Friki."
+            />
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-text-muted hover:text-brand-primary transition-colors mb-8 font-bold text-sm uppercase tracking-widest"

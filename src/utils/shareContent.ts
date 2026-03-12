@@ -13,6 +13,7 @@ export interface ShareOptions {
     text: string;        // Rich description / message
     url: string;
     imageUrl?: string;   // Used only for platforms that accept files
+    file?: File;         // Direct file object (new)
 }
 
 /** Shared state for the copy-feedback toast */
@@ -26,25 +27,33 @@ export function registerCopiedCallback(cb: () => void) {
  * On desktop / unsupported browsers falls back to clipboard write + toast.
  */
 export async function shareContent(opts: ShareOptions): Promise<void> {
-    const { title, text, url, imageUrl } = opts;
+    const { title, text, url, imageUrl, file: directFile } = opts;
 
     // Build the share payload
     const shareData: ShareData = { title, text, url };
 
-    // Try to attach the image as a File (only works in native Share API on mobile)
-    if (imageUrl && navigator.canShare) {
+    // Try to attach the image as a File
+    if (navigator.canShare) {
         try {
-            const resp = await fetch(imageUrl);
-            const blob = await resp.blob();
-            const ext = blob.type.split('/')[1] || 'jpg';
-            const file = new File([blob], `ciudad-friki.${ext}`, { type: blob.type });
-            const withFile: ShareData = { ...shareData, files: [file] };
-            if (navigator.canShare(withFile)) {
-                await navigator.share(withFile);
-                return;
+            let fileToShare = directFile;
+
+            // If no direct file but we have a URL, try to fetch it
+            if (!fileToShare && imageUrl) {
+                const resp = await fetch(imageUrl);
+                const blob = await resp.blob();
+                const ext = blob.type.split('/')[1] || 'jpg';
+                fileToShare = new File([blob], `ciudad-friki.${ext}`, { type: blob.type });
+            }
+
+            if (fileToShare) {
+                const withFile: ShareData = { ...shareData, files: [fileToShare] };
+                if (navigator.canShare(withFile)) {
+                    await navigator.share(withFile);
+                    return;
+                }
             }
         } catch {
-            // Image fetch or canShare failed — fall through
+            // Sharing or fetching failed — fall through
         }
     }
 
@@ -61,7 +70,7 @@ export async function shareContent(opts: ShareOptions): Promise<void> {
 
     // Clipboard fallback
     try {
-        await navigator.clipboard.writeText(`${text}\n\n${url}`);
+        await navigator.clipboard.writeText(`${text}\n\n${url} `);
     } catch {
         // Clipboard also unavailable
     }

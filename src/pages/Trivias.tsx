@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SEO } from '../components/SEO';
 import {
     BrainCircuit, Trophy, Star, Clock, ChevronRight, AlertTriangle,
     Loader2, Gamepad2, ShieldCheck, X, CheckCircle2, XCircle, ArrowLeft, ArrowRight, Gift
@@ -306,6 +307,12 @@ export default function Trivias() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
+            <SEO 
+                title="Trivias Friki | Demuestra tus conocimientos"
+                description="Desafía tus conocimientos sobre Anime, Videojuegos y Cultura Geek en las Trivias de Ciudad Friki. ¡Responde correctamente y gana Frikicoins!"
+                keywords="Trivia Anime, Quiz Videojuegos, Conocimiento Geek, Frikicoins, Juegos Mentales"
+                image="/assets/seo/trivias_banner.png"
+            />
             {/* HERO */}
             <div className="relative rounded-[4rem] overflow-hidden bg-bg-side text-text-main p-10 md:p-20 shadow-2xl border border-divider-theme group">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/5 via-transparent to-brand-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />

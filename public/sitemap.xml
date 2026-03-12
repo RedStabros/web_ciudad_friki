@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Cambiar 'https://web-ciudad-friki.pages.dev' por el dominio final cuando esté listo -->
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/tavern</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/trivias</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/surveys</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/friki-vs</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/legal/terms</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://web-ciudad-friki.pages.dev/legal/privacy</loc>
+    <lastmod>2026-03-12</lastmod>
+    <priority>0.3</priority>
+  </url>
+</urlset>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SEO } from '../components/SEO';
 import { Loader2, Trophy, Zap, ChevronRight, X, Clock, CheckCircle2, XCircle, Swords, Shield } from 'lucide-react';
 import { TriviaService } from '../services/TriviaService';
 import { useAuth } from '../context/AuthContext';
@@ -455,6 +456,12 @@ export default function FrikiVS() {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
+            <SEO 
+                title="Friki VS | Duelos 1vs1"
+                description="Compite en duelos de trivia en tiempo real. Reta a otros Frikis, apuesta tus Frikicoins y demuestra que eres el que más sabe de Anime y Videojuegos."
+                keywords="Duelos Geek, Trivia VS, Competición Anime, Apuestas Frikicoins, Ranking VS"
+                image="/assets/seo/vs_banner.png"
+            />
 
             {/* Hero */}
             <div className="flex items-center gap-4 mb-8">

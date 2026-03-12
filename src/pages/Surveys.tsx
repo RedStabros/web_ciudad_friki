@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SEO } from '../components/SEO';
 import { BarChart3, Clock, Loader2, AlertCircle, TrendingUp, Star, ChevronRight, X, Layout } from 'lucide-react';
 import { SurveyService, type Survey } from '../services/SurveyService';
 import { useAuth } from '../context/AuthContext';
@@ -192,6 +193,11 @@ export default function Surveys() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
+            <SEO 
+                title="Encuestas Friki | Tu opinión cuenta"
+                description="Participa en las encuestas de Ciudad Friki. Vota por tus animes, juegos y tendencias favoritas de la cultura geek y gana Frikicoins."
+                keywords="Encuestas Anime, Votación Geek, Frikicoins, Tendencias Manga, Ciudad Friki"
+            />
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b-2 border-divider-theme pb-12 px-4">
                 <div className="max-w-2xl">
                     <div className="flex items-center gap-3 text-brand-primary mb-4">
