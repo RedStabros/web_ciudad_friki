@@ -84,13 +84,25 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
 
         try {
             // Give it a tiny bit of time to apply classes
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 200));
 
-            const dataUrl = await toPng(el, {
+            const options = {
                 backgroundColor: bgColor,
                 pixelRatio: 2,
-                width: 500
-            });
+                width: 500,
+                cacheBust: true
+            };
+
+            let dataUrl;
+            try {
+                dataUrl = await toPng(el, options);
+            } catch (err) {
+                console.warn('Event ticket capture failed, retrying without image...', err);
+                dataUrl = await toPng(el, {
+                    ...options,
+                    filter: (node: any) => node.tagName !== 'IMG'
+                });
+            }
 
             const resp = await fetch(dataUrl);
             const blob = await resp.blob();
@@ -110,7 +122,13 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                 });
             }
         } catch (error) {
-            console.error('Error sharing event:', error);
+            console.error('Final event share error:', error);
+            // Fallback to basic share
+            shareContent({
+                title: event.title,
+                text: `🔥 *${event.title}*\nConsigue toda tu info en Ciudad Friki 👇`,
+                url: window.location.origin + `/events?id=${event.id}`
+            });
         } finally {
             el.classList.remove('ticket-capture');
             if (img) img.classList.remove('ticket-img');
