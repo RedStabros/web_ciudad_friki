@@ -16,6 +16,7 @@ import type { EventFeedType } from '../hooks/useEvents';
 import { supabase } from '../lib/supabase';
 import { getAvatarSource } from '../config/avatars';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 interface VSWinner {
     user_id: string;
@@ -40,6 +41,7 @@ export default function Home() {
     const { user } = useAuth();
     const { profile, wallet } = useProfile(user?.id);
     const { setIsWalletOpen, frikiMartVisible } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void, frikiMartVisible?: boolean }>();
+    const { tavern, frikiVs } = useGlobalFeatures(user?.id);
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
@@ -166,10 +168,12 @@ export default function Home() {
                         <HomeIcon className="mr-3 text-xl" size={20} />
                         {t('nav.home')}
                     </Link>
-                    <Link to="/tavern" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <img src="/assets/tabern_icon.png" alt="Tavern" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
-                        {t('nav.tavern')}
-                    </Link>
+                    {tavern && (
+                        <Link to="/tavern" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                            <img src="/assets/tabern_icon.png" alt="Tavern" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
+                            {t('nav.tavern')}
+                        </Link>
+                    )}
                     <Link to="/events" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                         <Calendar className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
                         {t('dashboard.eventsTab')}
@@ -192,10 +196,12 @@ export default function Home() {
                             </span>
                         )}
                     </Link>
-                    <Link to="/friki-vs" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <img src="/assets/icon_vs.png" alt="Friki VS" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
-                        Friki VS
-                    </Link>
+                    {frikiVs && (
+                        <Link to="/friki-vs" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                            <img src="/assets/icon_vs.png" alt="Friki VS" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
+                            Friki VS
+                        </Link>
+                    )}
                     {frikiMartVisible && (
                         <Link to="/frikimart" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                             <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
@@ -348,63 +354,65 @@ export default function Home() {
                 )}
 
                 {/* Top Friki VS Leaderboard */}
-                <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden">
-                    <div className="h-1 bg-gradient-to-r from-brand-primary via-accent-red to-brand-secondary w-full"></div>
-                    <div className="p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Swords size={18} className="text-brand-primary" />
-                                <h3 className="text-sm font-black text-text-main uppercase tracking-wider">Top Friki VS</h3>
+                {frikiVs && (
+                    <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden">
+                        <div className="h-1 bg-gradient-to-r from-brand-primary via-accent-red to-brand-secondary w-full"></div>
+                        <div className="p-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <Swords size={18} className="text-brand-primary" />
+                                    <h3 className="text-sm font-black text-text-main uppercase tracking-wider">Top Friki VS</h3>
+                                </div>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full border border-brand-primary/20">
+                                    {t('triviaVS.leaderboard.title', 'Líderes')}
+                                </span>
                             </div>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full border border-brand-primary/20">
-                                {t('triviaVS.leaderboard.title', 'Líderes')}
-                            </span>
-                        </div>
 
-                        {vsLoading ? (
-                            <div className="flex justify-center py-6">
-                                <Loader2 className="animate-spin text-brand-primary opacity-40" size={24} />
-                            </div>
-                        ) : vsWinners.length === 0 ? (
-                            <div className="text-center py-6 opacity-40">
-                                <Trophy size={32} className="mx-auto mb-2 text-text-muted" />
-                                <p className="text-xs text-text-muted font-bold uppercase tracking-widest">{t('triviaVS.leaderboard.empty', 'Sin datos aún')}</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-2">
-                                {vsWinners.map((winner, idx) => (
-                                    <div
-                                        key={winner.user_id}
-                                        className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${idx === 0 ? 'bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/20' : 'hover:bg-bg-sub'}`}
-                                    >
-                                        <span className="text-lg w-6 text-center flex-shrink-0 font-black leading-none">
-                                            {idx < 3 ? MEDALS[idx] : <span className="text-sm text-text-muted">{idx + 1}</span>}
-                                        </span>
-                                        <img
-                                            src={getAvatarSource(winner.avatar_url || null)}
-                                            alt={winner.username}
-                                            className="w-7 h-7 rounded-full object-cover border border-border-theme flex-shrink-0"
-                                        />
-                                        <span className={`flex-1 text-sm font-bold truncate ${idx === 0 ? 'text-amber-400' : 'text-text-main'}`}>
-                                            @{winner.username}
-                                        </span>
-                                        <div className="flex items-center gap-1 flex-shrink-0">
-                                            <Zap size={11} className="text-brand-primary" />
-                                            <span className="text-xs font-black text-brand-primary">{winner.duels_won}</span>
+                            {vsLoading ? (
+                                <div className="flex justify-center py-6">
+                                    <Loader2 className="animate-spin text-brand-primary opacity-40" size={24} />
+                                </div>
+                            ) : vsWinners.length === 0 ? (
+                                <div className="text-center py-6 opacity-40">
+                                    <Trophy size={32} className="mx-auto mb-2 text-text-muted" />
+                                    <p className="text-xs text-text-muted font-bold uppercase tracking-widest">{t('triviaVS.leaderboard.empty', 'Sin datos aún')}</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {vsWinners.map((winner, idx) => (
+                                        <div
+                                            key={winner.user_id}
+                                            className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${idx === 0 ? 'bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/20' : 'hover:bg-bg-sub'}`}
+                                        >
+                                            <span className="text-lg w-6 text-center flex-shrink-0 font-black leading-none">
+                                                {idx < 3 ? MEDALS[idx] : <span className="text-sm text-text-muted">{idx + 1}</span>}
+                                            </span>
+                                            <img
+                                                src={getAvatarSource(winner.avatar_url || null)}
+                                                alt={winner.username}
+                                                className="w-7 h-7 rounded-full object-cover border border-border-theme flex-shrink-0"
+                                            />
+                                            <span className={`flex-1 text-sm font-bold truncate ${idx === 0 ? 'text-amber-400' : 'text-text-main'}`}>
+                                                @{winner.username}
+                                            </span>
+                                            <div className="flex items-center gap-1 flex-shrink-0">
+                                                <Zap size={11} className="text-brand-primary" />
+                                                <span className="text-xs font-black text-brand-primary">{winner.duels_won}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                    ))}
+                                </div>
+                            )}
 
-                        <Link
-                            to="/friki-vs"
-                            className="mt-4 flex items-center justify-center gap-1 text-xs font-bold text-text-muted hover:text-brand-primary transition-colors py-1"
-                        >
-                            {t('triviaVS.viewAll', 'Ver todos los duelos')} <ChevronRight size={14} />
-                        </Link>
+                            <Link
+                                to="/friki-vs"
+                                className="mt-4 flex items-center justify-center gap-1 text-xs font-bold text-text-muted hover:text-brand-primary transition-colors py-1"
+                            >
+                                {t('triviaVS.viewAll', 'Ver todos los duelos')} <ChevronRight size={14} />
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Recent Activity Feed */}
                 <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">

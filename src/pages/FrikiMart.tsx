@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 import {
     ArrowLeft, ShoppingBag, PackageCheck, Gift,
     RefreshCw, Loader2, MessageCircle,
@@ -168,7 +169,10 @@ export default function FrikiMart() {
     const [chatOrderId, setChatOrderId] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-    if (!session) return <Navigate to="/login" replace />;
+    const { frikiMartGlobal, frikiMartWeb, loading: featuresLoading } = useGlobalFeatures(user?.id);
+    const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
+
+
 
     const fetchBalance = useCallback(async () => {
         if (!user?.id) return;
@@ -234,6 +238,19 @@ export default function FrikiMart() {
         { key: 'orders', label: 'Mis Pedidos', icon: <PackageCheck size={15} /> },
         { key: 'donations', label: 'Donaciones', icon: <Gift size={15} /> },
     ];
+
+    if (!session) return <Navigate to="/login" replace />;
+
+    if (featuresLoading) return <div className="min-h-screen bg-bg-main flex justify-center py-32"><Loader2 className="animate-spin text-amber-500" size={48} /></div>;
+
+    if (!frikiMartVisible) return (
+        <div className="min-h-screen bg-bg-main flex flex-col items-center justify-center py-32 text-center px-8">
+            <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-24 h-24 object-contain opacity-30 mb-6 grayscale" />
+            <h2 className="text-2xl font-black text-text-main text-amber-400">Tienda Cerrada</h2>
+            <p className="text-text-muted mt-2 text-sm max-w-sm">FrikiMart no está disponible temporalmente. Nuestro equipo está trabajando en nuevas recompensas. 🐉</p>
+            <Link to="/" className="mt-8 px-6 py-2 bg-bg-sub border border-border-theme hover:border-amber-500 hover:text-amber-500 rounded-xl transition font-bold text-text-muted">Volver a inicio</Link>
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-bg-main pb-24">

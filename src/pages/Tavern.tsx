@@ -12,10 +12,12 @@ import { EditThreadModal } from '../components/Tavern/EditThreadModal';
 import { getAvatarSource } from '../config/avatars';
 import { useProfile } from '../hooks/useProfile';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 export default function Tavern() {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { tavern, loading: featuresLoading } = useGlobalFeatures(user?.id);
     const [category, setCategory] = useState<ThreadCategory>('Todas');
     const [sortBy, setSortBy] = useState<'HOT' | 'NEW'>('NEW');
 
@@ -29,6 +31,16 @@ export default function Tavern() {
     const { onlineUsersCount, tavernInteractions } = useOnlineUsers();
 
     const { threads, isLoading, error, hasMore, loadMore, refetch } = useTavernThreads(category, sortBy);
+
+    if (featuresLoading) return <div className="flex justify-center py-32"><Loader2 className="animate-spin text-brand-primary" size={48} /></div>;
+
+    if (!tavern) return (
+        <div className="flex flex-col items-center justify-center py-32 text-center px-8">
+            <img src="/assets/tabern_icon.png" alt="La Taberna" className="w-24 h-24 object-contain opacity-30 mb-6" />
+            <h2 className="text-2xl font-black text-text-main">La Taberna Cerrada</h2>
+            <p className="text-text-muted mt-2">La Taberna de Ciudad Friki está en mantenimiento. Vuelve más tarde.</p>
+        </div>
+    );
 
     const handleThreadClick = (id: string) => {
         setSelectedThreadId(id);

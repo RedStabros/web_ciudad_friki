@@ -4,6 +4,7 @@ import { Loader2, Trophy, Zap, ChevronRight, X, Clock, CheckCircle2, XCircle, Sw
 import { TriviaService } from '../services/TriviaService';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 import { getAvatarSource } from '../config/avatars';
 import { getTriviaIcon } from '../utils/triviaIcons';
 import TriviaSubmissionModal from '../components/TriviaSubmissionModal';
@@ -338,7 +339,7 @@ export default function FrikiVS() {
     const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
     // VS kill switch
-    const [vsEnabled, setVsEnabled] = useState<boolean | null>(null);
+    const { frikiVs: vsEnabled, loading: featuresLoading } = useGlobalFeatures(user?.id);
 
     // Duel creation
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -357,18 +358,6 @@ export default function FrikiVS() {
 
     // Confirm join modal
     const [confirmDuel, setConfirmDuel] = useState<Duel | null>(null);
-
-    useEffect(() => {
-        const checkVS = async () => {
-            try {
-                const { data } = await supabase.from('global_settings').select('value').eq('key', 'triviaduels_enabled').single();
-                setVsEnabled(data?.value !== false && data?.value !== 'false');
-            } catch {
-                setVsEnabled(true);
-            }
-        };
-        checkVS();
-    }, []);
 
     const loadData = useCallback(async () => {
         setLoading(true);
@@ -435,9 +424,9 @@ export default function FrikiVS() {
         setShowResult(true);
     };
 
-    if (vsEnabled === null) return <div className="flex justify-center py-32"><Loader2 className="animate-spin text-brand-primary" size={48} /></div>;
+    if (featuresLoading) return <div className="flex justify-center py-32"><Loader2 className="animate-spin text-brand-primary" size={48} /></div>;
 
-    if (vsEnabled === false) return (
+    if (!vsEnabled) return (
         <div className="flex flex-col items-center justify-center py-32 text-center px-8">
             <img src="/assets/icon_vs.png" alt="Friki VS" className="w-24 h-24 object-contain opacity-30 mb-6" />
             <h2 className="text-2xl font-black text-text-main">{t('triviaVS.disabled', 'Friki VS en Mantenimiento')}</h2>

@@ -34,6 +34,12 @@ Bienvenido al repositorio de la versión Web de **Ciudad Friki**. Este proyecto 
 - **Reseñas de Eventos:** Sistema de calificación y comentarios para eventos finalizados (con validación de tiempo y contenido).
 - **Traducciones:** Sincronización completa de todos los campos de eventos en ES/EN.
 
+### 🛠️ Administración (NUEVO)
+- **Herramientas Admin:** Dashboard con métricas clave (usuarios, supply de Frikicoins, encuestas).
+- **Control de Ballenas (Whales):** Ranking de los 5 usuarios con mayor balance, incluyendo emails y avatares.
+- **Presencia en Tiempo Real:** Monitor de administradores online con reporte de actividad vía Supabase Presence.
+- **Moderación de Eventos:** Panel avanzado para aprobar/rechazar eventos con visualización de likes y conteo de guardados (específico para admins).
+
 ### 🧩 Otros
 - **Trivias & Encuestas:** Integración funcional con el backend.
 - **Search Bar:** Oculto temporalmente (Pendiente de implementación lógica).
@@ -63,7 +69,8 @@ npm run preview
 
 ## 📝 Notas de Contexto Reciente (Marzo 2026)
 
+- **Integración de Admin Tools:** Se replicó la sección de herramientas administrativas de la app móvil a la web, optimizando la carga de datos (emails y avatares) sin aumentar el costo de base de datos.
+- **Mejora en Moderación de Eventos:** El modal de detalles ahora muestra el conteo de likes públicamente y el conteo de guardados exclusivamente para administradores.
+- **Correcciones Técnicas:** Se resolvieron problemas críticos de codificación (UTF-16 vs UTF-8) en servicios y se implementaron *Type-Only Imports* para evitar errores de ejecución en Vite con interfaces de TypeScript.
 - Se corrigió el error de "Seguridad Bancaria" en el modal de la billetera.
 - Se resolvió el problema de traducción en el modal de reseñas (`alreadySubmitted`, `wantToReview`, etc.).
-- Se ajustó el padding del dropdown de perfil en el Header para evitar que el nombre se corte.
-- Se implementó `useOutletContext` en el `RootLayout` para permitir que las páginas hijas (como Home) abran el modal de la billetera directamente.

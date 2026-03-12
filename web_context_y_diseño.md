@@ -67,7 +67,6 @@ A continuación, se detalla el alcance funcional de la primera versión de la pl
     *   **EXCEPCIÓN:** Nada de notificaciones externas (No Push Notifications vía Service Workers para la web por ahora).
 
 ### 🚫 NO INCLUIR EN LA VERSIÓN WEB (Descartados)
-*   Opciones y funcionalidades de **Admin** o **Super Admin**.
 *   Centro de Operaciones (**Operation Center**).
 *   Información sobre el **Número de Versión** de la App (dentro de la sección About).
 
