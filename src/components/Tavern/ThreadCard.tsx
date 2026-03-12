@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronUp, ChevronDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil } from 'lucide-react';
+import { ChevronUp, ChevronDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil, Loader2 } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import type { TavernThread } from '../../types/tavern';
 import { getAvatarSource } from '../../config/avatars';
 import ContentRenderer from './ContentRenderer';
@@ -26,6 +27,8 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
     const [reporting, setReporting] = useState(false);
     const [reportDone, setReportDone] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
+    const cardRef = useRef<HTMLElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const timeAgo = (dateStr: string) => {
@@ -76,13 +79,98 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleShare = (e: React.MouseEvent) => {
+    const handleShare = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        registerCopiedCallback(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2200);
-        });
-        shareContent(buildThreadShare(thread));
+        if (!cardRef.current || isSharing) return;
+        setIsSharing(true);
+        const el = cardRef.current;
+
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-primary').trim() || '#1e222a';
+        const brandColor = computedStyle.getPropertyValue('--brand-primary').trim() || '#e1192f';
+
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .tavern-capture { 
+                padding: 30px !important; 
+                background: ${bgColor} !important; 
+                border: 3px solid ${brandColor} !important;
+                border-radius: 32px !important;
+                width: 480px !important;
+                height: auto !important;
+                position: relative !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .tavern-capture::before {
+                content: 'LA TABERNA - CIUDAD FRIKI';
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                font-size: 10px;
+                font-weight: 900;
+                color: ${brandColor}40;
+                letter-spacing: 2px;
+            }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const hideElements = el.querySelectorAll('.share-hide-el');
+        hideElements.forEach(item => (item as HTMLElement).style.display = 'none');
+        el.classList.add('tavern-capture');
+
+        try {
+            // Delay to allow DOM to settle
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            const options = {
+                backgroundColor: bgColor,
+                pixelRatio: 2,
+                width: 500,
+                cacheBust: true,
+                style: {
+                    borderRadius: '32px'
+                }
+            };
+
+            let dataUrl;
+            try {
+                dataUrl = await toPng(el, options);
+            } catch (err) {
+                console.warn('First share attempt failed, trying without images...', err);
+                // Second attempt: Filter out images and their containers
+                dataUrl = await toPng(el, {
+                    ...options,
+                    filter: (node: any) => {
+                        if (node.tagName === 'IMG') return false;
+                        if (node.classList?.contains('share-media-container')) return false;
+                        return true;
+                    }
+                });
+            }
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const file = new File([blob], `thread-${thread.id.substring(0, 8)}.png`, { type: 'image/png' });
+                await shareContent({
+                    title: `📖 ${thread.title} | Ciudad Friki`,
+                    text: `🏰 *${thread.title}*\n\n¡Únete a la conversación en La Taberna! 🤓\n\nLee el hilo completo aquí:`,
+                    url: window.location.origin + `/tavern?thread=${thread.id}`,
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Final share error fallback:', error);
+            shareContent(buildThreadShare(thread));
+        } finally {
+            hideElements.forEach(item => (item as HTMLElement).style.display = '');
+            el.classList.remove('tavern-capture');
+            document.head.removeChild(tempStyle);
+            setIsSharing(false);
+        }
     };
 
     const handleReport = async () => {
@@ -105,7 +193,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
 
     return (
         <>
-            <article className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden hover:border-brand-primary/30 transition duration-200">
+            <article ref={cardRef} className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden hover:border-brand-primary/30 transition duration-200">
                 <div className="p-5">
                     {/* Author header */}
                     <div className="flex items-start justify-between mb-3">
@@ -169,7 +257,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                         <div className="flex items-center bg-bg-sub/50 rounded-full px-2 py-1">
                             <button
                                 onClick={() => onVote?.('like')}
-                                className={`p-1 rounded-full transition ${thread.user_vote === 'like' ? 'text-accent-red bg-accent-red/10' : 'text-text-muted hover:text-accent-red hover:bg-accent-red/10'}`}
+                                className="share-hide-el p-1 rounded-full text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition"
                             >
                                 <ChevronUp size={18} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
                             </button>
@@ -178,31 +266,33 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                             </span>
                             <button
                                 onClick={() => onVote?.('dislike')}
-                                className={`p-1 rounded-full transition ${thread.user_vote === 'dislike' ? 'text-blue-500 bg-blue-500/10' : 'text-text-muted hover:text-blue-500 hover:bg-blue-500/10'}`}
+                                className="share-hide-el p-1 rounded-full text-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition"
                             >
                                 <ChevronDown size={18} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
                             </button>
                         </div>
 
                         {/* Reply count */}
-                        <button className="flex items-center gap-2 text-text-sub hover:text-brand-primary transition group" onClick={onClick}>
-                            <MessageSquare size={18} className="group-hover:text-brand-primary" />
-                            <span className="text-sm font-medium">{thread.reply_count || 0} {t('tavern.thread.reply')}</span>
-                        </button>
+                        <div className="flex items-center gap-2 text-text-sub font-medium">
+                            <MessageSquare size={18} />
+                            <span className="text-sm">{thread.reply_count || 0} {t('tavern.thread.reply')}</span>
+                        </div>
 
-                        {/* Share */}
+                        {/* Share (Hidden during capture) */}
                         <button
-                            className={`flex items-center gap-2 transition group ${copied ? 'text-accent-green' : 'text-text-sub hover:text-brand-primary'}`}
+                            className="share-hide-el flex items-center gap-2 transition group text-text-sub hover:text-brand-primary"
                             onClick={handleShare}
-                            title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('tavern.thread.share')}
+                            disabled={isSharing}
+                            title={t('tavern.thread.share')}
                         >
-                            {copied ? <Check size={18} /> : <Share2 size={18} className="group-hover:text-brand-primary" />}
-                            <span className="text-sm font-medium">{copied ? t('common.linkCopied', '¡Copiado!') : t('tavern.thread.share')}</span>
+                            {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} className="group-hover:text-brand-primary" />}
+                            <span className="text-sm font-medium">{isSharing ? t('common.sharing', 'Compartiendo...') : t('tavern.thread.share')}</span>
                         </button>
                     </div>
 
-                    {/* 3-dot context menu */}
-                    {showMenu && (
+                    {/* 3-dot context menu (Hidden during capture) */}
+                    <div className="share-hide-el">
+                        {showMenu && (
                         <div className="relative" ref={menuRef}>
                             {canEdit && (
                                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-accent-yellow bg-accent-yellow/10 px-2 py-1 rounded-md border border-accent-yellow/20 mr-1">
@@ -251,7 +341,8 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                         </div>
                     )}
                 </div>
-            </article>
+            </div>
+        </article>
 
             {/* Report Modal */}
             {reportModal && (

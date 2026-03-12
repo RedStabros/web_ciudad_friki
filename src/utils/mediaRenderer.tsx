@@ -9,7 +9,7 @@ export const renderTextWithMedia = (text: string) => {
             // Check if it's an image
             if (part.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
                 return (
-                    <div key={i} className="my-3">
+                    <div key={i} className="my-3 share-media-container">
                         <img
                             src={part}
                             alt="attachment"

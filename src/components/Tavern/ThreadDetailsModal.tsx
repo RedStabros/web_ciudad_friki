@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
 import ContentRenderer from './ContentRenderer';
 import { shareContent, buildThreadShare, buildReplyShare, registerCopiedCallback } from '../../utils/shareContent';
+import { toPng } from 'html-to-image';
 
 interface ThreadDetailsModalProps {
     isOpen: boolean;
@@ -32,24 +33,119 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
     const [reportSubmitting, setReportSubmitting] = useState(false);
     const [reportDone, setReportDone] = useState(false);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null); // which ... menu is open
+    const [isSharing, setIsSharing] = useState(false);
+    const detailCardRef = useRef<HTMLDivElement>(null); // For thread
+    const repliesRefs = useRef<{[key: string]: HTMLDivElement | null}>({}); // For individual replies
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const handleShare = (type: 'thread' | 'reply', replyId?: string, replyAuthor?: string, replyContent?: string) => {
-        const opts = type === 'thread' || !thread
-            ? buildThreadShare(thread!)
-            : buildReplyShare({
-                threadId: thread!.id,
-                replyId: replyId!,
-                author_username: replyAuthor,
-                content: replyContent!,
-                threadTitle: thread!.title,
-            });
-        const key = type === 'thread' ? 'thread' : replyId!;
-        registerCopiedCallback(() => {
-            setCopiedId(key);
-            setTimeout(() => setCopiedId(k => k === key ? null : k), 2200);
-        });
-        shareContent(opts);
+    const handleShare = async (type: 'thread' | 'reply', replyId?: string, replyAuthor?: string, replyContent?: string) => {
+        if (isSharing) return;
+        
+        const el = type === 'thread' ? detailCardRef.current : repliesRefs.current[replyId!];
+        if (!el) return;
+
+        setIsSharing(true);
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-primary').trim() || '#1e222a';
+        const brandColor = computedStyle.getPropertyValue('--brand-primary').trim() || '#e1192f';
+
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .tavern-quote-capture { 
+                padding: 30px !important; 
+                background: ${bgColor} !important; 
+                border: 3px solid ${brandColor} !important;
+                border-radius: 32px !important;
+                width: 530px !important;
+                height: auto !important;
+                position: relative !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .tavern-quote-capture::before {
+                content: 'CITAS CIUDAD FRIKI';
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                font-size: 10px;
+                font-weight: 900;
+                color: ${brandColor}40;
+                letter-spacing: 2px;
+            }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const hideElements = el.querySelectorAll('.share-hide-el');
+        hideElements.forEach(item => (item as HTMLElement).style.display = 'none');
+        el.classList.add('tavern-quote-capture');
+
+        try {
+            // Delay to allow styles to settle
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            const options = {
+                backgroundColor: bgColor,
+                pixelRatio: 2,
+                width: 550,
+                cacheBust: true,
+                style: {
+                    borderRadius: '32px'
+                }
+            };
+
+            let dataUrl;
+            try {
+                dataUrl = await toPng(el, options);
+            } catch (err) {
+                console.warn('Capture failed, retrying without images...', err);
+                dataUrl = await toPng(el, {
+                    ...options,
+                    filter: (node: any) => {
+                        if (node.tagName === 'IMG') return false;
+                        if (node.classList?.contains('share-media-container')) return false;
+                        return true;
+                    }
+                });
+            }
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const fileName = type === 'thread' ? `post-${thread!.id.substring(0,8)}.png` : `reply-${replyId!.substring(0,8)}.png`;
+                const file = new File([blob], fileName, { type: 'image/png' });
+                
+                const shareText = type === 'thread' 
+                    ? `🏰 *${thread!.title}*\n\n¡Únete al debate en La Taberna! 🤓\n\nLee el hilo completo:`
+                    : `💬 *${replyAuthor}* responde en: "${thread!.title}"\n\n"${replyContent?.substring(0, 100)}..."\n\nLee la respuesta completa en Ciudad Friki 🤓`;
+
+                await shareContent({
+                    title: type === 'thread' ? thread!.title : `Respuesta de ${replyAuthor}`,
+                    text: shareText,
+                    url: window.location.origin + `/tavern?thread=${thread!.id}${type === 'reply' ? `&reply=${replyId}` : ''}`,
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Final tavern quote share error:', error);
+            // Fallback
+            const opts = type === 'thread' || !thread
+                ? buildThreadShare(thread!)
+                : buildReplyShare({
+                    threadId: thread!.id,
+                    replyId: replyId!,
+                    author_username: replyAuthor,
+                    content: replyContent!,
+                    threadTitle: thread!.title,
+                });
+            shareContent(opts);
+        } finally {
+            hideElements.forEach(item => (item as HTMLElement).style.display = '');
+            el.classList.remove('tavern-quote-capture');
+            document.head.removeChild(tempStyle);
+            setIsSharing(false);
+        }
     };
 
     useEffect(() => {
@@ -219,7 +315,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                         {isLoading && !thread ? (
                             <div className="flex justify-center p-12"><Loader2 className="animate-spin text-brand-primary" size={32} /></div>
                         ) : thread ? (
-                            <div className="p-6">
+                            <div className="p-6" ref={detailCardRef}>
                                 {/* Author Info */}
                                 <div className="flex items-center gap-3 mb-4">
                                     <img
@@ -262,11 +358,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                 {/* Stats & Actions */}
                                 <div className="flex items-center gap-4 py-4 border-y border-divider-theme mb-8">
                                     <div className="flex items-center bg-bg-sub rounded-full px-2 py-1">
-                                        <button onClick={() => handleVote(thread.id, 'thread', 'like')} className={`p-1.5 transition ${thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
+                                        <button onClick={() => handleVote(thread.id, 'thread', 'like')} className={`share-hide-el p-1.5 transition ${thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
                                             <ChevronUp size={20} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
                                         </button>
                                         <span className="font-bold text-sm px-2 text-text-main">{thread.likes_count - thread.dislikes_count}</span>
-                                        <button onClick={() => handleVote(thread.id, 'thread', 'dislike')} className={`p-1.5 transition ${thread.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
+                                        <button onClick={() => handleVote(thread.id, 'thread', 'dislike')} className={`share-hide-el p-1.5 transition ${thread.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
                                             <ChevronDown size={20} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
                                         </button>
                                     </div>
@@ -275,14 +371,15 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                     </div>
                                     <button
                                         onClick={() => handleShare('thread')}
-                                        className={`flex items-center gap-2 text-sm font-medium transition ${copiedId === 'thread' ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
+                                        disabled={isSharing}
+                                        className={`share-hide-el flex items-center gap-2 text-sm font-medium transition ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
                                     >
-                                        {copiedId === 'thread' ? <Check size={18} /> : <Share2 size={18} />}
-                                        {copiedId === 'thread' ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
+                                        {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+                                        {isSharing ? t('common.sharing', 'Compartiendo...') : t('tavern.modals.details.share')}
                                     </button>
-                                    {/* Report thread — only for non-authors */}
+                                    {/* Report thread — only for non-authors (Hidden during capture) */}
                                     {user && user.id !== thread.author_id && (
-                                        <div className="relative ml-auto" ref={openMenuId === thread.id ? menuRef : undefined}>
+                                        <div className="share-hide-el relative ml-auto" ref={openMenuId === thread.id ? menuRef : undefined}>
                                             <button
                                                 onClick={() => setOpenMenuId(id => id === thread.id ? null : thread.id)}
                                                 className="p-1.5 text-text-muted hover:text-text-main rounded-full hover:bg-bg-sub transition"
@@ -311,7 +408,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         <div className="text-center text-text-muted py-8 italic">{t('tavern.modals.details.noReplies')}</div>
                                     ) : (
                                         replies.map(reply => (
-                                            <div key={reply.id} className="flex gap-3 pt-4 border-t border-divider-theme">
+                                            <div key={reply.id} ref={el => repliesRefs.current[reply.id] = el} className="flex gap-3 pt-4 border-t border-divider-theme">
                                                 <img
                                                     src={getAvatarSource(reply.author_avatar_url || null)}
                                                     className="h-8 w-8 rounded-full flex-shrink-0"
@@ -366,22 +463,23 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                     )}
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex items-center gap-4 mr-auto">
-                                                            <button onClick={() => handleVote(reply.id, 'reply', 'like')} className={`flex items-center gap-1 transition text-xs ${reply.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
+                                                            <button onClick={() => handleVote(reply.id, 'reply', 'like')} className={`share-hide-el flex items-center gap-1 transition text-xs ${reply.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
                                                                 <ChevronUp size={14} fill={reply.user_vote === 'like' ? 'currentColor' : 'none'} /> {reply.likes_count}
                                                             </button>
-                                                            <button onClick={() => handleVote(reply.id, 'reply', 'dislike')} className={`flex items-center gap-1 transition text-xs ${reply.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
+                                                            <button onClick={() => handleVote(reply.id, 'reply', 'dislike')} className={`share-hide-el flex items-center gap-1 transition text-xs ${reply.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
                                                                 <ChevronDown size={14} fill={reply.user_vote === 'dislike' ? 'currentColor' : 'none'} /> {reply.dislikes_count}
                                                             </button>
-                                                            <button
+                                                              <button
                                                                 onClick={() => handleShare('reply', reply.id, reply.author_username, reply.content)}
-                                                                className={`flex items-center gap-1 transition text-xs ${copiedId === reply.id ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
-                                                                title={copiedId === reply.id ? t('common.linkCopied', '¡Copiado!') : t('tavern.modals.details.share')}
+                                                                disabled={isSharing}
+                                                                className={`share-hide-el flex items-center gap-1 transition text-xs ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
+                                                                title={t('tavern.modals.details.share')}
                                                             >
-                                                                {copiedId === reply.id ? <Check size={14} /> : <Share2 size={14} />}
+                                                                {isSharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
                                                             </button>
-                                                            {/* Report reply — only for non-authors */}
+                                                            {/* Report reply — only for non-authors (Hidden during capture) */}
                                                             {user && user.id !== reply.author_id && (
-                                                                <div className="relative" ref={openMenuId === reply.id ? menuRef : undefined}>
+                                                                <div className="share-hide-el relative" ref={openMenuId === reply.id ? menuRef : undefined}>
                                                                     <button
                                                                         onClick={() => setOpenMenuId(id => id === reply.id ? null : reply.id)}
                                                                         className="p-1 text-text-muted hover:text-text-main rounded-full hover:bg-bg-sub transition"
@@ -403,8 +501,8 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                             )}
                                                         </div>
 
-                                                        {canEditReply(reply) && !editingReplyId && (
-                                                            <div className="flex items-center gap-2">
+                                                         {canEditReply(reply) && !editingReplyId && (
+                                                            <div className="share-hide-el flex items-center gap-2">
                                                                 <div className="flex items-center gap-1 text-[10px] font-bold text-accent-yellow bg-accent-yellow/10 px-2 py-1 rounded-md border border-accent-yellow/20">
                                                                     <Clock size={10} />
                                                                     {getRemainingTime(reply.created_at)}

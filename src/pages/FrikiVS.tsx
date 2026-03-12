@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/SEO';
-import { Loader2, Trophy, Zap, ChevronRight, X, Clock, CheckCircle2, XCircle, Swords, Shield } from 'lucide-react';
+import { Loader2, Trophy, Zap, ChevronRight, X, Clock, CheckCircle2, XCircle, Swords, Shield, Share2 } from 'lucide-react';
 import { TriviaService } from '../services/TriviaService';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 import { getAvatarSource } from '../config/avatars';
 import { getTriviaIcon } from '../utils/triviaIcons';
+import { toPng } from 'html-to-image';
+import { shareContent } from '../utils/shareContent';
 import TriviaSubmissionModal from '../components/TriviaSubmissionModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,6 +25,54 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 // ─── Sub-component: Leaderboard ───────────────────────────────────────────────
 function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boolean }) {
     const { t } = useTranslation();
+    const [isSharing, setIsSharing] = useState(false);
+    const leaderboardRef = useRef<HTMLDivElement>(null);
+
+    const shareLeaderboardImage = async () => {
+        if (!leaderboardRef.current || isSharing) return;
+        setIsSharing(true);
+        const el = leaderboardRef.current;
+        
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .no-scroll { overflow: visible !important; width: 100% !important; }
+            .leaderboard-capture { padding: 40px !important; background: #0f172a !important; border-radius: 24px !important; }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const shareBtn = el.querySelector('.share-btn-leaderboard');
+        if (shareBtn) shareBtn.classList.add('share-hide');
+        el.classList.add('leaderboard-capture');
+
+        try {
+            const dataUrl = await toPng(el, {
+                backgroundColor: '#0f172a',
+                pixelRatio: 2,
+            });
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const file = new File([blob], 'lideres-frikivs-ciudad-friki.png', { type: 'image/png' });
+                await shareContent({
+                    title: 'Líderes Friki VS | Ciudad Friki',
+                    text: '⚔️ ¡Este es el Top 10 de los guerreros más poderosos de Friki VS! ¿Te atreves a retarlos?',
+                    url: window.location.origin + '/frikivs',
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing leaderboard:', error);
+        } finally {
+            if (shareBtn) shareBtn.classList.remove('share-hide');
+            el.classList.remove('leaderboard-capture');
+            document.head.removeChild(tempStyle);
+            setIsSharing(false);
+        }
+    };
+
     if (loading) return <div className="flex justify-center py-16"><Loader2 className="animate-spin text-brand-primary" size={32} /></div>;
     if (winners.length === 0) return (
         <div className="text-center py-16 opacity-40">
@@ -32,12 +82,24 @@ function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boole
         </div>
     );
     return (
-        <div className="space-y-2 mt-4">
-            <h3 className="text-center font-black text-lg text-text-main mb-6">🏆 Top Ganadores VS</h3>
+        <div ref={leaderboardRef} className="space-y-2 mt-4 relative">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex-1" />
+                <h3 className="text-center font-black text-xl text-text-main uppercase tracking-tighter">🏆 Top Ganadores VS</h3>
+                <div className="flex-1 flex justify-end">
+                    <button 
+                        onClick={shareLeaderboardImage}
+                        disabled={isSharing}
+                        className="share-btn-leaderboard p-3 bg-bg-sub border border-border-theme rounded-2xl text-brand-primary hover:bg-brand-primary hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                    >
+                        {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+                    </button>
+                </div>
+            </div>
             {winners.slice(0, 10).map((w, i) => (
                 <div key={w.user_id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${i === 0 ? 'border-amber-500/40 bg-amber-500/5' : 'border-border-theme hover:bg-bg-sub'}`}>
                     <span className="text-xl w-8 text-center">{i < 3 ? MEDALS[i] : <span className="font-black text-text-muted text-sm">{i + 1}</span>}</span>
-                    <img src={getAvatarSource(w.avatar_url || null)} alt={w.username} className="w-8 h-8 rounded-full border border-border-theme object-cover" />
+                    <img src={getAvatarSource(w.avatar_url || null)} alt={w.username} className="w-10 h-10 rounded-full border border-border-theme object-cover shadow-sm" />
                     <span className={`flex-1 font-bold text-sm truncate ${i === 0 ? 'text-amber-400' : 'text-text-main'}`}>@{w.username}</span>
                     <div className="flex items-center gap-1">
                         <Shield size={13} className="text-brand-primary" />
@@ -283,12 +345,84 @@ function ResultScreen({
     onClose: () => void;
 }) {
     const { t } = useTranslation();
+    const [isSharing, setIsSharing] = useState(false);
+    const resultRef = useRef<HTMLDivElement>(null);
     const isWinner = result?.winner_id !== undefined;
     const isTie = result?.winner_id === null;
 
+    const shareResultImage = async () => {
+        if (!resultRef.current || isSharing) return;
+        setIsSharing(true);
+        const el = resultRef.current;
+        
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-primary').trim() || '#1e222a';
+        const brandColor = computedStyle.getPropertyValue('--brand-primary').trim() || '#e1192f';
+
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .result-capture { 
+                padding: 40px !important; 
+                background: ${bgColor} !important; 
+                border: 3px solid ${brandColor} !important;
+                border-radius: 32px !important;
+                width: 500px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+            }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const shareBtn = el.querySelector('.share-btn-result');
+        const finishBtn = el.querySelector('.finish-btn-result');
+        if (shareBtn) shareBtn.classList.add('share-hide');
+        if (finishBtn) finishBtn.classList.add('share-hide');
+        el.classList.add('result-capture');
+
+        try {
+            const dataUrl = await toPng(el, {
+                backgroundColor: bgColor,
+                pixelRatio: 2,
+                width: 500
+            });
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const title = isTie ? '¡Empate en Friki VS!' : isWinner ? '¡Victoria en Friki VS!' : 'Duelo finalizado en Friki VS';
+                const file = new File([blob], 'resultado-frikivs.png', { type: 'image/png' });
+                await shareContent({
+                    title,
+                    text: `⚔️ ¡Acabo de terminar un duelo en Friki VS! ${isTie ? '¡Ha sido un empate épico!' : isWinner ? '¡He salido victorioso!' : '¡Buen duelo!'}`,
+                    url: window.location.origin + '/frikivs',
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing result:', error);
+        } finally {
+            if (shareBtn) shareBtn.classList.remove('share-hide');
+            if (finishBtn) finishBtn.classList.remove('share-hide');
+            el.classList.remove('result-capture');
+            document.head.removeChild(tempStyle);
+            setIsSharing(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[300] bg-bg-main flex flex-col items-center justify-center p-6 text-center">
-            <div className="max-w-md w-full bg-bg-side border border-border-theme rounded-3xl p-8 flex flex-col items-center gap-6 shadow-2xl">
+            <div ref={resultRef} className="max-w-md w-full bg-bg-side border border-border-theme rounded-3xl p-8 flex flex-col items-center gap-6 shadow-2xl relative">
+                <button
+                    onClick={shareResultImage}
+                    disabled={isSharing}
+                    className="share-btn-result absolute top-6 right-6 p-3 bg-brand-primary/10 text-brand-primary rounded-2xl border border-brand-primary/20 hover:bg-brand-primary hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                >
+                    {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+                </button>
+
                 <img src="/assets/icon_vs.png" alt="VS" className="w-20 h-20 object-contain" />
 
                 <div className="text-6xl">
@@ -300,7 +434,7 @@ function ResultScreen({
                         {isTie ? t('triviaVS.result.tie', '¡Empate!') : isWinner ? t('triviaVS.result.won', '¡Ganaste!') : t('triviaVS.result.lost', 'Derrota')}
                     </h2>
                     {result?.message === 'waiting' && (
-                        <p className="text-sm text-text-muted mt-1">{t('triviaVS.result.waiting', 'Esperando al oponente para confirmar el resultado...')}</p>
+                        <p className="text-sm text-text-muted mt-1 share-hide-el">{t('triviaVS.result.waiting', 'Esperando al oponente para confirmar el resultado...')}</p>
                     )}
                 </div>
 
@@ -316,7 +450,7 @@ function ResultScreen({
                     </div>
                 </div>
 
-                <button onClick={onClose} className="w-full bg-brand-primary text-text-inv font-black py-4 rounded-2xl hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30">
+                <button onClick={onClose} className="finish-btn-result w-full bg-brand-primary text-text-inv font-black py-4 rounded-2xl hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30">
                     {t('common.finish', 'Finalizar')}
                 </button>
             </div>

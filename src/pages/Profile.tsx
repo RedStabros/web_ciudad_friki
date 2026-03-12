@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import {
@@ -13,6 +13,8 @@ import { useProfile } from '../hooks/useProfile';
 import { UserService } from '../services/UserService';
 import { getAvatarSource, AVATARS } from '../config/avatars';
 import { useTheme, type Theme } from '../context/ThemeContext';
+import { toPng } from 'html-to-image';
+import { shareContent } from '../utils/shareContent';
 import { ALL_INTERESTS } from '../config/interests';
 import { ReportBugModal } from '../components/ReportBugModal';
 import { AdminBugReports } from '../components/AdminBugReports';
@@ -107,6 +109,8 @@ export default function Profile() {
     const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
     const [storeWebEnabled, setStoreWebEnabled] = useState(false);
     const [isTogglingStoreWeb, setIsTogglingStoreWeb] = useState(false);
+    const [isSharingCard, setIsSharingCard] = useState(false);
+    const profileCardRef = useRef<HTMLDivElement>(null);
 
     // Password change state
     const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
@@ -216,6 +220,76 @@ export default function Profile() {
         }));
     };
 
+    const shareProfileCard = async () => {
+        if (!profileCardRef.current || isSharingCard) return;
+        setIsSharingCard(true);
+        const el = profileCardRef.current;
+
+        // Obtenemos los colores actuales del tema para que la foto sea fiel
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-primary').trim() || '#1e222a';
+        const brandColor = computedStyle.getPropertyValue('--brand-primary').trim() || '#e1192f';
+
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .card-capture { 
+                padding: 50px !important; 
+                background: ${bgColor} !important; 
+                border: 3px solid ${brandColor} !important;
+                border-radius: 40px !important; 
+                width: 600px !important;
+                position: relative !important;
+            }
+            .card-capture::before {
+                content: 'CIUDAD FRIKI';
+                position: absolute;
+                top: 20px;
+                right: 30px;
+                font-family: 'Inter', sans-serif;
+                font-weight: 900;
+                font-style: italic;
+                color: ${brandColor};
+                opacity: 0.15;
+                font-size: 40px;
+                letter-spacing: -2px;
+            }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const hideElements = el.querySelectorAll('.share-hide-el');
+        hideElements.forEach(e => e.classList.add('share-hide'));
+        el.classList.add('card-capture');
+
+        try {
+            const dataUrl = await toPng(el, {
+                backgroundColor: bgColor,
+                pixelRatio: 2,
+                width: 600
+            });
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const file = new File([blob], `card-${profile?.username || 'user'}.png`, { type: 'image/png' });
+                await shareContent({
+                    title: 'Mi Identidad Friki',
+                    text: `🎮 ¡Esta es mi tarjeta oficial de Ciudad Friki! Rango: ${profile?.role || 'Miembro'}. ¿Ya tienes la tuya?`,
+                    url: window.location.origin,
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing card:', error);
+        } finally {
+            hideElements.forEach(e => e.classList.remove('share-hide'));
+            el.classList.remove('card-capture');
+            document.head.removeChild(tempStyle);
+            setIsSharingCard(false);
+        }
+    };
+
     const handleCopyQR = () => {
         if (wallet?.deposit_qr) {
             navigator.clipboard.writeText(wallet.deposit_qr);
@@ -315,16 +389,72 @@ export default function Profile() {
                 <div className="lg:col-span-7 space-y-8">
 
                     {/* Avatar Section */}
-                    <div className="bg-bg-side rounded-2xl p-8 shadow-md border border-border-theme flex flex-col items-center">
+                    <div ref={profileCardRef} className="bg-bg-side rounded-2xl p-8 shadow-md border border-border-theme flex flex-col items-center relative overflow-hidden">
+                        <div className="absolute top-4 right-4 share-hide-el">
+                            <button
+                                onClick={shareProfileCard}
+                                disabled={isSharingCard}
+                                className="p-3 bg-brand-primary/10 text-brand-primary rounded-2xl border border-brand-primary/20 hover:bg-brand-primary hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                                title="Compartir mi Card"
+                            >
+                                {isSharingCard ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+                            </button>
+                        </div>
+
                         <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
                             <div className="w-32 h-32 rounded-full border-4 border-brand-primary p-1">
                                 <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} />
                             </div>
-                            <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors">
+                            <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors share-hide-el">
                                 <Pencil size={16} />
                             </div>
                         </div>
-                        <p className="mt-4 text-sm text-text-sub font-medium">{t('profile.tapToChange')}</p>
+                        
+                        <div className="text-center mt-4">
+                            <h2 className="text-2xl font-black text-text-main italic uppercase tracking-tighter">@{profile?.username}</h2>
+                            <div className="flex items-center justify-center gap-2 mt-1">
+                                <Shield size={14} className="text-brand-primary" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{profile?.role || 'Miembro'}</span>
+                            </div>
+                        </div>
+
+                        <p className="mt-4 text-sm text-text-sub font-medium share-hide-el">{t('profile.tapToChange')}</p>
+
+                        {/* Stats visible only in card capture */}
+                        <div className="hidden card-show mt-6 w-full pt-6 border-t border-divider-theme/30 flex items-center justify-between gap-6">
+                            <div className="flex-1 grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Frikicoins</p>
+                                    <p className="text-xl font-black text-brand-secondary">{displayBalance} FC</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Ciudad</p>
+                                    <p className="text-xl font-black text-text-main uppercase tracking-tighter">{profile?.city || 'Medellín'}</p>
+                                </div>
+                            </div>
+                            
+                            {/* Personal Deposit QR - Only in Card */}
+                            {wallet?.deposit_qr && (
+                                <div className="bg-white p-1.5 rounded-xl shadow-lg border-2 border-brand-primary">
+                                    <img
+                                        alt="Wallet QR Code"
+                                        className="w-20 h-20 mix-blend-multiply"
+                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet.deposit_qr}`}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Interests visible in card capture */}
+                        {formData.interests.length > 0 && (
+                            <div className="hidden card-show mt-6 flex flex-wrap justify-center gap-2 max-w-sm">
+                                {formData.interests.slice(0, 8).map(int => (
+                                    <span key={int} className="px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-[10px] font-bold text-brand-primary">
+                                        #{int}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Personal Information */}

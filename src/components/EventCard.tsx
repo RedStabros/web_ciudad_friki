@@ -4,7 +4,10 @@ import { Calendar, Bookmark, Heart, Share2, Check } from 'lucide-react';
 import type { FrikiEvent } from '../services/EventService';
 import { getAvatarSource } from '../config/avatars';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
-import { shareContent, buildEventShare, registerCopiedCallback } from '../utils/shareContent';
+import { shareContent, registerCopiedCallback } from '../utils/shareContent';
+import { toPng } from 'html-to-image';
+import { Loader2 } from 'lucide-react';
+import { useRef } from 'react';
 
 interface EventCardProps {
     event: FrikiEvent;
@@ -22,18 +25,102 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US') : t('events.noDate', 'TBD');
 
     const [copied, setCopied] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
-    const handleShare = (e: React.MouseEvent) => {
+    const shareEventTicket = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        registerCopiedCallback(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2200);
-        });
-        shareContent(buildEventShare(event));
+        if (!cardRef.current || isSharing) return;
+        setIsSharing(true);
+        const el = cardRef.current;
+
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-primary').trim() || '#1e222a';
+        const brandColor = computedStyle.getPropertyValue('--brand-primary').trim() || '#e1192f';
+
+        const tempStyle = document.createElement('style');
+        tempStyle.innerHTML = `
+            .share-hide { display: none !important; }
+            .ticket-capture { 
+                padding: 40px !important; 
+                background: ${bgColor} !important; 
+                border: 4px dashed ${brandColor}50 !important;
+                border-radius: 40px !important; 
+                width: 500px !important;
+                position: relative !important;
+                display: block !important;
+            }
+            .ticket-capture .share-hide-el { display: none !important; }
+            .ticket-capture .ticket-likes { 
+                background: ${brandColor}15 !important;
+                padding: 8px 12px !important;
+                border-radius: 12px !important;
+                border: 1px solid ${brandColor}30 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                color: ${brandColor} !important;
+                margin-top: 10px !important;
+            }
+            .ticket-img { height: 280px !important; width: 100% !important; border-radius: 20px !important; object-fit: cover !important; margin-bottom: 20px !important; }
+            .ticket-capture h3 { font-size: 32px !important; margin-top: 5px !important; }
+            .ticket-capture .ticket-date { 
+                background: ${brandColor}10 !important;
+                color: ${brandColor} !important;
+                padding: 6px 12px !important;
+                border-radius: 8px !important;
+                font-weight: 800 !important;
+                font-size: 14px !important;
+                margin-bottom: 12px !important;
+                display: inline-flex !important;
+            }
+        `;
+        document.head.appendChild(tempStyle);
+
+        const hideElements = el.querySelectorAll('.share-hide-el');
+        el.classList.add('ticket-capture');
+        const img = el.querySelector('img');
+        if (img) img.classList.add('ticket-img');
+
+        try {
+            // Give it a tiny bit of time to apply classes
+            await new Promise(r => setTimeout(r, 100));
+
+            const dataUrl = await toPng(el, {
+                backgroundColor: bgColor,
+                pixelRatio: 2,
+                width: 500
+            });
+
+            const resp = await fetch(dataUrl);
+            const blob = await resp.blob();
+
+            if (blob) {
+                const file = new File([blob], `evento-${event.title.toLowerCase().replace(/\s+/g, '-')}.png`, { type: 'image/png' });
+                
+                const dateStr = event.date
+                    ? new Date(event.date + 'T00:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
+                    : '';
+                
+                await shareContent({
+                    title: `🎫 ${event.title} - Ciudad Friki`,
+                    text: `🔥 *${event.title}*\n¡No te pierdas este evento en Ciudad Friki!\n\n📅 ${dateStr}\n📍 ${event.location || 'Consultar app'}\n\n¡Consigue toda tu info aquí! 👇`,
+                    url: window.location.origin + `/events?id=${event.id}`,
+                    file
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing event:', error);
+        } finally {
+            el.classList.remove('ticket-capture');
+            if (img) img.classList.remove('ticket-img');
+            document.head.removeChild(tempStyle);
+            setIsSharing(false);
+        }
     };
 
     return (
-        <div className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition duration-300 ${event.is_sponsored ? 'border-brand-secondary ring-1 ring-brand-secondary/20' : 'border-border-theme'}`}>
+        <div ref={cardRef} className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition duration-300 ${event.is_sponsored ? 'border-brand-secondary ring-1 ring-brand-secondary/20' : 'border-border-theme'}`}>
             <div className="relative h-64 w-full">
                 <img
                     alt={event.title}
@@ -50,7 +137,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
             <div className="p-5">
                 <div className="flex justify-between items-start">
                     <div className="cursor-pointer flex-1 pr-4" onClick={onClick}>
-                        <div className="flex items-center text-text-muted text-sm mb-1">
+                        <div className="ticket-date flex items-center text-text-muted text-sm mb-1">
                             <Calendar className="text-base mr-1.5" size={16} />
                             {formattedDate} • {event.start_time || 'TBD'}
                         </div>
@@ -68,26 +155,23 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                     <div className="flex flex-col items-center gap-3 pt-1">
                         <button
                             onClick={onSave}
-                            className={`transition ${event.isSaved ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
+                            className={`share-hide-el transition ${event.isSaved ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
                             aria-label="Guardar evento"
                         >
                             <Bookmark size={28} fill={event.isSaved ? "currentColor" : "none"} />
                         </button>
+                        <div className="ticket-likes flex items-center font-medium gap-1 transition text-accent-red">
+                            <Heart size={20} fill="currentColor" />
+                            <span className="text-sm font-black">{event.likes_count || 0}</span>
+                        </div>
                         <button
-                            onClick={onLike}
-                            className={`flex items-center font-medium gap-1 transition ${event.isLiked ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}
-                            aria-label="Me gusta"
-                        >
-                            <Heart size={20} fill={event.isLiked ? "currentColor" : "none"} />
-                            <span className="text-sm">{event.likes_count || 0}</span>
-                        </button>
-                        <button
-                            onClick={handleShare}
-                            className={`transition ${copied ? 'text-accent-green' : 'text-text-muted hover:text-brand-primary'}`}
+                            onClick={shareEventTicket}
+                            disabled={isSharing}
+                            className={`share-hide-el transition ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
                             aria-label="Compartir evento"
-                            title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('common.share', 'Compartir')}
+                            title={t('common.share', 'Compartir')}
                         >
-                            {copied ? <Check size={20} /> : <Share2 size={20} />}
+                            {isSharing ? <Loader2 size={24} className="animate-spin" /> : <Share2 size={24} />}
                         </button>
                     </div>
                 </div>
