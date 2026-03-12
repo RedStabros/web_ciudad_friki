@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Store, ShieldAlert, Loader2 } from 'lucide-react';
+import { Store, Loader2 } from 'lucide-react';
 import { AdminFrikiMartContent } from '../../components/AdminFrikiMart';
 import { useAuth } from '../../context/AuthContext';
 import { SuperAdminService } from '../../services/SuperAdminService';

@@ -1,0 +1,9 @@
+﻿src/components/admin/SurveyAnalyticsModal.tsx(4,45): error TS6133: 'UserCircle' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(3,30): error TS6133: 'User' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(4,25): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(8,1): error TS6133: 'UserCircle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(3,76): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(3,105): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(5,1): error TS6133: 'SuperAdminService' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(256,11): error TS6133: 'updateOrderStatus' is declared but its value is never read.
+src/pages/admin/AdminFrikiMartPage.tsx(2,17): error TS6133: 'ShieldAlert' is declared but its value is never read.

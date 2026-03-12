@@ -1,0 +1,18 @@
+﻿src/components/admin/SurveyAnalyticsModal.tsx(4,45): error TS6133: 'UserCircle' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(3,30): error TS6133: 'User' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(4,25): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/components/admin/TriviaAnalyticsModal.tsx(8,1): error TS6133: 'UserCircle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(3,76): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(3,105): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(5,1): error TS6133: 'SuperAdminService' is declared but its value is never read.
+src/components/AdminFrikiMart.tsx(256,11): error TS6133: 'updateOrderStatus' is declared but its value is never read.
+src/pages/admin/AdminFrikiMartPage.tsx(2,17): error TS6133: 'ShieldAlert' is declared but its value is never read.
+src/pages/admin/AdminToolsPage.tsx(5,42): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/pages/admin/AdminToolsPage.tsx(270,70): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+src/pages/admin/AdminToolsPage.tsx(375,7): error TS6133: 'styles' is declared but its value is never read.
+src/services/AdminToolsService.ts(22,30): error TS2339: Property 'top_users' does not exist on type '{}'.
+src/services/AdminToolsService.ts(22,48): error TS2339: Property 'top_users' does not exist on type '{}'.
+src/services/AdminToolsService.ts(23,40): error TS2339: Property 'top_users' does not exist on type '{}'.
+src/services/AdminToolsService.ts(26,26): error TS2339: Property 'top_users' does not exist on type '{}'.
+src/services/AdminToolsService.ts(26,43): error TS2339: Property 'top_users' does not exist on type '{}'.

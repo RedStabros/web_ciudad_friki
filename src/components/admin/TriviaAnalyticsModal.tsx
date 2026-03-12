@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-    X, Users, Trophy, Coins, User,
-    Loader2, BarChart3, ChevronRight, Calendar
+    X, Users, Trophy, Coins,
+    Loader2, BarChart3, Calendar
 } from 'lucide-react';
+
 import { TriviaAdminService } from '../../services/TriviaAdminService';
 import { getAvatarSource } from '../../config/avatars';
-import { UserCircle } from 'lucide-react';
 
 interface TriviaAnalyticsModalProps {
     isOpen: boolean;

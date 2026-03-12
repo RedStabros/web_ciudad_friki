@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Loader2, Store, Package, ShoppingBag, Send, Heart, RefreshCcw, AlertTriangle, MapPin, Mail, CheckCircle, Trash2 } from 'lucide-react';
+import { X, Loader2, Store, Package, ShoppingBag, Send, Heart, RefreshCcw, MapPin, Mail, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { SuperAdminService } from '../services/SuperAdminService';
 
 interface StoreItem {
     id: string;
@@ -253,11 +252,7 @@ export function AdminFrikiMartContent() {
         fetchItems();
     };
 
-    const updateOrderStatus = async (orderId: string, status: string) => {
-        if (!window.confirm(`¿Cambiar estado a ${status}?`)) return;
-        await supabase.from('store_purchases').update({ status }).eq('id', orderId);
-        fetchOrders();
-    };
+
 
     const handleSavePackage = async () => {
         if (!editingPackage?.name || !editingPackage.frikicoin_reward || !editingPackage.price_cents || !editingPackage.google_product_id) {

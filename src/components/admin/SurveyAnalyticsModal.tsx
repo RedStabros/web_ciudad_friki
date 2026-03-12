@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     X, Download, Users, BarChart3, ListOrdered,
-    ChevronRight, ArrowLeft, Star, Loader2, UserCircle
+    ChevronRight, ArrowLeft, Star, Loader2
 } from 'lucide-react';
 import { SurveyAdminService } from '../../services/SurveyAdminService';
 import { getAvatarSource } from '../../config/avatars';

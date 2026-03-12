@@ -19,11 +19,13 @@ export const AdminToolsService = {
             const { data, error } = await supabase.rpc('get_admin_stats').single();
             if (error) throw error;
 
-            if (data && data.top_users && data.top_users.length > 0) {
-                const usernames = data.top_users.map((u: any) => u.username);
+            const typedData = data as any;
+
+            if (typedData && typedData.top_users && typedData.top_users.length > 0) {
+                const usernames = typedData.top_users.map((u: any) => u.username);
                 const { data: profiles } = await supabase.from('profiles').select('username, email, avatar_url').in('username', usernames);
                 if (profiles) {
-                    data.top_users = data.top_users.map((u: any) => {
+                    typedData.top_users = typedData.top_users.map((u: any) => {
                         const profile = profiles.find((p: any) => p.username === u.username);
                         return {
                             ...u,
@@ -34,7 +36,7 @@ export const AdminToolsService = {
                 }
             }
 
-            return { data: data as AdminStats, error: null };
+            return { data: typedData as AdminStats, error: null };
         } catch (error) {
             console.error('Error fetching admin stats:', error);
             return { data: null, error };

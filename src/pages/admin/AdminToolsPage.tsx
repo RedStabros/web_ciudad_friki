@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
-    Trophy, ShieldCheck, Clock, Loader2, AlertTriangle,
+    Trophy, ShieldCheck, Clock, Loader2,
     Eye
 } from 'lucide-react';
 import { AdminToolsService, type AdminStats } from '../../services/AdminToolsService';
@@ -267,7 +267,7 @@ export default function AdminToolsPage() {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <img
-                                                src={getAvatarSource(u.avatar_url)}
+                                                src={getAvatarSource(u.avatar_url || null)}
                                                 alt={u.username}
                                                 className="w-10 h-10 rounded-full border border-border-theme bg-bg-side object-cover shadow-sm"
                                             />
@@ -333,7 +333,7 @@ export default function AdminToolsPage() {
                                         <div className="flex items-center gap-3">
                                             <div className="relative">
                                                 <img
-                                                    src={getAvatarSource(u.avatar_url)}
+                                                    src={getAvatarSource(u.avatar_url || null)}
                                                     alt={u.username}
                                                     className="w-12 h-12 rounded-full border-2 border-border-theme bg-bg-side object-cover shadow-sm"
                                                 />
@@ -371,16 +371,3 @@ export default function AdminToolsPage() {
         </div>
     );
 }
-
-const styles = `
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--border-theme);
-    border-radius: 10px;
-}
-`;
