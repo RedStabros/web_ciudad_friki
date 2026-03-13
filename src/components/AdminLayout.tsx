@@ -38,15 +38,15 @@ export default function AdminLayout() {
     }
 
     const navItems = [
-        { path: '/admin/roles', icon: <Users size={20} />, label: 'Gestión de Roles' },
-        { path: '/admin/events', icon: <CalendarCheck size={20} />, label: 'Moderación Eventos' },
-        { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: 'Panel Encuestas' },
-        { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: 'Panel Trivias' },
-        { path: '/admin/qrs', icon: <QrCode size={20} />, label: 'Eventos QR' },
-        { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: 'Panel Taberna' },
-        { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: 'Herramientas Admin' },
-        ...(isSuperuser || storeAdminVisible ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: 'Panel FrikiMart' }] : []),
-        ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: 'Panel GM' }] : []),
+        { path: '/admin/roles', icon: <Users size={20} />, label: t('admin.sidebar.roles') },
+        { path: '/admin/events', icon: <CalendarCheck size={20} />, label: t('admin.sidebar.events') },
+        { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: t('admin.sidebar.surveys') },
+        { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: t('admin.sidebar.trivias') },
+        { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
+        { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
+        { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
+        ...(isSuperuser || storeAdminVisible ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
+        ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),
     ];
 
     return (
@@ -60,8 +60,8 @@ export default function AdminLayout() {
                         <ShieldAlert size={20} />
                     </div>
                     <div>
-                        <div className="leading-none text-lg">Admin Panel</div>
-                        <div className="text-[10px] text-brand-primary uppercase tracking-widest leading-none mt-1">Acceso Restringido</div>
+                        <div className="leading-none text-lg">{t('admin.sidebar.title')}</div>
+                        <div className="text-[10px] text-brand-primary uppercase tracking-widest leading-none mt-1">{t('admin.sidebar.restricted')}</div>
                     </div>
                 </div>
             </div>
@@ -95,8 +95,8 @@ export default function AdminLayout() {
                             <ShieldAlert size={28} />
                         </div>
                         <div className="relative z-10">
-                            <h2 className="font-black text-text-main text-lg leading-tight">Admin Pannel</h2>
-                            <p className="text-[10px] text-brand-primary uppercase tracking-widest font-bold mt-1">ACCESO RESTRINGIDO</p>
+                            <h2 className="font-black text-text-main text-lg leading-tight">{t('admin.sidebar.title')}</h2>
+                            <p className="text-[10px] text-brand-primary uppercase tracking-widest font-bold mt-1">{t('admin.sidebar.restricted')}</p>
                         </div>
                     </div>
 

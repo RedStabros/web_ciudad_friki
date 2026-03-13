@@ -46,6 +46,7 @@ interface DonationPackage {
 
 // ── Chat Modal ─────────────────────────────────────────────────────────────────
 function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: string; onClose: () => void }) {
+    const { t } = useTranslation();
     const [messages, setMessages] = useState<any[]>([]);
     const [order, setOrder] = useState<any>(null);
     const [text, setText] = useState('');
@@ -84,13 +85,13 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
     };
 
     const confirmReceived = async () => {
-        if (!window.confirm('¿Confirmas que recibiste tu artículo?')) return;
+        if (!window.confirm(t('frikimart.chat.confirmReceived'))) return;
         await supabase.from('store_purchases').update({ buyer_confirmed: true }).eq('id', orderId);
         loadChat();
     };
 
-    const statusText = order?.status === 'delivered' ? '✅ Entregado'
-        : order?.status === 'cancelled' ? '❌ Cancelado' : '⏳ Pendiente de entrega';
+    const statusText = order?.status === 'delivered' ? `✅ ${t('frikimart.chat.status.delivered')}`
+        : order?.status === 'cancelled' ? `❌ ${t('frikimart.chat.status.cancelled')}` : `⏳ ${t('frikimart.chat.status.pending')}`;
 
     return (
         <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
@@ -101,21 +102,21 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
                         <X size={20} />
                     </button>
                     <div className="flex-1 min-w-0">
-                        <p className="font-black text-text-main text-sm truncate">{order?.store_items?.title ?? 'Chat de entrega'}</p>
+                        <p className="font-black text-text-main text-sm truncate">{order?.store_items?.title ?? t('frikimart.chat.title')}</p>
                         <p className="text-xs text-text-muted">{statusText}</p>
                     </div>
                     {order?.status === 'pending_delivery' && !order?.buyer_confirmed && (
                         <button onClick={confirmReceived} className="px-3 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-black rounded-lg border border-amber-500/30 hover:bg-amber-500/30 transition">
-                            Confirmar recibo ✅
+                            {t('frikimart.chat.confirmButton')}
                         </button>
                     )}
-                    {order?.buyer_confirmed && <span className="text-accent-green text-xs font-bold flex items-center gap-1"><Check size={12} />Recibido</span>}
+                    {order?.buyer_confirmed && <span className="text-accent-green text-xs font-bold flex items-center gap-1"><Check size={12} />{t('frikimart.chat.received')}</span>}
                 </div>
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                     {messages.length === 0 && (
-                        <p className="text-center text-text-muted text-sm py-8">Aún no hay mensajes. El equipo de FrikiMart se pondrá en contacto pronto.</p>
+                        <p className="text-center text-text-muted text-sm py-8">{t('frikimart.chat.empty')}</p>
                     )}
                     {messages.map((m: any) => {
                         const isMine = m.sender_id === userId && m.sender_role === 'buyer';
@@ -139,7 +140,7 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
                         value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMsg()}
-                        placeholder="Escribe un mensaje..."
+                        placeholder={t('frikimart.chat.placeholder')}
                         className="flex-1 bg-bg-sub border border-border-theme text-text-main rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500"
                     />
                     <button
@@ -157,7 +158,7 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function FrikiMart() {
-    const { t: _t } = useTranslation();
+    const { t } = useTranslation();
     const { user, session } = useAuth();
     const [tab, setTab] = useState<Tab>('items');
     const [items, setItems] = useState<StoreItem[]>([]);
@@ -212,10 +213,10 @@ export default function FrikiMart() {
 
     const handleBuy = async (item: StoreItem) => {
         if (balance < item.price_fc) {
-            alert(`Necesitas ${item.price_fc.toLocaleString()} FC.\nTienes ${balance.toLocaleString()} FC.`);
+            alert(t('frikimart.items.insufficientFC', { required: item.price_fc.toLocaleString(), balance: balance.toLocaleString() }));
             return;
         }
-        if (!window.confirm(`Comprar "${item.title}" por ${item.price_fc.toLocaleString()} FC?\n\n⚠️ Las compras con Frikicoins no tienen devolución.`)) return;
+        if (!window.confirm(t('frikimart.items.buyConfirm', { title: item.title, price: item.price_fc.toLocaleString() }))) return;
 
         setBuying(item.id);
         try {
@@ -225,9 +226,9 @@ export default function FrikiMart() {
             await Promise.all([fetchBalance(), fetchItems(), fetchOrders()]);
             setChatOrderId(data as string);
         } catch (err: any) {
-            const msg = err.message?.includes('INSUFFICIENT_FC') ? 'No tienes suficientes Frikicoins.'
-                : err.message?.includes('OUT_OF_STOCK') ? 'Artículo agotado.'
-                    : 'Ocurrió un error. Intenta de nuevo.';
+            const msg = err.message?.includes('INSUFFICIENT_FC') ? t('frikimart.errors.noFC')
+                : err.message?.includes('OUT_OF_STOCK') ? t('frikimart.errors.outOfStock')
+                    : t('frikimart.errors.generic');
             alert(msg);
         } finally {
             setBuying(null);
@@ -235,9 +236,9 @@ export default function FrikiMart() {
     };
 
     const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-        { key: 'items', label: 'Artículos', icon: <ShoppingBag size={15} /> },
-        { key: 'orders', label: 'Mis Pedidos', icon: <PackageCheck size={15} /> },
-        { key: 'donations', label: 'Donaciones', icon: <Gift size={15} /> },
+        { key: 'items', label: t('frikimart.tabs.items'), icon: <ShoppingBag size={15} /> },
+        { key: 'orders', label: t('frikimart.tabs.orders'), icon: <PackageCheck size={15} /> },
+        { key: 'donations', label: t('frikimart.tabs.donations'), icon: <Gift size={15} /> },
     ];
 
     if (!session) return <Navigate to="/login" replace />;
@@ -247,18 +248,18 @@ export default function FrikiMart() {
     if (!frikiMartVisible) return (
         <div className="min-h-screen bg-bg-main flex flex-col items-center justify-center py-32 text-center px-8">
             <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-24 h-24 object-contain opacity-30 mb-6 grayscale" />
-            <h2 className="text-2xl font-black text-text-main text-amber-400">Tienda Cerrada</h2>
-            <p className="text-text-muted mt-2 text-sm max-w-sm">FrikiMart no está disponible temporalmente. Nuestro equipo está trabajando en nuevas recompensas. 🐉</p>
-            <Link to="/" className="mt-8 px-6 py-2 bg-bg-sub border border-border-theme hover:border-amber-500 hover:text-amber-500 rounded-xl transition font-bold text-text-muted">Volver a inicio</Link>
+            <h2 className="text-2xl font-black text-text-main text-amber-400">{t('frikimart.closed')}</h2>
+            <p className="text-text-muted mt-2 text-sm max-w-sm">{t('frikimart.closedSubtitle')}</p>
+            <Link to="/" className="mt-8 px-6 py-2 bg-bg-sub border border-border-theme hover:border-amber-500 hover:text-amber-500 rounded-xl transition font-bold text-text-muted">{t('frikimart.returnHome')}</Link>
         </div>
     );
 
     return (
         <div className="min-h-screen bg-bg-main pb-24">
             <SEO 
-                title="FrikiMart | Canjea tus Frikicoins"
-                description="Visita la tienda oficial de Ciudad Friki. Canjea tus Frikicoins por artículos exclusivos, figuras de anime, accesorios geek y más."
-                keywords="Tienda Geek, Canje de Premios, Frikicoins, Anime Merch, Medellín"
+                title={t('seo.frikimart.title')}
+                description={t('seo.frikimart.description')}
+                keywords={t('seo.frikimart.keywords')}
                 image="/assets/seo/frikimart_banner.png"
             />
             {/* Header */}
@@ -272,7 +273,7 @@ export default function FrikiMart() {
                         <h1 className="text-lg font-black text-amber-400 uppercase tracking-tight">FrikiMart</h1>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] text-text-muted uppercase font-bold">Tu balance</p>
+                        <p className="text-[10px] text-text-muted uppercase font-bold">{t('frikimart.balance')}</p>
                         <p className="text-sm font-black text-amber-400">{balance.toLocaleString()} FC</p>
                     </div>
                     <button
@@ -305,7 +306,7 @@ export default function FrikiMart() {
                 {loading ? (
                     <div className="flex flex-col items-center py-20 gap-3">
                         <Loader2 size={32} className="animate-spin text-amber-400" />
-                        <p className="text-text-muted text-sm">Cargando FrikiMart...</p>
+                        <p className="text-text-muted text-sm">{t('frikimart.loading')}</p>
                     </div>
                 ) : (
                     <>
@@ -335,9 +336,9 @@ export default function FrikiMart() {
                                                 <div className="flex items-end justify-between">
                                                     <div>
                                                         <p className="text-xl font-black text-amber-400">{item.price_fc.toLocaleString()} FC</p>
-                                                        {item.stock === 1 && <p className="text-[11px] text-red-400 font-bold">🔴 ¡Última unidad!</p>}
-                                                        {item.stock > 1 && item.stock <= 5 && <p className="text-[11px] text-orange-400 font-bold">⚠️ Quedan {item.stock} unidades</p>}
-                                                        {item.stock > 5 && <p className="text-[11px] text-accent-green">✓ {item.stock} disponibles</p>}
+                                                        {item.stock === 1 && <p className="text-[11px] text-red-400 font-bold">🔴 {t('frikimart.items.lastUnit')}</p>}
+                                                        {item.stock > 1 && item.stock <= 5 && <p className="text-[11px] text-orange-400 font-bold">⚠️ {t('frikimart.items.fewUnits', { count: item.stock })}</p>}
+                                                        {item.stock > 5 && <p className="text-[11px] text-accent-green">✓ {t('frikimart.items.available', { count: item.stock })}</p>}
                                                     </div>
                                                     <button
                                                         onClick={() => handleBuy(item)}
@@ -346,7 +347,7 @@ export default function FrikiMart() {
                                                             ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20 active:scale-95'
                                                             : 'bg-bg-sub text-text-muted border border-border-theme cursor-not-allowed'} disabled:opacity-50`}
                                                     >
-                                                        {buying === item.id ? <Loader2 size={16} className="animate-spin" /> : canAfford ? 'Comprar' : 'Sin FC'}
+                                                        {buying === item.id ? <Loader2 size={16} className="animate-spin" /> : canAfford ? t('frikimart.items.buy') : t('frikimart.items.noFC')}
                                                     </button>
                                                 </div>
                                             </div>
@@ -364,7 +365,7 @@ export default function FrikiMart() {
                                 ) : orders.map(order => {
                                     const photo = order.store_items?.photos?.[0];
                                     const statusColor = order.status === 'delivered' ? 'text-accent-green' : order.status === 'cancelled' ? 'text-accent-red' : 'text-amber-400';
-                                    const statusLabel = order.status === 'delivered' ? '✅ Entregado' : order.status === 'cancelled' ? '❌ Cancelado' : '⏳ Pendiente';
+                                    const statusLabel = order.status === 'delivered' ? `✅ ${t('frikimart.orders.status.delivered')}` : order.status === 'cancelled' ? `❌ ${t('frikimart.orders.status.cancelled')}` : `⏳ ${t('frikimart.orders.status.pending')}`;
                                     return (
                                         <button
                                             key={order.id}
@@ -398,10 +399,9 @@ export default function FrikiMart() {
                         {tab === 'donations' && (
                             <div className="space-y-4">
                                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 mb-2">
-                                    <p className="text-amber-400 font-black text-sm mb-1">💳 Donaciones — Próximamente en web</p>
+                                    <p className="text-amber-400 font-black text-sm mb-1">💳 {t('frikimart.donations.comingSoon')}</p>
                                     <p className="text-text-muted text-xs leading-relaxed">
-                                        Las donaciones con dinero real están disponibles en la app móvil de Ciudad Friki a través de Google Play.
-                                        Puedes ver los paquetes disponibles aquí. Para donar, descarga la app.
+                                        {t('frikimart.donations.availability')}
                                     </p>
                                 </div>
                                 {donations.length === 0 ? (
@@ -426,7 +426,7 @@ export default function FrikiMart() {
                                                 <p className="text-xs text-text-muted">${(pkg.price_cents / 100).toFixed(2)} USD</p>
                                             </div>
                                             <div className="px-4 py-2.5 rounded-xl border border-amber-500/30 text-amber-400 text-xs font-black bg-amber-500/10">
-                                                Solo en App 📱
+                                                {t('frikimart.donations.onlyInApp')}
                                             </div>
                                         </div>
                                     </div>
@@ -441,14 +441,14 @@ export default function FrikiMart() {
             {successMsg && (
                 <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[300] bg-bg-side border border-amber-400/40 shadow-2xl rounded-2xl px-6 py-4 max-w-sm w-[90%] text-center animate-in fade-in slide-in-from-bottom-4">
                     <p className="text-3xl mb-2">🐉</p>
-                    <p className="font-black text-amber-400 text-base">¡Compra exitosa!</p>
+                    <p className="font-black text-amber-400 text-base">{t('frikimart.items.purchaseSuccess')}</p>
                     <p className="text-text-muted text-sm mt-1 mb-3">{successMsg}</p>
-                    <p className="text-text-muted text-xs">Un administrador se pondrá en contacto para coordinar la entrega.</p>
+                    <p className="text-text-muted text-xs">{t('frikimart.items.adminContact')}</p>
                     <button
                         onClick={() => { setSuccessMsg(null); setTab('orders'); }}
                         className="mt-4 w-full py-2.5 rounded-xl bg-amber-500 text-black font-black text-sm hover:bg-amber-400 transition"
                     >
-                        💬 Ver mis pedidos
+                        💬 {t('frikimart.items.viewOrders')}
                     </button>
                 </div>
             )}

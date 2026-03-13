@@ -23,7 +23,7 @@ export default function Legal() {
                 setContent(text);
             } catch (err) {
                 console.error(err);
-                setContent(t('common.errorLoading', 'Error al cargar el documento legal.'));
+                setContent(t('common.errorLoading'));
             } finally {
                 setIsLoading(false);
             }
@@ -39,15 +39,15 @@ export default function Legal() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-12 animate-in fade-in duration-500">
             <SEO 
-                title={type === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad'}
-                description="Documentos legales, términos de uso y políticas de privacidad de la plataforma Ciudad Friki."
+                title={type === 'terms' ? t('legal.termsTitle') : t('legal.privacyTitle')}
+                description={t('legal.description')}
             />
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-text-muted hover:text-brand-primary transition-colors mb-8 font-bold text-sm uppercase tracking-widest"
             >
                 <ChevronLeft size={20} />
-                {t('common.back', 'Volver')}
+                {t('common.back')}
             </button>
 
             <header className="mb-12 border-b border-divider-theme pb-8">
@@ -56,7 +56,7 @@ export default function Legal() {
                     <div className="h-10 w-1 bg-brand-primary rounded-full" />
                 </div>
                 <h1 className="text-5xl font-black text-text-main uppercase italic tracking-tighter">
-                    {type === 'privacy' ? t('legal.privacyTitle', 'Privacidad') : t('legal.termsTitle', 'Términos y Condiciones')}
+                    {type === 'privacy' ? t('legal.privacyTitle') : t('legal.termsTitle')}
                 </h1>
                 <p className="text-text-sub mt-2 font-medium">Ciudad Friki - {new Date().getFullYear()}</p>
             </header>

@@ -75,13 +75,13 @@ export default function Trivias() {
     }, [activeTrivia]);
 
     const startTrivia = async (trivia: TriviaWithStatus) => {
-        if (!user) return alert(t('auth.signInToPlay', 'Inicia sesión para jugar'));
+        if (!user) return alert(t('common.loginRequired'));
         if (trivia.user_completed) return;
         setLoadingGame(true);
         try {
             // Load questions with full option objects — same as app's getTriviaDetails()
             const qs = await TriviaService.getTriviaDetails(trivia.id);
-            if (!qs || qs.length === 0) return alert(t('trivia.noQuestions', 'No hay preguntas disponibles'));
+            if (!qs || qs.length === 0) return alert(t('trivia.noQuestions'));
             setActiveTrivia(trivia);
             setQuestions(qs);
             setCurrentIdx(0);
@@ -129,27 +129,27 @@ export default function Trivias() {
                     <div className={`p-10 text-center ${isPerfect ? 'bg-gradient-to-b from-amber-500/10 to-transparent' : 'bg-gradient-to-b from-brand-primary/5 to-transparent'}`}>
                         <div className="text-6xl mb-4">{isPerfect ? '🏆' : pct >= 60 ? '⭐' : '🎮'}</div>
                         <h2 className="text-3xl font-black text-text-main uppercase italic tracking-tighter">
-                            {t('trivia.results.title', '¡Trivia Completada!')}
+                            {t('trivia.results.title')}
                         </h2>
                         <p className="text-text-muted text-sm mt-2">
-                            {result.correctCount} / {result.total} {t('trivia.results.correct', 'correctas')}
+                            {result.correctCount} / {result.total} {t('trivia.results.correct')}
                         </p>
                     </div>
 
                     {/* Stats */}
                     <div className="grid grid-cols-3 divide-x divide-divider-theme border-y border-divider-theme">
                         <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.score', 'Puntaje')}</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.score')}</p>
                             <p className="text-3xl font-black text-brand-primary italic">{result.score}</p>
                             <p className="text-[10px] text-text-muted">pts</p>
                         </div>
                         <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.correct', 'Correctas')}</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.correct')}</p>
                             <p className="text-3xl font-black text-accent-green italic">{result.correctCount}</p>
                             <p className="text-[10px] text-text-muted">/ {result.total}</p>
                         </div>
                         <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.reward', 'Recompensa')}</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.reward')}</p>
                             <p className="text-3xl font-black text-amber-400 italic">+{result.reward}</p>
                             <p className="text-[10px] text-text-muted">FC</p>
                         </div>
@@ -159,7 +159,7 @@ export default function Trivias() {
                         <div className="mx-8 my-4 flex items-center gap-3 bg-amber-500/5 border border-amber-500/20 rounded-2xl px-4 py-3">
                             <Gift size={20} className="text-amber-400 flex-shrink-0" />
                             <p className="text-sm font-bold text-amber-400">
-                                {t('trivia.results.correctAlert', `¡Has ganado ${result.reward} Frikicoins!`)}
+                                {t('trivia.results.correctAlert', { reward: result.reward })}
                             </p>
                         </div>
                     )}
@@ -169,7 +169,7 @@ export default function Trivias() {
                             onClick={() => setResult(null)}
                             className="w-full bg-brand-primary text-text-inv py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-primary-light transition shadow-xl shadow-brand-primary/20"
                         >
-                            {t('trivia.results.close', 'Volver a Trivias')}
+                            {t('trivia.results.close')}
                         </button>
                     </div>
                 </div>
@@ -209,7 +209,7 @@ export default function Trivias() {
                                 </span>
                             </div>
                             <button onClick={() => {
-                                if (window.confirm(t('trivia.exitWarning', '¿Salir? Se guardará tu progreso actual.'))) {
+                                if (window.confirm(t('trivia.exitWarning'))) {
                                     handleSubmit();
                                 }
                             }} className="p-2 hover:bg-bg-sub rounded-xl transition">
@@ -271,7 +271,7 @@ export default function Trivias() {
                         {isLastQ ? (
                             <button
                                 onClick={() => {
-                                    if (window.confirm(t('trivia.confirmSubmit', '¿Enviar tus respuestas? No podrás cambiarlas.'))) {
+                                    if (window.confirm(t('trivia.confirmSubmit'))) {
                                         handleSubmit();
                                     }
                                 }}
@@ -279,7 +279,7 @@ export default function Trivias() {
                                 className="flex-1 bg-brand-primary text-text-inv py-3 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-primary-light transition shadow-xl shadow-brand-primary/20 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {submitting ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                                {submitting ? t('surveys.submitting') : t('trivia.submit', 'Enviar Respuestas')}
+                                {submitting ? t('surveys.submitting') : t('trivia.submit')}
                             </button>
                         ) : (
                             <button
@@ -308,9 +308,9 @@ export default function Trivias() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
             <SEO 
-                title="Trivias Friki | Demuestra tus conocimientos"
-                description="Desafía tus conocimientos sobre Anime, Videojuegos y Cultura Geek en las Trivias de Ciudad Friki. ¡Responde correctamente y gana Frikicoins!"
-                keywords="Trivia Anime, Quiz Videojuegos, Conocimiento Geek, Frikicoins, Juegos Mentales"
+                title={t('seo.trivias.title')}
+                description={t('seo.trivias.description')}
+                keywords={t('seo.trivias.keywords')}
                 image="/assets/seo/trivias_banner.png"
             />
             {/* HERO */}
@@ -383,9 +383,7 @@ export default function Trivias() {
                             </div>
                             <div className="flex justify-between items-start mb-10 relative z-10">
                                 <div>
-                                    <span className="text-[10px] font-black uppercase text-brand-primary tracking-[0.2em]">
-                                        EXPIRA: {trivia.expire_date ? new Date(trivia.expire_date).toLocaleDateString() : 'N/A'}
-                                    </span>
+                                        {t('trivia.expires')}: {trivia.expire_date ? new Date(trivia.expire_date).toLocaleDateString() : t('common.tbd')}
                                     {trivia.user_completed && trivia.user_score !== undefined && (
                                         <p className="text-[10px] text-accent-green font-black mt-0.5">Score: {trivia.user_score} pts</p>
                                     )}
@@ -402,7 +400,7 @@ export default function Trivias() {
                             <div className="flex items-center justify-between pt-6 border-t border-divider-theme relative z-10">
                                 <div className="flex items-center gap-2 text-text-muted text-xs">
                                     <Clock size={14} />
-                                    <span>{trivia.time_limit_seconds > 0 ? `${Math.floor(trivia.time_limit_seconds / 60)} min` : t('common.noLimit', 'Sin límite')}</span>
+                                    <span>{trivia.time_limit_seconds > 0 ? `${Math.floor(trivia.time_limit_seconds / 60)} min` : t('common.noLimit')}</span>
                                 </div>
                                 <div className={`px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center gap-2
                                     ${trivia.user_completed

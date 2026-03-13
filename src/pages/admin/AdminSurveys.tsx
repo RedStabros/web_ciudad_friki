@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FileText, Loader2, Play, Pause, XCircle, Edit3, PieChart, Star, PlusCircle, Filter } from 'lucide-react';
 import { SurveyAdminService } from '../../services/SurveyAdminService';
 import type { AdminSurvey, SurveyStatus } from '../../types/survey';
@@ -7,6 +8,7 @@ import { SurveyAnalyticsModal } from '../../components/admin/SurveyAnalyticsModa
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminSurveys() {
+    const { t } = useTranslation();
     const { user } = useAuth();
     const [surveys, setSurveys] = useState<AdminSurvey[]>([]);
     const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ export default function AdminSurveys() {
             setSelectedSurveyAnalytics({ ...survey, questions: questions || [] });
             setIsAnalyticsOpen(true);
         } catch (error) {
-            alert('Error al cargar preguntas de la encuesta');
+            alert(t('adminSurveys.errors.loadQuestionsError'));
         } finally {
             setLoading(false);
         }
@@ -71,7 +73,7 @@ export default function AdminSurveys() {
             if (error) throw error;
             loadSurveys();
         } catch (error: any) {
-            alert('Error al cambiar estado: ' + error.message);
+            alert(t('adminSurveys.errors.statusChangeError', { message: error.message }));
         }
     };
 
@@ -89,12 +91,12 @@ export default function AdminSurveys() {
 
     const getStatusLabel = (status: SurveyStatus) => {
         const labels: Record<SurveyStatus, string> = {
-            active: 'Activa',
-            draft: 'Borrador',
-            scheduled: 'Programada',
-            paused: 'Pausada',
-            expired: 'Caducada',
-            cancelled: 'Cancelada'
+            active: t('adminSurveys.status.activa'),
+            draft: t('adminSurveys.status.borrador'),
+            scheduled: t('adminSurveys.status.programada'),
+            paused: t('adminSurveys.status.pausada'),
+            expired: t('adminSurveys.status.caducada'),
+            cancelled: t('adminSurveys.status.cancelada')
         };
         return labels[status] || status;
     };
@@ -111,8 +113,8 @@ export default function AdminSurveys() {
                         <FileText size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Panel de Encuestas</h1>
-                        <p className="text-sm text-brand-primary font-bold">Investigación y feedback con recompensas</p>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('adminSurveys.title')}</h1>
+                        <p className="text-sm text-brand-primary font-bold">{t('adminSurveys.subtitle')}</p>
                     </div>
                 </div>
 
@@ -120,7 +122,7 @@ export default function AdminSurveys() {
                     onClick={() => { setSurveyToEdit(null); setIsBuilderOpen(true); }}
                     className="bg-brand-primary hover:bg-blue-600 text-white font-black py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-brand-primary/20 justify-center"
                 >
-                    <PlusCircle size={20} /> Crear Encuesta
+                    <PlusCircle size={20} /> {t('adminSurveys.createSurvey')}
                 </button>
             </div>
 
@@ -128,24 +130,24 @@ export default function AdminSurveys() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black text-text-main mb-1 leading-none">{stats.total}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Total Creadas</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminSurveys.stats.totalCreated')}</span>
                 </div>
                 <div className="bg-bg-pop border border-accent-green/30 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-accent-green/5 rounded-full -mr-8 -mt-8"></div>
                     <span className="text-2xl font-black text-accent-green mb-1 leading-none">{stats.active}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Activas</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminSurveys.stats.active')}</span>
                 </div>
                 <div className="bg-bg-pop border border-amber-500/30 rounded-2xl p-4 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black text-amber-500 mb-1 leading-none">{stats.paused}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Pausadas</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminSurveys.stats.paused')}</span>
                 </div>
                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black text-text-sub mb-1 leading-none">{stats.drafts}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Borradores</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminSurveys.stats.drafts')}</span>
                 </div>
                 <div className="col-span-2 md:col-span-1 bg-brand-primary/10 border border-brand-primary/30 rounded-2xl p-4 flex flex-col items-center justify-center shrink-0">
                     <span className="text-2xl font-black text-brand-primary mb-1 leading-none flex items-center gap-1"><PieChart size={20} /> {stats.responses}</span>
-                    <span className="text-xs font-bold text-brand-primary uppercase text-center">Respuestas Globales</span>
+                    <span className="text-xs font-bold text-brand-primary uppercase text-center">{t('adminSurveys.stats.globalResponses')}</span>
                 </div>
             </div>
 
@@ -160,7 +162,7 @@ export default function AdminSurveys() {
                             : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                             }`}
                     >
-                        {filter === 'all' ? 'Todas' : getStatusLabel(filter as SurveyStatus)}
+                        {filter === 'all' ? t('adminSurveys.tabs.all') : getStatusLabel(filter as SurveyStatus)}
                     </button>
                 ))}
             </div>
@@ -170,24 +172,24 @@ export default function AdminSurveys() {
                 {loading && surveys.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin text-brand-primary mb-4" size={40} />
-                        <p className="font-bold">Cargando Encuestas...</p>
+                        <p className="font-bold">{t('common.loading')}</p>
                     </div>
                 ) : surveys.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted text-center">
                         <FileText className="opacity-20 mb-4" size={48} />
-                        <p className="font-bold text-text-main text-lg mb-1">Tu primer cuestionario</p>
-                        <p className="text-sm max-w-sm mb-4">Crea una encuesta recompensada para interactuar con los ciudadanos.</p>
+                        <p className="font-bold text-text-main text-lg mb-1">{t('adminSurveys.empty.noSurvey')}</p>
+                        <p className="text-sm max-w-sm mb-4">{t('adminSurveys.empty.noSurveyHint')}</p>
                         <button
                             onClick={() => { setSurveyToEdit(null); setIsBuilderOpen(true); }}
                             className="text-brand-primary font-bold hover:underline"
                         >
-                            Crear Nueva
+                            {t('adminSurveys.empty.createFirst')}
                         </button>
                     </div>
                 ) : filteredSurveys.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Filter className="opacity-20 mb-4" size={32} />
-                        <p className="font-bold">Vaya, no hay resultados para este filtro.</p>
+                        <p className="font-bold">{t('adminSurveys.empty.noResults')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -212,7 +214,7 @@ export default function AdminSurveys() {
                                             <Star size={14} className="text-amber-500" /> {item.reward_amount} FC
                                         </div>
                                         <div className="flex items-center gap-1 text-text-sub font-bold text-sm bg-bg-pop px-3 py-1.5 rounded-lg border border-border-theme">
-                                            <PieChart size={14} className="text-brand-primary" /> {item.response_count} Resp.
+                                            <PieChart size={14} className="text-brand-primary" /> {t('adminSurveys.card.responses', { count: item.response_count })}
                                         </div>
                                     </div>
                                 </div>
@@ -220,28 +222,28 @@ export default function AdminSurveys() {
                                 <div className="border-t border-border-theme pt-3 mt-auto w-full flex flex-wrap gap-2">
                                     {item.status === 'active' && (
                                         <button onClick={() => handleStatusChange(item.id, 'paused')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-border-theme hover:bg-amber-500/10 hover:text-amber-500 hover:border-amber-500/30 transition text-text-sub bg-bg-pop">
-                                            <Pause size={14} /> Pausar
+                                            <Pause size={14} /> {t('adminSurveys.card.pause')}
                                         </button>
                                     )}
                                     {item.status === 'paused' && (
                                         <button onClick={() => handleStatusChange(item.id, 'active')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-accent-green/30 bg-accent-green/10 text-accent-green hover:bg-accent-green hover:text-white transition">
-                                            <Play size={14} /> Reanudar
+                                            <Play size={14} /> {t('adminSurveys.card.resume')}
                                         </button>
                                     )}
                                     {item.status === 'draft' && (
                                         <button onClick={() => handleStatusChange(item.id, 'active')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-brand-primary/30 bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-white transition">
-                                            <Play size={14} /> Publicar
+                                            <Play size={14} /> {t('adminSurveys.card.publish')}
                                         </button>
                                     )}
                                     {item.status !== 'cancelled' && item.status !== 'expired' && (
                                         <button
                                             onClick={() => {
-                                                if (window.confirm('¿Cancelar esta encuesta prementuramente? No habrán más respuestas.'))
+                                                if (window.confirm(t('adminSurveys.errors.cancelConfirm')))
                                                     handleStatusChange(item.id, 'cancelled')
                                             }}
                                             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-border-theme text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition"
                                         >
-                                            <XCircle size={14} /> Cancelar
+                                            <XCircle size={14} /> {t('adminSurveys.card.cancel')}
                                         </button>
                                     )}
 
@@ -249,7 +251,7 @@ export default function AdminSurveys() {
                                         onClick={() => { setSurveyToEdit(item); setIsBuilderOpen(true); }}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-border-theme hover:bg-brand-primary/10 hover:text-brand-primary hover:border-brand-primary/50 transition bg-bg-pop ml-auto"
                                     >
-                                        <Edit3 size={14} /> Editar
+                                        <Edit3 size={14} /> {t('adminSurveys.card.edit')}
                                     </button>
 
                                     {item.response_count > 0 && (
@@ -257,7 +259,7 @@ export default function AdminSurveys() {
                                             onClick={() => handleViewResults(item)}
                                             className="w-full mt-2 flex items-center justify-center gap-2 py-2 text-sm font-black rounded-xl bg-brand-primary/10 text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-white transition"
                                         >
-                                            <PieChart size={16} /> Ver Resultados
+                                            <PieChart size={16} /> {t('adminSurveys.card.viewResults')}
                                         </button>
                                     )}
                                 </div>

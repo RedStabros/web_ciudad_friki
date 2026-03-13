@@ -75,7 +75,7 @@ export default function Login() {
 
         // For login & signup
         if (!password) {
-            setError(t('auth.passwordRequired', 'Contraseña requerida'));
+            setError(t('auth.passwordRequired'));
             setLoading(false);
             return;
         }
@@ -90,7 +90,7 @@ export default function Login() {
             const rules = validatePassword(password);
             const allRulesMet = Object.values(rules).every(Boolean);
             if (!allRulesMet) {
-                setError(t('profile.passwordRules') + ' ' + t('auth.fillAllFields', 'Debe cumplir todas las reglas.'));
+                setError(t('profile.passwordRules') + ' ' + t('auth.fillAllFields'));
                 setLoading(false);
                 return;
             }
@@ -151,7 +151,7 @@ export default function Login() {
                 <div className="text-center mb-8">
                     <img src="/assets/adaptive-icon.png" alt="Dragon" className="w-20 h-20 mx-auto mb-4 drop-shadow-lg" />
                     <h1 className="text-3xl font-black tracking-tighter text-text-main mb-1">
-                        {isReset ? t('auth.accessRecovery') : (isSignUp ? t('auth.signUp', 'Crear Cuenta') : t('auth.welcomeBack'))}
+                        {isReset ? t('auth.accessRecovery') : (isSignUp ? t('auth.signUp') : t('auth.welcomeBack'))}
                     </h1>
                     <p className="text-text-sub">
                         {isReset ? t('auth.recoverySubtitle') : t('auth.loginSubtitle')}
@@ -217,7 +217,7 @@ export default function Login() {
                         <>
                             <div>
                                 <label className="block text-sm font-bold text-text-sub mb-1 ml-1" htmlFor="confirmPassword">
-                                    {t('auth.confirmPassword', 'Confirmar Contraseña')}
+                                    {t('auth.confirmPassword')}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -270,7 +270,7 @@ export default function Login() {
                         disabled={loading}
                         className="w-full bg-brand-primary hover:bg-brand-primary-light text-text-inv font-bold py-3.5 rounded-xl transition-colors mt-2 flex items-center justify-center disabled:opacity-50 shadow-lg shadow-brand-primary/20"
                     >
-                        {loading ? t('auth.loading') : (isReset ? t('auth.recoveryButton') : (isSignUp ? t('auth.signUp', 'Crear Cuenta') : t('auth.loginButton')))}
+                        {loading ? t('auth.loading') : (isReset ? t('auth.recoveryButton') : (isSignUp ? t('auth.signUp') : t('auth.loginButton')))}
                     </button>
                 </form>
 
@@ -320,7 +320,7 @@ export default function Login() {
                             >
                                 {isSignUp ? t('auth.alreadyHaveAccount') : t('auth.dontHaveAccount')}{' '}
                                 <span className="font-bold text-brand-primary hover:text-brand-primary-light">
-                                    {isSignUp ? t('auth.signIn') : t('auth.signUp', 'Crear Cuenta')}
+                                    {isSignUp ? t('auth.signIn') : t('auth.signUp')}
                                 </span>
                             </button>
                         </>
@@ -328,7 +328,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-divider-theme flex flex-col items-center justify-center gap-2">
-                    <p className="text-xs text-text-sub text-center w-full">{t('auth.agreeTo', 'Al continuar, aceptas nuestros')} <Link to="/legal/terms" className="text-brand-primary hover:underline">{t('auth.terms', 'Términos y Condiciones')}</Link> {t('auth.and', 'y')} <Link to="/legal/privacy" className="text-brand-primary hover:underline">{t('auth.privacy', 'Política de Privacidad')}</Link></p>
+                    <p className="text-xs text-text-sub text-center w-full">{t('auth.agreeTo')} <Link to="/legal/terms" className="text-brand-primary hover:underline">{t('auth.terms')}</Link> {t('auth.and')} <Link to="/legal/privacy" className="text-brand-primary hover:underline">{t('auth.privacy')}</Link></p>
                 </div>
 
             </div>

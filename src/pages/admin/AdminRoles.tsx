@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Users, Search, Shield, ShieldAlert, Wrench, Briefcase, User, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +14,7 @@ interface SearchedUser {
 }
 
 export default function AdminRoles() {
+    const { t } = useTranslation();
     const { user: currentUser } = useAuth();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -44,7 +46,7 @@ export default function AdminRoles() {
             setUsers(data as SearchedUser[]);
         } catch (error) {
             console.error('Error fetching users:', error);
-            alert('Error al buscar usuarios');
+            alert(t('adminRoles.errors.search'));
         } finally {
             setLoading(false);
         }
@@ -57,10 +59,10 @@ export default function AdminRoles() {
 
     const handleUpdateRole = async (userId: string, newRole: string) => {
         if (userId === import.meta.env.VITE_SUPERUSER_ID) {
-            return alert('No puedes cambiar el rol del Super Administrador Maestro.');
+            return alert(t('adminRoles.errors.superAdminProtect'));
         }
 
-        if (!window.confirm(`¿Estás seguro de cambiar el rol a ${newRole.toUpperCase()}?`)) return;
+        if (!window.confirm(t('adminRoles.errors.confirmUpdate', { role: newRole.toUpperCase() }))) return;
 
         setUpdatingId(userId);
         try {
@@ -74,7 +76,7 @@ export default function AdminRoles() {
             setUsers(users.map(u => u.id === userId ? { ...u, role: newRole as any } : u));
         } catch (error) {
             console.error('Error updating role:', error);
-            alert('Error al actualizar el rol');
+            alert(t('adminRoles.errors.update'));
         } finally {
             setUpdatingId(null);
         }
@@ -90,10 +92,10 @@ export default function AdminRoles() {
     };
 
     const roles = [
-        { value: 'user', label: 'Usuario', className: 'text-text-main' },
-        { value: 'worker', label: 'Worker', className: 'text-brand-primary font-bold' },
-        { value: 'tecnico', label: 'Técnico', className: 'text-amber-500 font-bold' },
-        { value: 'admin', label: 'Admin', className: 'text-accent-red font-black' },
+        { value: 'user', label: t('adminRoles.roleLabels.user'), className: 'text-text-main' },
+        { value: 'worker', label: t('adminRoles.roleLabels.worker'), className: 'text-brand-primary font-bold' },
+        { value: 'tecnico', label: t('adminRoles.roleLabels.tecnico'), className: 'text-amber-500 font-bold' },
+        { value: 'admin', label: t('adminRoles.roleLabels.admin'), className: 'text-accent-red font-black' },
     ];
 
     return (
@@ -104,8 +106,8 @@ export default function AdminRoles() {
                         <Users size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Gestión de Roles</h1>
-                        <p className="text-sm text-brand-primary font-bold">Asignar o retirar permisos de administración</p>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('adminRoles.title')}</h1>
+                        <p className="text-sm text-brand-primary font-bold">{t('adminRoles.subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -116,7 +118,7 @@ export default function AdminRoles() {
                     <div className="absolute inset-0 bg-brand-primary/5 rounded-xl blur-md scale-95 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <input
                         type="text"
-                        placeholder="Buscar por @usuario o correo..."
+                        placeholder={t('adminRoles.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full relative bg-bg-side border border-border-theme text-text-main px-4 py-3.5 pl-12 rounded-xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-text-muted font-medium shadow-inner"
@@ -127,7 +129,7 @@ export default function AdminRoles() {
                         disabled={loading}
                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-primary text-text-inv px-5 py-2 rounded-lg text-sm font-black hover:bg-brand-primary-light transition-colors disabled:opacity-50 flex items-center gap-2 shadow-md shadow-brand-primary/20 z-10"
                     >
-                        {loading ? <Loader2 size={16} className="animate-spin" /> : 'Buscar'}
+                        {loading ? <Loader2 size={16} className="animate-spin" /> : t('adminRoles.searchButton')}
                     </button>
                 </form>
 
@@ -135,10 +137,10 @@ export default function AdminRoles() {
                     <table className="w-full text-left border-collapse min-w-[700px]">
                         <thead>
                             <tr className="bg-bg-side border-b border-border-theme text-xs uppercase tracking-wider text-text-muted font-black">
-                                <th className="p-4 pl-6">Perfil</th>
-                                <th className="p-4">Email de Contacto</th>
-                                <th className="p-4">Permisos</th>
-                                <th className="p-4 text-center pr-6">Selector de Rango</th>
+                                <th className="p-4 pl-6">{t('adminRoles.profileHeader')}</th>
+                                <th className="p-4">{t('adminRoles.emailHeader')}</th>
+                                <th className="p-4">{t('adminRoles.permissionsHeader')}</th>
+                                <th className="p-4 text-center pr-6">{t('adminRoles.rangeSelectorHeader')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-theme">
@@ -146,7 +148,7 @@ export default function AdminRoles() {
                                 <tr>
                                     <td colSpan={4} className="p-12 text-center text-text-muted">
                                         <Loader2 size={32} className="animate-spin mx-auto mb-3 text-brand-primary" />
-                                        Indexando expedientes...
+                                        {t('adminRoles.indexing')}
                                     </td>
                                 </tr>
                             ) : users.length === 0 ? (
@@ -155,8 +157,8 @@ export default function AdminRoles() {
                                         <div className="bg-bg-side border border-border-theme w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                                             <Search size={24} className="text-text-muted opacity-50" />
                                         </div>
-                                        <p className="font-bold text-text-main mb-1">Sin coincidencias</p>
-                                        <p className="text-sm">Introduce el nombre de usuario exacto o partes del correo.</p>
+                                        <p className="font-bold text-text-main mb-1">{t('adminRoles.noMatches')}</p>
+                                        <p className="text-sm">{t('adminRoles.noMatchesHint')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -171,8 +173,8 @@ export default function AdminRoles() {
                                                 />
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-text-main flex items-center gap-2">
-                                                        @{u.username || 'Sin Usermame'}
-                                                        {u.id === currentUser?.id && <span className="text-[9px] bg-brand-primary text-text-inv px-1.5 py-0.5 rounded-sm font-black uppercase inline-block leading-none">Tú</span>}
+                                                    @{u.username || t('common.noUsername')}
+                                                        {u.id === currentUser?.id && <span className="text-[9px] bg-brand-primary text-text-inv px-1.5 py-0.5 rounded-sm font-black uppercase inline-block leading-none">{t('common.you')}</span>}
                                                     </span>
                                                 </div>
                                             </div>
@@ -196,7 +198,7 @@ export default function AdminRoles() {
                                                 >
                                                     {roles.map(r => (
                                                         <option key={r.value} value={r.value} className="text-text-main font-semibold bg-bg-pop">
-                                                            A: {r.label}
+                                                        {t('adminRoles.to')} {r.label}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -220,19 +222,19 @@ export default function AdminRoles() {
                         <ShieldAlert size={24} />
                     </div>
                     <div className="text-xs text-text-sub space-y-2 flex-1 relative z-10">
-                        <strong className="text-text-main uppercase font-black tracking-widest text-xs">Clasificación de Poder ⚔️</strong>
+                        <strong className="text-text-main uppercase font-black tracking-widest text-xs">{t('adminRoles.powerTitle')}</strong>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
                             <div className="bg-bg-pop/50 border border-border-theme p-3 rounded-xl hover:border-brand-primary/30 transition-colors">
-                                <div className="flex items-center gap-1.5 text-brand-primary font-black mb-1"><Briefcase size={12} /> Workers</div>
-                                <span className="text-[10px] leading-tight">Uso de herramientas base (leer y despachar QRs) y control de tienda física Frikimart.</span>
+                                <div className="flex items-center gap-1.5 text-brand-primary font-black mb-1"><Briefcase size={12} /> {t('adminRoles.workersTitle')}</div>
+                                <span className="text-[10px] leading-tight">{t('adminRoles.workersDesc')}</span>
                             </div>
                             <div className="bg-bg-pop/50 border border-border-theme p-3 rounded-xl hover:border-amber-500/30 transition-colors">
-                                <div className="flex items-center gap-1.5 text-amber-500 font-black mb-1"><Wrench size={12} /> Técnicos</div>
-                                <span className="text-[10px] leading-tight">Moderación parcial. Mismas funciones que el worker, sumado al panel en algunas áreas.</span>
+                                <div className="flex items-center gap-1.5 text-amber-500 font-black mb-1"><Wrench size={12} /> {t('adminRoles.techniciansTitle')}</div>
+                                <span className="text-[10px] leading-tight">{t('adminRoles.techniciansDesc')}</span>
                             </div>
                             <div className="bg-bg-pop/50 border border-border-theme p-3 rounded-xl hover:border-accent-red/30 transition-colors">
-                                <div className="flex items-center gap-1.5 text-accent-red font-black mb-1"><Shield size={12} /> Admins</div>
-                                <span className="text-[10px] leading-tight">Control maestro de sistemas. (Sólo tú, como SuperAdmin, puedes dar o revocar este rol en la lista).</span>
+                                <div className="flex items-center gap-1.5 text-accent-red font-black mb-1"><Shield size={12} /> {t('adminRoles.adminsTitle')}</div>
+                                <span className="text-[10px] leading-tight">{t('adminRoles.adminsDesc')}</span>
                             </div>
                         </div>
                     </div>

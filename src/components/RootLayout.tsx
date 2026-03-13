@@ -168,16 +168,16 @@ export default function RootLayout() {
                                             </Link>
                                             <Link to="/my-events" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
                                                 <Calendar size={14} className="text-text-muted" />
-                                                {t('events.myEvents', 'Mis Eventos')}
+                                                {t('myEvents.title')}
                                             </Link>
                                             <Link to="/notifications" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
                                                 <Bell size={14} className="text-text-muted" />
-                                                Notificaciones
+                                                {t('notifications.title')}
                                             </Link>
                                             {isAdmin && (
                                                 <Link to="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-bold hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">
                                                     <ShieldAlert size={14} className="text-brand-primary" />
-                                                    Admin Panel
+                                                    {t('admin.sidebar.title')}
                                                 </Link>
                                             )}
                                             <div className="my-1 border-t border-border-theme"></div>

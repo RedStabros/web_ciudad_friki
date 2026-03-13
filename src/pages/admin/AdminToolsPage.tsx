@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
@@ -13,6 +14,7 @@ import { supabase } from '../../lib/supabase';
 import { getAvatarSource } from '../../config/avatars';
 
 export default function AdminToolsPage() {
+    const { t } = useTranslation();
     const { user } = useAuth();
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -114,10 +116,10 @@ export default function AdminToolsPage() {
             const blob = await resp.blob();
 
             if (blob) {
-                const file = new File([blob], 'top-fortunas-ciudad-friki.png', { type: 'image/png' });
+                const file = new File([blob], t('settings.whalesFilename'), { type: 'image/png' });
                 await shareContent({
-                    title: 'Whales Top 5 | Ciudad Friki',
-                    text: '🏆 ¡Estas son las 5 mayores fortunas de Ciudad Friki en este momento!',
+                    title: t('settings.whalesTitle'),
+                    text: t('settings.whalesText'),
                     url: window.location.origin,
                     file
                 });
@@ -137,7 +139,7 @@ export default function AdminToolsPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-text-muted">
                 <Loader2 className="animate-spin mb-4 text-brand-primary" size={48} />
-                <p className="font-bold">Analizando sistemas centrales...</p>
+                <p className="font-bold">{t('settings.analyzingSystem')}</p>
             </div>
         );
     }
@@ -151,9 +153,9 @@ export default function AdminToolsPage() {
                         <LayoutDashboard size={28} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Herramientas de Admin</h1>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('settings.adminTools')}</h1>
                         <p className="text-sm text-brand-primary font-bold flex items-center gap-1.5">
-                            <ShieldCheck size={14} /> Métricas de salud de Ciudad Friki
+                            <ShieldCheck size={14} /> {t('settings.healthMetrics')}
                         </p>
                     </div>
                 </div>
@@ -164,7 +166,7 @@ export default function AdminToolsPage() {
                     className="flex items-center gap-2 px-4 py-2 bg-bg-side border border-border-theme rounded-xl text-sm font-bold text-text-main hover:bg-bg-sub transition-colors shadow-sm disabled:opacity-50"
                 >
                     <RefreshCcw size={16} className={refreshing ? "animate-spin" : ""} />
-                    Actualizar Datos
+                    {t('common.refresh')}
                 </button>
             </div>
 
@@ -175,7 +177,7 @@ export default function AdminToolsPage() {
                     <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-full -mr-8 -mt-8 group-hover:bg-brand-primary/10 transition-colors"></div>
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">Total Usuarios</p>
+                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">{t('settings.totalAccounts')}</p>
                             <h3 className="text-3xl font-black text-text-main">{stats?.total_accounts.toLocaleString() || '0'}</h3>
                         </div>
                         <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-xl">
@@ -183,7 +185,7 @@ export default function AdminToolsPage() {
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-brand-primary uppercase">
-                        <TrendingUp size={12} /> Creciendo activamente
+                        <TrendingUp size={12} /> {t('settings.growingActively')}
                     </div>
                 </div>
 
@@ -192,7 +194,7 @@ export default function AdminToolsPage() {
                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full -mr-8 -mt-8 group-hover:bg-amber-500/10 transition-colors"></div>
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">Masa Monetaria (₣)</p>
+                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">{t('settings.monetaryMass')}</p>
                             <h3 className="text-3xl font-black text-text-main">{stats?.circulation_supply.toLocaleString() || '0'}</h3>
                         </div>
                         <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
@@ -200,7 +202,7 @@ export default function AdminToolsPage() {
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-amber-500 uppercase">
-                        Frikicoins en circulación pública
+                        {t('settings.circulationSupplyDesc')}
                     </div>
                 </div>
 
@@ -212,7 +214,7 @@ export default function AdminToolsPage() {
                     <div className="absolute top-0 right-0 w-24 h-24 bg-accent-green/5 rounded-full -mr-8 -mt-8 group-hover:bg-accent-green/10 transition-colors"></div>
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">En Línea Ahora</p>
+                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">{t('settings.onlineUsers')}</p>
                             <h3 className="text-3xl font-black text-text-main flex items-center gap-2">
                                 {onlineCount}
                                 <span className="flex h-3 w-3 relative">
@@ -226,7 +228,7 @@ export default function AdminToolsPage() {
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-accent-green uppercase">
-                        Presencia en tiempo real
+                        {t('settings.realTimePresence')}
                     </div>
                 </div>
             </div>
@@ -238,24 +240,24 @@ export default function AdminToolsPage() {
                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-6 shadow-sm">
                     <div className="flex items-center gap-2 mb-6 border-b border-border-theme pb-4">
                         <BarChart3 className="text-brand-primary" size={20} />
-                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">Estado de Encuestas</h3>
+                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('settings.surveysStatus')}</h3>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">Activas</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('adminSurveys.statusLabels.active')}</p>
                             <p className="text-xl font-black text-accent-green">{stats?.active_surveys || '0'}</p>
                         </div>
                         <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">Borradores</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('adminSurveys.statusLabels.draft')}</p>
                             <p className="text-xl font-black text-amber-500">{stats?.draft_surveys || '0'}</p>
                         </div>
                         <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">Pausadas</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('adminSurveys.statusLabels.paused')}</p>
                             <p className="text-xl font-black text-brand-primary">{stats?.paused_surveys || '0'}</p>
                         </div>
                         <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">Finalizadas</p>
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('adminSurveys.statusLabels.finished')}</p>
                             <p className="text-xl font-black text-text-main">{stats?.past_surveys || '0'}</p>
                         </div>
                     </div>
@@ -265,14 +267,14 @@ export default function AdminToolsPage() {
                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-6 shadow-sm">
                     <div className="flex items-center gap-2 mb-6 border-b border-border-theme pb-4">
                         <ArrowRightLeft className="text-brand-secondary" size={20} />
-                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">Registro de Transacciones</h3>
+                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('settings.transactionsLog')}</h3>
                     </div>
 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary"></div>
                             <div>
-                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">Histórico Total</p>
+                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('common.totalHistorial') || 'Histórico Total'}</p>
                                 <p className="text-2xl font-black text-text-main">{stats?.transactions_total.toLocaleString() || '0'}</p>
                             </div>
                             <Clock className="text-text-muted opacity-20" size={32} />
@@ -280,7 +282,7 @@ export default function AdminToolsPage() {
                         <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-accent-red"></div>
                             <div>
-                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">Últimos 30 Días</p>
+                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.transactionsMonth')}</p>
                                 <p className="text-2xl font-black text-text-main">{stats?.transactions_last_month.toLocaleString() || '0'}</p>
                             </div>
                             <TrendingUp className="text-accent-red opacity-20" size={32} />
@@ -296,16 +298,16 @@ export default function AdminToolsPage() {
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <Trophy className="text-amber-500" size={20} />
-                            <h3 className="font-black text-text-main uppercase tracking-wider text-sm">Top 5 Fortunas (Whales)</h3>
+                            <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('settings.topUsers')}</h3>
                         </div>
-                        <p className="text-xs text-text-muted font-medium">Los usuarios con mayor balance de Frikicoins en la plataforma.</p>
+                        <p className="text-xs text-text-muted font-medium">{t('settings.topUsersDesc')}</p>
                     </div>
 
                     <button
                         onClick={shareWhalesImage}
                         disabled={isSharingWhales}
                         className="p-3 bg-bg-pop border border-border-theme rounded-xl text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all shadow-sm disabled:opacity-50 group"
-                        title="Compartir Imagen"
+                         title={t('settings.shareImage')}
                     >
                         {isSharingWhales ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} className="group-hover:scale-110 transition-transform" />}
                     </button>
@@ -315,10 +317,10 @@ export default function AdminToolsPage() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-bg-side/50 text-[10px] uppercase font-black text-text-muted tracking-widest border-b border-border-theme">
-                                <th className="px-6 py-4">Rango</th>
-                                <th className="px-6 py-4">Usuario</th>
-                                <th className="px-6 py-4 text-right">Balance Total</th>
-                                <th className="px-6 py-4 text-center">Poderío</th>
+                                <th className="px-6 py-4">{t('settings.rank')}</th>
+                                <th className="px-6 py-4">{t('settings.user')}</th>
+                                <th className="px-6 py-4 text-right">{t('settings.totalBalance')}</th>
+                                <th className="px-6 py-4 text-center">{t('settings.power')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-theme">
@@ -362,7 +364,7 @@ export default function AdminToolsPage() {
                             {(!stats?.top_users || stats.top_users.length === 0) && (
                                 <tr>
                                     <td colSpan={4} className="p-10 text-center text-text-muted italic">
-                                        No hay datos de whales disponibles.
+                                        {t('settings.noWhales')}
                                     </td>
                                 </tr>
                             )}
@@ -380,7 +382,7 @@ export default function AdminToolsPage() {
                                 <div className="p-2 bg-accent-green/10 text-accent-green rounded-xl">
                                     <Globe size={20} />
                                 </div>
-                                <h2 className="text-xl font-black text-text-main">Usuarios en Línea ({onlineCount})</h2>
+                                <h2 className="text-xl font-black text-text-main">{t('settings.onlineUsers')} ({onlineCount})</h2>
                             </div>
                             <button
                                 onClick={() => setShowOnlineModal(false)}
@@ -394,7 +396,7 @@ export default function AdminToolsPage() {
                             {onlineUsers.length === 0 ? (
                                 <div className="py-20 text-center">
                                     <Loader2 className="animate-spin mx-auto mb-4 text-brand-primary opacity-20" size={40} />
-                                    <p className="text-text-muted font-bold">Rastreando señales...</p>
+                                    <p className="text-text-muted font-bold">{t('settings.trackingSignals')}</p>
                                 </div>
                             ) : (
                                 onlineUsers.map((u, i) => (
@@ -414,7 +416,7 @@ export default function AdminToolsPage() {
                                                     {u.email || '@'}
                                                 </p>
                                                 <p className="text-[10px] text-brand-primary/70 font-bold uppercase tracking-tighter mt-1">
-                                                    Conectado a las {new Date(u.online_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {t('settings.connectedAt', { time: new Date(u.online_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })}
                                                 </p>
                                             </div>
                                         </div>
@@ -431,7 +433,7 @@ export default function AdminToolsPage() {
                                 onClick={() => setShowOnlineModal(false)}
                                 className="w-full py-3 bg-brand-primary text-text-inv font-black rounded-xl hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/25"
                             >
-                                Entendido
+                                {t('infoCard.gotIt')}
                             </button>
                         </div>
                     </div>

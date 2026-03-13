@@ -60,7 +60,7 @@ export default function TriviaSubmissionModal({ userId, onClose }: TriviaSubmiss
         }
 
         if (trimmedQuestion.length > 250) {
-            alert("La pregunta no puede exceder los 250 caracteres.");
+            alert(t('crowdsourcing.errors.questionTooLong', 'La pregunta no puede exceder los 250 caracteres.'));
             return;
         }
 
@@ -71,7 +71,7 @@ export default function TriviaSubmissionModal({ userId, onClose }: TriviaSubmiss
         }
 
         if (processedOptions.some(opt => opt.text.length > 80)) {
-            alert("Las opciones no pueden exceder los 80 caracteres.");
+            alert(t('crowdsourcing.errors.optionTooLong', 'Las opciones no pueden exceder los 80 caracteres.'));
             return;
         }
 
@@ -114,7 +114,7 @@ export default function TriviaSubmissionModal({ userId, onClose }: TriviaSubmiss
                 <div className="flex items-start gap-3 bg-brand-primary/10 border border-brand-primary/20 p-4 rounded-2xl">
                     <Info size={24} className="text-brand-primary shrink-0" />
                     <p className="text-sm font-bold text-brand-primary leading-tight">
-                        Aporta tus propias preguntas a la comunidad. Si son aprobadas por los moderadores, ¡ganarás 10 Frikicoins por cada una!
+                        {t('crowdsourcing.info', 'Aporta tus propias preguntas a la comunidad. Si son aprobadas por los moderadores, ¡ganarás Frikicoins!')}
                     </p>
                 </div>
 

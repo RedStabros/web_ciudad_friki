@@ -39,13 +39,13 @@ interface MyEvent {
 type Tab = 'published' | 'saved';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
-const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
-    approved: { label: 'Aprobado', cls: 'bg-green-500/20 text-green-400 border-green-500/30' },
-    pending: { label: 'Pendiente', cls: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-    rejected: { label: 'Rechazado', cls: 'bg-accent-red/20 text-accent-red border-accent-red/30' },
-    cancelled: { label: 'Cancelado', cls: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
-    delayed: { label: 'Pospuesto', cls: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-    finished: { label: 'Finalizado', cls: 'bg-bg-sub text-text-muted border-border-theme' },
+const STATUS_CONFIG: Record<string, { labelKey: string; cls: string }> = {
+    approved: { labelKey: 'myEvents.status.approved', cls: 'bg-green-500/20 text-green-400 border-green-500/30' },
+    pending: { labelKey: 'myEvents.status.pending', cls: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+    rejected: { labelKey: 'myEvents.status.rejected', cls: 'bg-accent-red/20 text-accent-red border-accent-red/30' },
+    cancelled: { labelKey: 'myEvents.status.cancelled', cls: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
+    delayed: { labelKey: 'myEvents.status.delayed', cls: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+    finished: { labelKey: 'myEvents.status.finished', cls: 'bg-bg-sub text-text-muted border-border-theme' },
 };
 
 function isEventPast(event: MyEvent): boolean {
@@ -56,10 +56,11 @@ function isEventPast(event: MyEvent): boolean {
 }
 
 function StatusBadge({ status }: { status: string }) {
+    const { t } = useTranslation();
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
     return (
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cfg.cls}`}>
-            {cfg.label}
+            {t(cfg.labelKey)}
         </span>
     );
 }
@@ -162,10 +163,10 @@ export default function MyEvents() {
                     </Link>
                     <div>
                         <h1 className="text-lg font-black text-text-main uppercase tracking-tight leading-none">
-                            {t('events.myEvents', 'Mis Eventos')}
+                            {t('myEvents.title')}
                         </h1>
                         <p className="text-xs text-text-muted font-medium mt-0.5">
-                            {tab === 'published' ? 'Eventos que has creado' : 'Eventos que has guardado'}
+                            {tab === 'published' ? t('myEvents.publishedEvents') : t('myEvents.savedEvents')}
                         </p>
                     </div>
                     <button
@@ -188,7 +189,7 @@ export default function MyEvents() {
                                 : 'border-transparent text-text-muted hover:text-text-main'
                                 }`}
                         >
-                            {t2 === 'published' ? '📅 Mis Publicaciones' : '🔖 Guardados'}
+                            {t2 === 'published' ? t('myEvents.tabPublished') : t('myEvents.tabSaved')}
                         </button>
                     ))}
                 </div>
@@ -199,7 +200,7 @@ export default function MyEvents() {
                 {loading ? (
                     <div className="flex flex-col items-center py-20 gap-3">
                         <Loader2 size={32} className="animate-spin text-brand-primary" />
-                        <p className="text-text-muted text-sm font-medium">Cargando eventos...</p>
+                        <p className="text-text-muted text-sm font-medium">{t('myEvents.loading')}</p>
                     </div>
                 ) : events.length === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-4 text-center">
@@ -208,12 +209,12 @@ export default function MyEvents() {
                         </div>
                         <div>
                             <p className="text-text-main font-black text-base">
-                                {tab === 'published' ? 'Aún no has creado eventos' : 'No tienes eventos guardados'}
+                                {tab === 'published' ? t('myEvents.noCreated') : t('myEvents.noSaved')}
                             </p>
                             <p className="text-text-muted text-sm mt-1">
                                 {tab === 'published'
-                                    ? 'Crea tu primer evento y aparecerá aquí'
-                                    : 'Guarda eventos para verlos más tarde'}
+                                    ? t('myEvents.createFirst')
+                                    : t('myEvents.saveLater')}
                             </p>
                         </div>
                         {tab === 'published' && (
@@ -221,7 +222,7 @@ export default function MyEvents() {
                                 to="/"
                                 className="px-5 py-2.5 bg-brand-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-brand-primary/90 transition"
                             >
-                                Crear Evento
+                                {t('myEvents.createButton')}
                             </Link>
                         )}
                     </div>
@@ -250,27 +251,27 @@ export default function MyEvents() {
                                 <AlertTriangle size={20} className="text-orange-400" />
                             </div>
                             <h3 className="font-black text-text-main text-base">
-                                {confirmModal.action === 'cancel' ? '¿Cancelar evento?' : '¿Posponer evento?'}
+                                {confirmModal.action === 'cancel' ? t('myEvents.cancelTitle') : t('myEvents.postponeTitle')}
                             </h3>
                         </div>
                         <p className="text-text-muted text-sm mb-6">
                             {confirmModal.action === 'cancel'
-                                ? 'El evento pasará a estado cancelado y no se podrá revertir.'
-                                : 'El evento pasará a estado pospuesto. Podrás actualizar la nueva fecha más tarde.'}
+                                ? t('myEvents.cancelWarning')
+                                : t('myEvents.postponeWarning')}
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setConfirmModal(null)}
                                 className="flex-1 py-2.5 rounded-xl border border-border-theme text-text-muted hover:text-text-main hover:bg-bg-sub transition text-sm font-bold"
                             >
-                                Cancelar
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={() => updateStatus(confirmModal.eventId, confirmModal.action === 'cancel' ? 'cancelled' : 'delayed')}
                                 disabled={!!actionLoading}
                                 className="flex-1 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-black hover:bg-orange-600 transition disabled:opacity-50"
                             >
-                                {actionLoading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Confirmar'}
+                                {actionLoading ? <Loader2 size={16} className="animate-spin mx-auto" /> : t('myEvents.confirm')}
                             </button>
                         </div>
                     </div>
@@ -311,13 +312,14 @@ interface EventCardProps {
 }
 
 function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConfirmAction }: EventCardProps) {
+    const { t, i18n } = useTranslation();
     const isPast = isEventPast(event);
     const isCancelled = event.status === 'cancelled';
     const displayStatus = isPast && !isCancelled ? 'finished' : event.status;
     const showActions = tab === 'published' && !isPast && !isCancelled;
 
     const dateStr = event.date
-        ? new Date(event.date + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
+        ? new Date(event.date + 'T12:00:00').toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })
         : '';
 
     return (
@@ -400,7 +402,7 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition disabled:opacity-50"
                         >
                             {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <Bookmark size={11} />}
-                            Quitar
+                            {t('myEvents.remove')}
                         </button>
                     )}
 
@@ -410,7 +412,7 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
                                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition"
                             >
-                                <Pencil size={11} /> Editar
+                                <Pencil size={11} /> {t('myEvents.edit')}
                             </button>
 
                             {(event.status === 'approved' || event.status === 'delayed') && (
@@ -420,7 +422,7 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
                                         disabled={actionLoading}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 transition disabled:opacity-50"
                                     >
-                                        <Clock size={11} /> Posponer
+                                        <Clock size={11} /> {t('myEvents.postpone')}
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onConfirmAction('cancel'); }}
@@ -428,7 +430,7 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-accent-red/10 text-accent-red hover:bg-accent-red/20 border border-accent-red/20 transition disabled:opacity-50"
                                     >
                                         {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <XCircle size={11} />}
-                                        Cancelar
+                                        {t('myEvents.cancel')}
                                     </button>
                                 </>
                             )}

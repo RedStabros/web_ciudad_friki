@@ -63,7 +63,7 @@ export default function ResetPassword() {
         const rules = validatePassword(password);
         const allRulesMet = Object.values(rules).every(Boolean);
         if (!allRulesMet) {
-            setError(t('profile.passwordRules') + ' ' + t('auth.fillAllFields', 'Debe cumplir todas las reglas.'));
+            setError(t('profile.passwordRules') + ' ' + t('auth.fillAllFields'));
             setLoading(false);
             return;
         }
@@ -75,7 +75,7 @@ export default function ResetPassword() {
         if (error) {
             setError(error.message);
         } else {
-            setMessage(t('auth.passwordResetSuccess', 'Contraseña actualizada. Redirigiendo...'));
+            setMessage(t('auth.passwordResetSuccess'));
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
@@ -91,10 +91,10 @@ export default function ResetPassword() {
                 <div className="text-center mb-8">
                     <img src="/assets/adaptive-icon.png" alt="Dragon" className="w-20 h-20 mx-auto mb-4 drop-shadow-lg" />
                     <h1 className="text-3xl font-black tracking-tighter text-text-main mb-1">
-                        {t('auth.resetPasswordTitle', 'Nueva Contraseña')}
+                        {t('auth.resetPasswordTitle')}
                     </h1>
                     <p className="text-text-sub">
-                        {t('auth.resetPasswordSubtitle', 'Ingresa tu nueva contraseña.')}
+                        {t('auth.resetPasswordSubtitle')}
                     </p>
                 </div>
 
@@ -114,7 +114,7 @@ export default function ResetPassword() {
 
                     <div>
                         <label className="block text-sm font-bold text-text-sub mb-1 ml-1" htmlFor="password">
-                            {t('auth.newPassword', 'Nueva Contraseña')}
+                            {t('auth.newPassword')}
                         </label>
                         <div className="relative">
                             <input
@@ -138,7 +138,7 @@ export default function ResetPassword() {
 
                     <div>
                         <label className="block text-sm font-bold text-text-sub mb-1 ml-1" htmlFor="confirmPassword">
-                            {t('auth.confirmNewPassword', 'Confirmar Nueva Contraseña')}
+                            {t('auth.confirmNewPassword')}
                         </label>
                         <div className="relative">
                             <input
@@ -189,7 +189,7 @@ export default function ResetPassword() {
                         disabled={loading}
                         className="w-full bg-brand-primary hover:bg-brand-primary-light text-text-inv font-bold py-3.5 rounded-xl transition-colors mt-2 flex items-center justify-center disabled:opacity-50 shadow-lg shadow-brand-primary/20"
                     >
-                        {loading ? t('auth.loading') : t('auth.updatePassword', 'Actualizar Contraseña')}
+                        {loading ? t('auth.loading') : t('auth.updatePassword')}
                     </button>
                 </form>
 

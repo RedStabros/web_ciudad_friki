@@ -57,10 +57,10 @@ export default function Notifications() {
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-text-main flex items-center gap-3">
                         <Bell size={40} className="text-brand-primary" />
-                        {t('notifications.title', 'Notificaciones')}
+                        {t('notifications.title')}
                     </h1>
                     <p className="text-text-sub font-medium mt-2">
-                        {t('notifications.subtitle', 'Mantente al día con lo que sucede en la Ciudad Friki.')}
+                        {t('notifications.subtitle')}
                     </p>
                 </div>
                 {notifications.some(n => !n.is_read) && (
@@ -68,7 +68,7 @@ export default function Notifications() {
                         onClick={markAllAsRead}
                         className="px-6 py-2.5 rounded-xl bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-white font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center gap-2"
                     >
-                        <Check size={16} /> {t('common.markAllRead', 'Marcar todo como leído')}
+                        <Check size={16} /> {t('notifications.markAllRead')}
                     </button>
                 )}
             </header>
@@ -77,7 +77,7 @@ export default function Notifications() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-20 grayscale opacity-50">
                         <Loader2 className="animate-spin text-brand-primary mb-2" size={40} />
-                        <p className="text-sm font-bold uppercase tracking-widest text-text-sub">{t('common.loading', 'Cargando...')}</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-text-sub">{t('common.loading')}</p>
                     </div>
                 ) : notifications.length > 0 ? (
                     notifications.map((notif) => (
@@ -108,7 +108,7 @@ export default function Notifications() {
                                         {!notif.is_read && (
                                             <span className="text-brand-primary flex items-center gap-1.5 text-xs font-black uppercase tracking-widest bg-brand-primary/10 px-3 py-1 rounded-full animate-pulse">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-brand-primary"></div>
-                                                {t('common.new', 'Nueva')}
+                                                {t('common.new')}
                                             </span>
                                         )}
                                     </div>
@@ -119,8 +119,8 @@ export default function Notifications() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-32 opacity-30 text-center px-10 border-2 border-dashed border-border-theme rounded-[3rem] bg-bg-side">
                         <Bell size={64} className="mb-6 text-text-muted" />
-                        <p className="text-2xl font-black uppercase italic tracking-widest text-text-main">{t('notifications.emptyTitle', 'Silencio de radio')}</p>
-                        <p className="mt-3 text-sm font-bold text-text-sub uppercase">{t('notifications.emptyMessage', 'Aún no hay notificaciones, aventurero.')}</p>
+                        <p className="text-2xl font-black uppercase italic tracking-widest text-text-main">{t('notifications.emptyTitle')}</p>
+                        <p className="mt-3 text-sm font-bold text-text-sub uppercase">{t('notifications.emptyMessage')}</p>
                     </div>
                 )}
             </div>

@@ -161,7 +161,7 @@ export default function OnboardingModal({ userId, onFinish }: OnboardingModalPro
                             onClick={onFinish}
                             className="w-full py-4 bg-brand-primary text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-brand-primary/90 transition-all shadow-lg active:scale-95"
                         >
-                            {t('onboarding.letsGo', '¡Vamos!')}
+                            {t('onboarding.letsGo')}
                         </button>
                     </div>
                 </div>
@@ -329,7 +329,7 @@ export default function OnboardingModal({ userId, onFinish }: OnboardingModalPro
                                                 }`}
                                         >
                                             <span>{emoji}</span>
-                                            {key}
+                                            {t(`profile.interests_list.${key}`, key)}
                                             {selected && <Check size={11} />}
                                         </button>
                                     );
@@ -359,11 +359,11 @@ export default function OnboardingModal({ userId, onFinish }: OnboardingModalPro
                             </div>
                             {/* Summary card before submit */}
                             <div className="bg-bg-sub/60 border border-border-theme rounded-2xl p-4 space-y-2">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-3">Resumen</p>
-                                <div className="flex justify-between text-xs"><span className="text-text-muted">Usuario</span><span className="font-bold text-text-main">@{form.username}</span></div>
-                                <div className="flex justify-between text-xs"><span className="text-text-muted">Nombre</span><span className="font-bold text-text-main">{form.full_name}</span></div>
-                                <div className="flex justify-between text-xs"><span className="text-text-muted">Ciudad</span><span className="font-bold text-text-main">{form.city}, {form.country}</span></div>
-                                <div className="flex justify-between text-xs"><span className="text-text-muted">Intereses</span><span className="font-bold text-text-main">{form.interests.length} seleccionados</span></div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-3">{t('onboarding.summary.title')}</p>
+                                <div className="flex justify-between text-xs"><span className="text-text-muted">{t('onboarding.summary.username')}</span><span className="font-bold text-text-main">@{form.username}</span></div>
+                                <div className="flex justify-between text-xs"><span className="text-text-muted">{t('onboarding.summary.name')}</span><span className="font-bold text-text-main">{form.full_name}</span></div>
+                                <div className="flex justify-between text-xs"><span className="text-text-muted">{t('onboarding.summary.city')}</span><span className="font-bold text-text-main">{form.city}, {form.country}</span></div>
+                                <div className="flex justify-between text-xs"><span className="text-text-muted">{t('onboarding.summary.interests')}</span><span className="font-bold text-text-main">{form.interests.length} {t('onboarding.summary.selected')}</span></div>
                             </div>
                         </>
                     )}

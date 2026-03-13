@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CalendarCheck, Loader2, CheckCircle, XCircle, Ban, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { EventDetailsModal } from '../../components/EventDetailsModal';
 import type { FrikiEvent } from '../../services/EventService';
 
 export default function AdminEvents() {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'pending' | 'published' | 'history'>('pending');
     const [events, setEvents] = useState<FrikiEvent[]>([]);
     const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function AdminEvents() {
             setEvents(data as FrikiEvent[] || []);
         } catch (error) {
             console.error('Error fetching admin events:', error);
-            alert('Error al cargar eventos');
+            alert(t('adminEvents.errors.loadError'));
         } finally {
             setLoading(false);
         }
@@ -76,7 +78,7 @@ export default function AdminEvents() {
 
             if (error) {
                 if (error.message.includes('Cannot have more than 2 sponsored events')) {
-                    alert('Límite alcanzado: Máximo 2 eventos patrocinados permitidos.');
+                    alert(t('adminEvents.errors.sponsorLimit'));
                     return;
                 }
                 throw error;
@@ -86,7 +88,7 @@ export default function AdminEvents() {
             fetchEvents();
         } catch (error) {
             console.error('Error approving event:', error);
-            alert('Error al aprobar el evento');
+            alert(t('adminEvents.errors.approveError'));
         } finally {
             setActionLoading(false);
         }
@@ -101,7 +103,7 @@ export default function AdminEvents() {
     const confirmReject = async () => {
         if (!selectedEvent) return;
         if (!rejectionReason.trim()) {
-            alert('Por favor, ingresa una razón para el rechazo.');
+            alert(t('adminEvents.errors.rejectionReasonRequired'));
             return;
         }
 
@@ -122,7 +124,7 @@ export default function AdminEvents() {
             fetchEvents();
         } catch (error) {
             console.error('Error rejecting event:', error);
-            alert('Error al rechazar el evento');
+            alert(t('adminEvents.errors.rejectError'));
         } finally {
             setActionLoading(false);
         }
@@ -140,7 +142,7 @@ export default function AdminEvents() {
             if (error) {
                 setEvents(prev => prev.map(e => e.id === event.id ? { ...e, is_sponsored: !newValue } : e));
                 if (error.message.includes('Cannot have more than 2 sponsored events')) {
-                    alert('No se permiten más de 2 eventos patrocinados simultáneos.');
+                    alert(t('adminEvents.errors.sponsorLimitSimultaneous'));
                 } else {
                     throw error;
                 }
@@ -148,12 +150,12 @@ export default function AdminEvents() {
         } catch (error) {
             console.error('Error toggling sponsor:', error);
             setEvents(prev => prev.map(e => e.id === event.id ? { ...e, is_sponsored: !newValue } : e));
-            alert('Error al actualizar patrocinio');
+            alert(t('adminEvents.errors.sponsorError'));
         }
     };
 
     const cancelEvent = async (event: FrikiEvent) => {
-        if (!window.confirm('¿Estás seguro de cancelar este evento? Quedará marcado como cancelado y se notificará.')) return;
+        if (!window.confirm(t('adminEvents.errors.cancelConfirm'))) return;
 
         try {
             const { error } = await supabase
@@ -164,7 +166,7 @@ export default function AdminEvents() {
             fetchEvents();
         } catch (error) {
             console.error('Error cancelling event:', error);
-            alert('Error al cancelar evento');
+            alert(t('adminEvents.errors.cancelError'));
         }
     };
 
@@ -176,8 +178,8 @@ export default function AdminEvents() {
                         <CalendarCheck size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Moderación de Eventos</h1>
-                        <p className="text-sm text-amber-500 font-bold">Aprobar o rechazar eventos de la comunidad</p>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('adminEvents.title')}</h1>
+                        <p className="text-sm text-amber-500 font-bold">{t('adminEvents.subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -185,9 +187,9 @@ export default function AdminEvents() {
             {/* Tabs */}
             <div className="flex border-b border-border-theme bg-bg-pop rounded-t-2xl px-2 pt-2 gap-2 overflow-x-auto hide-scrollbar">
                 {[
-                    { id: 'pending', label: 'Pendientes' },
-                    { id: 'published', label: 'Publicados' },
-                    { id: 'history', label: 'Historial' }
+                    { id: 'pending', label: t('adminEvents.tabs.pending') },
+                    { id: 'published', label: t('adminEvents.tabs.published') },
+                    { id: 'history', label: t('adminEvents.tabs.history') }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -206,13 +208,13 @@ export default function AdminEvents() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin text-amber-500 mb-4" size={40} />
-                        <p className="font-bold">Cargando eventos...</p>
+                        <p className="font-bold">{t('common.loading')}</p>
                     </div>
                 ) : events.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted text-center">
                         <CalendarCheck className="opacity-20 mb-4" size={48} />
-                        <p className="font-bold text-text-main text-lg mb-1">Cero eventos en esta lista</p>
-                        <p className="text-sm max-w-sm">No hay eventos comunitarios que coincidan con la pestaña seleccionada.</p>
+                        <p className="font-bold text-text-main text-lg mb-1">{t('adminEvents.empty.noEvents')}</p>
+                        <p className="text-sm max-w-sm">{t('adminEvents.empty.noEventsHint')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -220,7 +222,7 @@ export default function AdminEvents() {
                             <div key={event.id} className="bg-bg-side border border-border-theme rounded-2xl overflow-hidden hover:border-amber-500/50 transition-all flex flex-col group relative">
                                 {event.is_sponsored && (
                                     <div className="absolute top-2 right-2 bg-amber-500 text-black text-[10px] font-black uppercase px-2 py-0.5 rounded-full z-10 flex items-center gap-1 shadow-lg">
-                                        <Star size={10} /> Destacado
+                                        <Star size={10} /> {t('adminEvents.card.featured')}
                                     </div>
                                 )}
                                 <div
@@ -228,7 +230,7 @@ export default function AdminEvents() {
                                     onClick={() => setViewEvent(event)}
                                 >
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                                        <span className="text-white font-bold text-sm bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">Ver Detalles</span>
+                                        <span className="text-white font-bold text-sm bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">{t('adminEvents.card.viewDetails')}</span>
                                     </div>
                                     <img
                                         src={event.banner_url || 'https://via.placeholder.com/400x200?text=No+Image'}
@@ -242,17 +244,17 @@ export default function AdminEvents() {
                                 <div className="p-4 flex-1 flex flex-col">
                                     <p className="text-xs text-brand-primary font-bold mb-1">📅 {event.date} • 📍 {event.location}</p>
                                     <p className="text-[10px] text-text-muted uppercase tracking-wider font-bold mb-3">
-                                        Por: {(event as any).created_by_profile?.username || 'Usuario'}
+                                        {t('adminEvents.card.by', { username: (event as any).created_by_profile?.username || 'Usuario' })}
                                     </p>
 
                                     <div className="mt-auto pt-3 border-t border-border-theme flex items-center justify-between gap-2">
                                         {activeTab === 'pending' && (
                                             <>
                                                 <button onClick={() => handleReject(event)} className="flex-1 py-2 rounded-xl bg-accent-red/10 text-accent-red font-bold text-xs hover:bg-accent-red hover:text-white transition flex items-center justify-center gap-1.5">
-                                                    <XCircle size={14} /> Rechazar
+                                                    <XCircle size={14} /> {t('adminEvents.card.reject')}
                                                 </button>
                                                 <button onClick={() => handleApprove(event)} className="flex-1 py-2 rounded-xl bg-accent-green/10 text-accent-green font-bold text-xs hover:bg-accent-green hover:text-white transition flex items-center justify-center gap-1.5">
-                                                    <CheckCircle size={14} /> Aprobar
+                                                    <CheckCircle size={14} /> {t('adminEvents.card.approve')}
                                                 </button>
                                             </>
                                         )}
@@ -265,10 +267,10 @@ export default function AdminEvents() {
                                                         checked={event.is_sponsored}
                                                         onChange={(e) => toggleSponsorStatus(event, e.target.checked)}
                                                     />
-                                                    <span className="text-xs font-bold text-text-main">Patrocinar</span>
+                                                    <span className="text-xs font-bold text-text-main">{t('adminEvents.card.sponsor')}</span>
                                                 </label>
                                                 <button onClick={() => cancelEvent(event)} className="py-1.5 px-3 rounded-lg text-text-muted hover:text-accent-red hover:bg-accent-red/10 font-bold text-xs transition">
-                                                    Cancelar
+                                                    {t('adminEvents.card.cancel')}
                                                 </button>
                                             </>
                                         )}
@@ -277,7 +279,10 @@ export default function AdminEvents() {
                                                 event.status === 'cancelled' ? 'text-amber-500 bg-amber-500/10' :
                                                     'text-text-muted bg-bg-pop'
                                                 }`}>
-                                                {event.status === 'approved' ? 'Finalizado' : event.status}
+                                                {event.status === 'approved' ? t('adminEvents.card.status.finished') :
+                                                    event.status === 'rejected' ? t('adminEvents.card.status.rejected') :
+                                                        event.status === 'cancelled' ? t('adminEvents.card.status.cancelled') :
+                                                            event.status}
                                             </span>
                                         )}
                                     </div>
@@ -295,15 +300,15 @@ export default function AdminEvents() {
                         <div className="bg-accent-red/20 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto text-accent-red">
                             <Ban size={32} />
                         </div>
-                        <h2 className="text-2xl font-black text-center text-text-main mb-1">Rechazar Evento</h2>
+                        <h2 className="text-2xl font-black text-center text-text-main mb-1">{t('adminEvents.modals.reject.title')}</h2>
                         <p className="text-text-muted text-center text-sm mb-6">"{selectedEvent?.title}"</p>
 
                         <div className="mb-6">
-                            <label className="block text-sm font-bold text-text-sub mb-2">Motivo del rechazo (Visible para el autor):</label>
+                            <label className="block text-sm font-bold text-text-sub mb-2">{t('adminEvents.modals.reject.reasonLabel')}</label>
                             <textarea
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
-                                placeholder="Ej: No cumple con las normativas comunitarias..."
+                                placeholder={t('adminEvents.modals.reject.reasonPlaceholder')}
                                 className="w-full bg-bg-pop border border-border-theme text-text-main rounded-xl p-3 h-32 resize-none focus:ring-2 focus:ring-accent-red focus:border-transparent outline-none"
                             ></textarea>
                         </div>
@@ -314,14 +319,14 @@ export default function AdminEvents() {
                                 disabled={actionLoading}
                                 className="flex-1 py-3 rounded-xl font-bold text-text-main bg-bg-pop hover:bg-bg-sub border border-border-theme transition"
                             >
-                                Cancelar
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={confirmReject}
                                 disabled={actionLoading}
                                 className="flex-1 py-3 rounded-xl font-bold text-white bg-accent-red hover:bg-red-600 transition flex items-center justify-center shadow-lg shadow-accent-red/30 disabled:opacity-50"
                             >
-                                {actionLoading ? <Loader2 className="animate-spin" size={20} /> : 'Rechazar'}
+                                {actionLoading ? <Loader2 className="animate-spin" size={20} /> : t('adminEvents.modals.reject.confirm')}
                             </button>
                         </div>
                     </div>
@@ -336,14 +341,14 @@ export default function AdminEvents() {
                         <div className="bg-accent-green/20 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto text-accent-green">
                             <CheckCircle size={32} />
                         </div>
-                        <h2 className="text-2xl font-black text-center text-text-main mb-1">Aprobar Evento</h2>
-                        <p className="text-text-muted text-center text-sm mb-6">"{selectedEvent?.title}" saldrá en vivo al mapa.</p>
+                        <h2 className="text-2xl font-black text-center text-text-main mb-1">{t('adminEvents.modals.approve.title')}</h2>
+                        <p className="text-text-muted text-center text-sm mb-6">{t('adminEvents.modals.approve.hint', { title: selectedEvent?.title })}</p>
 
                         <div className="mb-6 bg-bg-pop rounded-xl border border-border-theme p-4">
                             <label className="flex items-center justify-between cursor-pointer">
                                 <div>
-                                    <span className="font-bold text-text-main flex items-center gap-1"><Star size={16} className="text-amber-500" /> Patrocinar Evento</span>
-                                    <p className="text-xs text-text-muted mt-1 max-w-[200px]">Aparecerá fijado arriba en la app. Máximo 2 eventos simultáneos permitidos.</p>
+                                    <span className="font-bold text-text-main flex items-center gap-1"><Star size={16} className="text-amber-500" /> {t('adminEvents.modals.approve.sponsorLabel')}</span>
+                                    <p className="text-xs text-text-muted mt-1 max-w-[200px]">{t('adminEvents.modals.approve.sponsorHint')}</p>
                                 </div>
                                 <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                                     <input
@@ -364,14 +369,14 @@ export default function AdminEvents() {
                                 disabled={actionLoading}
                                 className="flex-1 py-3 rounded-xl font-bold text-text-main bg-bg-pop hover:bg-bg-sub border border-border-theme transition"
                             >
-                                Cancelar
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={confirmApprove}
                                 disabled={actionLoading}
                                 className="flex-1 py-3 rounded-xl font-bold text-white bg-accent-green hover:bg-green-600 transition flex items-center justify-center shadow-lg shadow-accent-green/30 disabled:opacity-50"
                             >
-                                {actionLoading ? <Loader2 className="animate-spin" size={20} /> : '¡Aprobar Ahora!'}
+                                {actionLoading ? <Loader2 className="animate-spin" size={20} /> : t('adminEvents.modals.approve.confirm')}
                             </button>
                         </div>
                     </div>

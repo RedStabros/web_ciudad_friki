@@ -1,6 +1,6 @@
 import { ExternalLink, Video, Youtube, Facebook, PlayCircle } from 'lucide-react';
 
-export const renderTextWithMedia = (text: string) => {
+export const renderTextWithMedia = (text: string, t: (key: string) => string) => {
     if (!text) return null;
 
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -12,7 +12,7 @@ export const renderTextWithMedia = (text: string) => {
                     <div key={i} className="my-3 share-media-container">
                         <img
                             src={part}
-                            alt="attachment"
+                            alt={t('media.attachment')}
                             className="max-w-full md:max-w-md h-auto rounded-2xl border border-divider-theme shadow-xl cursor-zoom-in hover:scale-[1.01] transition-transform"
                             loading="lazy"
                         />
@@ -32,18 +32,18 @@ export const renderTextWithMedia = (text: string) => {
                 let thumb = null;
 
                 if (isYoutube) {
-                    platformName = "YouTube";
+                    platformName = t('media.youtube');
                     Icon = Youtube;
                     color = "bg-red-600";
                     // Simple YT Thumb
                     const ytId = part.match(/(?:youtu\.be\/|youtube\.com\/(?:v\/|u\/\w\/|embed\/|watch\?v=))([^#\&\?]*)/)?.[1];
                     if (ytId) thumb = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
                 } else if (isTiktok) {
-                    platformName = "TikTok";
+                    platformName = t('media.tiktok');
                     Icon = PlayCircle;
                     color = "bg-zinc-900";
                 } else if (isFacebook) {
-                    platformName = "Facebook Reel";
+                    platformName = t('media.facebookReel');
                     Icon = Facebook;
                     color = "bg-blue-600";
                 }

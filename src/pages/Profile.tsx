@@ -187,20 +187,20 @@ export default function Profile() {
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            return alert(t('auth.passwordsDoNotMatch', 'Las contraseñas no coinciden'));
+            return alert(t('auth.passwordsDoNotMatch'));
         }
 
         const rules = validatePassword(passwordData.newPassword);
         const allRulesMet = Object.values(rules).every(Boolean);
         if (!allRulesMet) {
-            return alert(t('profile.passwordRules', 'Reglas de la contraseña') + ' ' + t('auth.fillAllFields', 'Debe cumplir todas las reglas.'));
+            return alert(t('profile.passwordRules') + ' ' + t('auth.fillAllFields'));
         }
 
         setIsChangingPassword(true);
         try {
             const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
             if (error) throw error;
-            alert(t('auth.passwordChangedSuccess', 'Contraseña actualizada con éxito'));
+            alert(t('auth.passwordChangedSuccess'));
             setPasswordData({ newPassword: '', confirmPassword: '' });
             setIsPasswordSectionOpen(false);
         } catch (err: any) {
@@ -242,7 +242,7 @@ export default function Profile() {
                 position: relative !important;
             }
             .card-capture::before {
-                content: 'CIUDAD FRIKI';
+                content: '${t('share.profile.captureHeader')}';
                 position: absolute;
                 top: 20px;
                 right: 30px;
@@ -274,8 +274,8 @@ export default function Profile() {
             if (blob) {
                 const file = new File([blob], `card-${profile?.username || 'user'}.png`, { type: 'image/png' });
                 await shareContent({
-                    title: 'Mi Identidad Friki',
-                    text: `🎮 ¡Esta es mi tarjeta oficial de Ciudad Friki! Rango: ${profile?.role || 'Miembro'}. ¿Ya tienes la tuya?`,
+                    title: t('share.profile.title'),
+                    text: t('share.profile.text', { role: profile?.role || t('common.member') }),
                     url: window.location.origin,
                     file
                 });
@@ -362,8 +362,8 @@ export default function Profile() {
     return (
         <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-display animate-in fade-in duration-500">
             <SEO 
-                title="Configurar Perfil"
-                description="Gestiona tu cuenta en Ciudad Friki. Personaliza tu avatar, actualiza tus intereses y revisa tu saldo de Frikicoins."
+                title={t('profile.seo.title')}
+                description={t('profile.seo.description')}
                 ogType="profile"
             />
 
@@ -395,7 +395,7 @@ export default function Profile() {
                                 onClick={shareProfileCard}
                                 disabled={isSharingCard}
                                 className="p-3 bg-brand-primary/10 text-brand-primary rounded-2xl border border-brand-primary/20 hover:bg-brand-primary hover:text-white transition-all active:scale-95 disabled:opacity-50"
-                                title="Compartir mi Card"
+                                title={t('profile.shareCardTitle')}
                             >
                                 {isSharingCard ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
                             </button>
@@ -414,7 +414,7 @@ export default function Profile() {
                             <h2 className="text-2xl font-black text-text-main italic uppercase tracking-tighter">@{profile?.username}</h2>
                             <div className="flex items-center justify-center gap-2 mt-1">
                                 <Shield size={14} className="text-brand-primary" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{profile?.role || 'Miembro'}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{profile?.role || t('common.member')}</span>
                             </div>
                         </div>
 
@@ -450,7 +450,7 @@ export default function Profile() {
                             <div className="hidden card-show mt-6 flex flex-wrap justify-center gap-2 max-w-sm">
                                 {formData.interests.slice(0, 8).map(int => (
                                     <span key={int} className="px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-[10px] font-bold text-brand-primary">
-                                        #{int}
+                                        #{t(`profile.interests_list.${int}`, int)}
                                     </span>
                                 ))}
                             </div>
@@ -557,7 +557,7 @@ export default function Profile() {
                                         <Lock size={20} />
                                     </div>
                                     <h3 className="font-bold text-text-main group-hover:text-brand-primary transition-colors">
-                                        {t('auth.changePassword', 'Cambiar Contraseña')}
+                                        {t('auth.changePassword')}
                                     </h3>
                                 </div>
                                 {isPasswordSectionOpen ? <ChevronUp size={20} className="text-text-muted" /> : <ChevronDown size={20} className="text-text-muted" />}
@@ -568,7 +568,7 @@ export default function Profile() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-widest text-text-sub mb-2">
-                                                {t('auth.newPassword', 'Nueva Contraseña')}
+                                                {t('auth.newPassword')}
                                             </label>
                                             <div className="relative">
                                                 <input
@@ -589,7 +589,7 @@ export default function Profile() {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-widest text-text-sub mb-2">
-                                                {t('auth.confirmPassword', 'Confirmar Contraseña')}
+                                                {t('auth.confirmPassword')}
                                             </label>
                                             <div className="relative">
                                                 <input
@@ -612,7 +612,7 @@ export default function Profile() {
                                         {passwordData.newPassword.length > 0 && (
                                             <div className="bg-bg-sub border border-border-theme p-4 rounded-xl space-y-3 mt-4 col-span-1 md:col-span-2 shadow-sm">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-bold text-text-sub">{t('profile.passwordStrength', 'Fortaleza')}: </span>
+                                                    <span className="text-sm font-bold text-text-sub">{t('profile.passwordStrength')}: </span>
                                                     <span className={`text-sm font-black uppercase tracking-widest ${getPasswordStrength(passwordData.newPassword) === 'weak' ? 'text-accent-red' :
                                                         getPasswordStrength(passwordData.newPassword) === 'medium' ? 'text-brand-secondary' : 'text-accent-green'
                                                         }`}>
@@ -640,7 +640,7 @@ export default function Profile() {
                                             className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv font-bold py-2 px-5 rounded-xl text-sm shadow-md transition-transform transform hover:scale-105 flex items-center gap-2"
                                         >
                                             {isChangingPassword ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
-                                            {t('common.update', 'Actualizar')}
+                                            {t('common.update')}
                                         </button>
                                     </div>
                                 </div>
@@ -657,16 +657,16 @@ export default function Profile() {
                             </div>
                             <div>
                                 <h2 className="text-sm font-bold text-text-main leading-tight">
-                                    {t('profile.bugReportTitle', 'Reportar Problema')}
+                                    {t('profile.bugReportTitle')}
                                 </h2>
-                                <p className="text-xs text-text-sub mt-0.5 max-w-sm">{t('profile.bugReportSubtitle', 'Ayúdanos a mejorar reportando errores')}</p>
+                                <p className="text-xs text-text-sub mt-0.5 max-w-sm">{t('profile.bugReportSubtitle')}</p>
                             </div>
                         </div>
                         <button
                             onClick={() => setIsReportBugOpen(true)}
                             className="w-full sm:w-auto bg-accent-red/10 text-accent-red hover:bg-accent-red hover:text-white font-black text-[10px] uppercase tracking-widest py-2.5 px-6 rounded-xl transition-all shrink-0"
                         >
-                            Reportar
+                            {t('common.report')}
                         </button>
                     </div>
                 </div>
@@ -726,7 +726,7 @@ export default function Profile() {
                                                 ? 'bg-brand-primary border-brand-primary text-text-inv'
                                                 : 'bg-bg-sub border-border-theme text-text-sub hover:border-brand-primary/50'}`}
                                     >
-                                        {t(`profile.interests.${interest}`, interest)}
+                                        {t(`profile.interests_list.${interest}`, interest)}
                                         {isSelected && <Check size={14} />}
                                     </button>
                                 );
@@ -786,16 +786,16 @@ export default function Profile() {
                             </div>
                             <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
                                 <div className="space-y-1">
-                                    <p className="font-black text-text-main text-sm uppercase tracking-tight">Reportes de Usuarios</p>
+                                    <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.userReports')}</p>
                                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                        Gestión de bugs
+                                        {t('settings.admin.bugManagement')}
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => setIsAdminBugOpen(true)}
                                     className="relative px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 bg-bg-sub border border-border-theme text-text-muted hover:text-text-main hover:border-brand-primary/50"
                                 >
-                                    Ver Panel
+                                    {t('common.viewPanel')}
                                     {pendingBugCount > 0 && (
                                         <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-accent-red text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-md">
                                             {pendingBugCount > 99 ? '99+' : pendingBugCount}
@@ -809,9 +809,9 @@ export default function Profile() {
                                 <div className="flex items-center gap-3 flex-1">
                                     <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
                                     <div className="space-y-1">
-                                        <p className="font-black text-text-main text-sm uppercase tracking-tight">FrikiMart en Web</p>
+                                        <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.storeWeb')}</p>
                                         <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                            {storeWebEnabled ? '🟢 Visible en la web' : '🔴 Oculto en la web (solo app)'}
+                                            {storeWebEnabled ? t('settings.admin.storeWebStatusOn') : t('settings.admin.storeWebStatusOff')}
                                         </p>
                                     </div>
                                 </div>
@@ -823,7 +823,7 @@ export default function Profile() {
                                             ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20'
                                             : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
                                 >
-                                    {isTogglingStoreWeb ? <Loader2 size={12} className="animate-spin" /> : (storeWebEnabled ? 'Ocultar' : 'Activar')}
+                                    {isTogglingStoreWeb ? <Loader2 size={12} className="animate-spin" /> : (storeWebEnabled ? t('common.hide') : t('common.enable'))}
                                 </button>
                             </div>
 
@@ -832,9 +832,9 @@ export default function Profile() {
                                 <div className="flex items-center gap-3 flex-1">
                                     <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
                                     <div className="space-y-1">
-                                        <p className="font-black text-amber-500 text-sm uppercase tracking-tight">Admin FrikiMart</p>
+                                        <p className="font-black text-amber-500 text-sm uppercase tracking-tight">{t('settings.admin.storeAdmin')}</p>
                                         <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                            Gestión de pedidos e inventario
+                                            {t('settings.admin.storeAdminDesc')}
                                         </p>
                                     </div>
                                 </div>
@@ -842,7 +842,7 @@ export default function Profile() {
                                     onClick={() => setIsAdminFrikiMartOpen(true)}
                                     className="px-6 py-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-amber-500/30"
                                 >
-                                    Abrir Panel
+                                    {t('common.openPanel')}
                                 </button>
                             </div>
                         </div>

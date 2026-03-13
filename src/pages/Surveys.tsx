@@ -103,7 +103,7 @@ function SurveyCard({ survey, onClick }: {
                 <div className="flex items-center gap-2 bg-brand-primary/10 px-3 py-1.5 rounded-xl border border-brand-primary/20">
                     <Clock size={14} className="text-brand-primary" />
                     <span className="text-[10px] font-black uppercase text-brand-primary tracking-widest">
-                        {survey.expire_date ? new Date(survey.expire_date).toLocaleDateString() : 'N/A'}
+                        {survey.expire_date ? new Date(survey.expire_date).toLocaleDateString() : t('common.tbd')}
                     </span>
                 </div>
                 {survey.reward_amount && survey.reward_amount > 0 && (
@@ -121,7 +121,7 @@ function SurveyCard({ survey, onClick }: {
 
             <div className="flex items-center justify-between pt-8 border-t border-divider-theme relative z-10">
                 <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase text-text-muted tracking-widest">{t('surveys.new', '¡NUEVA!')}</span>
+                    <span className="text-[10px] font-black uppercase text-text-muted tracking-widest">{t('surveys.new')}</span>
                 </div>
                 <div className={`px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center gap-2 ${survey.user_voted ? 'bg-bg-sub text-text-muted' : 'bg-brand-primary text-text-inv group-hover:scale-105 active:scale-95 shadow-brand-primary/30'}`}>
                     {survey.user_voted ? t('surveys.completed') : t('nav.surveys')}
@@ -161,7 +161,7 @@ export default function Surveys() {
     };
 
     const handleVote = async (surveyId: string, optionId: string) => {
-        if (!user) return alert(t('auth.signInToVote') || 'Inicia sesión para votar');
+        if (!user) return alert(t('common.loginRequired'));
         setVotingId(optionId);
         try {
             const { error: voteError } = await SurveyService.vote(surveyId, optionId);
@@ -194,9 +194,9 @@ export default function Surveys() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
             <SEO 
-                title="Encuestas Friki | Tu opinión cuenta"
-                description="Participa en las encuestas de Ciudad Friki. Vota por tus animes, juegos y tendencias favoritas de la cultura geek y gana Frikicoins."
-                keywords="Encuestas Anime, Votación Geek, Frikicoins, Tendencias Manga, Ciudad Friki"
+                title={t('seo.surveys.title')}
+                description={t('seo.surveys.description')}
+                keywords={t('seo.surveys.keywords')}
             />
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b-2 border-divider-theme pb-12 px-4">
                 <div className="max-w-2xl">

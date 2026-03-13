@@ -95,7 +95,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    }) : t('events.noDate', 'Fecha TBD');
+    }) : t('events.noDate');
 
     const defaultImage = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop";
 
@@ -171,13 +171,13 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                             <div className="flex justify-between items-center bg-bg-sub/30 p-4 rounded-xl border border-divider-theme">
                                 <div className="flex items-center gap-4">
                                     <div className="text-center">
-                                        <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.date')}</div>
+                                        <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startDate')}</div>
                                         <div className="font-bold text-text-main capitalize text-sm">{formattedDate}</div>
                                     </div>
                                     <div className="w-px h-8 bg-divider-theme"></div>
                                     <div className="text-center">
                                         <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startTime')}</div>
-                                        <div className="font-bold text-text-main text-sm">{event.start_time || t('common.tbd', 'TBD')}</div>
+                                        <div className="font-bold text-text-main text-sm">{event.start_time || t('common.tbd')}</div>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
@@ -191,7 +191,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                     </button>
                                     <button
                                         onClick={handleShare}
-                                        title={copied ? t('common.linkCopied', '¡Enlace copiado!') : t('common.share', 'Compartir')}
+                                        title={copied ? t('common.linkCopied') : t('common.share')}
                                         className={`p-2 rounded-full border transition ${copied ? 'border-accent-green bg-accent-green/10 text-accent-green' : 'border-divider-theme hover:bg-bg-sub text-text-muted hover:text-brand-primary'}`}
                                     >
                                         {copied ? <Check size={20} /> : <Share2 size={20} />}
@@ -201,9 +201,9 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
                             {/* Description */}
                             <div>
-                                <h3 className="text-lg font-bold text-text-main mb-2">{t('events.about', 'Acerca del Evento')}</h3>
+                                <h3 className="text-lg font-bold text-text-main mb-2">{t('events.about')}</h3>
                                 <div className="text-text-sub leading-relaxed whitespace-pre-line text-sm">
-                                    {renderTextWithMedia(event.description || t('events.noDescription', 'Sin descripción.'))}
+                                    {renderTextWithMedia(event.description || t('events.noDescription'), t)}
                                 </div>
                             </div>
 
@@ -355,7 +355,7 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                                 </div>
                                             </div>
                                             <div className="text-text-sub text-sm leading-relaxed bg-bg-main/30 p-3 rounded-xl border border-divider-theme/50">
-                                                {renderTextWithMedia(review.comment)}
+                                                {renderTextWithMedia(review.comment, t)}
                                             </div>
                                         </div>
                                     ))}

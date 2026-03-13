@@ -183,7 +183,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
             if (initialData) {
                 const { error } = await EventService.updateEvent(initialData.id, eventData as any);
                 if (error) throw error;
-                alert('¡Evento actualizado! Quedará pendiente de nueva revisión por los admins.');
+                alert(t('events.updateSuccess'));
             } else {
                 const { error } = await supabase
                     .from('events')
@@ -215,7 +215,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-divider-theme">
                     <h2 className="text-xl font-bold text-text-main">
-                        {initialData ? 'Editar Evento' : t('events.createTitle')}
+                        {initialData ? t('events.editTitle') : t('events.createTitle')}
                     </h2>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition text-text-muted hover:text-text-main">
                         <X size={20} />
@@ -228,9 +228,9 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                         <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex gap-3 text-orange-400">
                             <AlertTriangle size={24} className="shrink-0" />
                             <div className="text-sm">
-                                <p className="font-bold mb-1">El evento volverá a revisión</p>
+                                <p className="font-bold mb-1">{t('events.editWarningTitle')}</p>
                                 <p className="text-orange-400/80 leading-relaxed">
-                                    Al editar tu evento, su estado cambiará a <strong>Pendiente</strong> y deberá ser aprobado de nuevo por un administrador antes de ser público.
+                                    {t('events.editWarningMessage')}
                                 </p>
                             </div>
                         </div>
@@ -270,7 +270,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                                             <PlayCircle size={10} /> {t('common.preview', 'Vista Previa')}
                                         </div>
                                         <div className="text-text-sub text-sm whitespace-pre-line leading-relaxed">
-                                            {renderTextWithMedia(formData.description)}
+                                            {renderTextWithMedia(formData.description, t)}
                                         </div>
                                     </div>
                                 )}
@@ -454,7 +454,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                                                     ? 'bg-brand-primary text-text-inv border-brand-primary shadow-md scale-105'
                                                     : 'bg-bg-sub text-text-sub border-border-theme hover:border-brand-primary/50'}`}
                                         >
-                                            {tag}
+                                            {t(`profile.interests_list.${tag}`, tag)}
                                         </button>
                                     );
                                 })}

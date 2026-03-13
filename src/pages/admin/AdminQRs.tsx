@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     QrCode, PlusCircle, Loader2, Trash2, Edit3,
     PieChart, UserPlus, XCircle, Search, Power, Shield
@@ -9,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function AdminQRs() {
+    const { t } = useTranslation();
     const { user } = useAuth();
 
     const [codes, setCodes] = useState<EventCode[]>([]);
@@ -84,7 +86,7 @@ export default function AdminQRs() {
 
     const handleCreateCode = async () => {
         if (!points || parseInt(points) <= 0) {
-            alert('Por favor ingresa un número de puntos válido mayor a 0');
+            alert(t('adminQRs.errors.invalidPoints'));
             return;
         }
 
@@ -107,7 +109,7 @@ export default function AdminQRs() {
         });
 
         if (error) {
-            alert('Error al guardar: ' + error.message);
+            alert(t('adminQRs.errors.saveError', { message: error.message }));
         } else {
             setShowCreateModal(false);
             setEditingCode(null);
@@ -122,7 +124,7 @@ export default function AdminQRs() {
     };
 
     const deleteCode = async (id: string) => {
-        if (window.confirm('¿Seguro que deseas eliminar este código? Se perderá el historial.')) {
+        if (window.confirm(t('adminQRs.errors.deleteConfirm'))) {
             await QRAdminService.deleteCode(id);
             loadCodes();
         }
@@ -147,7 +149,7 @@ export default function AdminQRs() {
             setRedemptionsList(data);
         } else {
             setRedemptionsList([]);
-            alert('Error cargando canjes');
+            alert(t('adminQRs.errors.loadRedemptionsError'));
         }
         setLoadingRedemptions(false);
     };
@@ -173,7 +175,7 @@ export default function AdminQRs() {
 
     const handleCreateAssignment = async () => {
         if (!selectedWorker || !selectedEventCode) {
-            alert('Selecciona un trabajador y un código QR primero.');
+            alert(t('adminQRs.errors.selectionRequired'));
             return;
         }
 
@@ -187,7 +189,7 @@ export default function AdminQRs() {
         setLoading(true);
         const { error } = await QRAdminService.createAssignment(selectedWorker.id, selectedEventCode, expiryDate);
         if (error) {
-            alert('Error: ' + error.message);
+            alert(t('common.error') + ': ' + error.message);
         } else {
             setShowAssignModal(false);
             setSelectedWorker(null);
@@ -199,7 +201,7 @@ export default function AdminQRs() {
     };
 
     const deactivateAssignment = async (id: string) => {
-        if (window.confirm('¿Desactivar esta asignación?')) {
+        if (window.confirm(t('adminQRs.errors.deactivateConfirm'))) {
             await QRAdminService.deactivateAssignment(id);
             loadAssignments();
         }
@@ -213,8 +215,8 @@ export default function AdminQRs() {
                         <QrCode size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Gestión de Eventos QR</h1>
-                        <p className="text-sm text-brand-primary font-bold">Generación de códigos de recompensa (FC)</p>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('adminQRs.title')}</h1>
+                        <p className="text-sm text-brand-primary font-bold">{t('adminQRs.subtitle')}</p>
                     </div>
                 </div>
 
@@ -225,14 +227,14 @@ export default function AdminQRs() {
                         }}
                         className="bg-brand-primary hover:bg-blue-600 text-white font-black py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-brand-primary/20 justify-center"
                     >
-                        <PlusCircle size={20} /> Crear Código
+                        <PlusCircle size={20} /> {t('adminQRs.createCode')}
                     </button>
                 ) : (
                     <button
                         onClick={() => setShowAssignModal(true)}
                         className="bg-[#10b981] hover:bg-[#059669] text-white font-black py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-[#10b981]/20 justify-center"
                     >
-                        <UserPlus size={20} /> Asignar Código
+                        <UserPlus size={20} /> {t('adminQRs.assignCode')}
                     </button>
                 )}
             </div>
@@ -241,16 +243,16 @@ export default function AdminQRs() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex flex-col items-center justify-center">
                     <span className="text-2xl font-black text-text-main mb-1 leading-none">{stats.total_codes}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Códigos Creados</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminQRs.stats.totalCodes')}</span>
                 </div>
                 <div className="bg-bg-pop border border-accent-green/30 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-accent-green/5 rounded-full -mr-8 -mt-8"></div>
                     <span className="text-2xl font-black text-accent-green mb-1 leading-none">{stats.active_codes}</span>
-                    <span className="text-xs font-bold text-text-muted uppercase text-center">Códigos Activos</span>
+                    <span className="text-xs font-bold text-text-muted uppercase text-center">{t('adminQRs.stats.activeCodes')}</span>
                 </div>
                 <div className="col-span-2 md:col-span-1 bg-brand-primary/10 border border-brand-primary/30 rounded-2xl p-4 flex flex-col items-center justify-center shrink-0">
                     <span className="text-2xl font-black text-brand-primary mb-1 leading-none flex items-center gap-1"><Shield size={20} /> {stats.total_assignments}</span>
-                    <span className="text-xs font-bold text-brand-primary uppercase text-center">Asignaciones Personal</span>
+                    <span className="text-xs font-bold text-brand-primary uppercase text-center">{t('adminQRs.stats.staffAssignments')}</span>
                 </div>
             </div>
 
@@ -261,14 +263,14 @@ export default function AdminQRs() {
                     className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap capitalize ${activeTab === 'codes' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                         }`}
                 >
-                    Códigos QR Globales
+                    {t('adminQRs.tabs.global')}
                 </button>
                 <button
                     onClick={() => setActiveTab('assignments')}
                     className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap capitalize ${activeTab === 'assignments' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                         }`}
                 >
-                    Asignaciones a Staff
+                    {t('adminQRs.tabs.staff')}
                 </button>
             </div>
 
@@ -277,14 +279,14 @@ export default function AdminQRs() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin text-brand-primary mb-4" size={40} />
-                        <p className="font-bold">Cargando...</p>
+                        <p className="font-bold">{t('common.loading')}</p>
                     </div>
                 ) : activeTab === 'codes' ? (
                     codes.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-text-muted text-center">
                             <QrCode className="opacity-20 mb-4" size={48} />
-                            <p className="font-bold text-text-main text-lg mb-1">Sin códigos generados</p>
-                            <p className="text-sm max-w-sm mb-4">Añade recompensas escaneables creando QRs de evento.</p>
+                            <p className="font-bold text-text-main text-lg mb-1">{t('adminQRs.empty.noCodes')}</p>
+                            <p className="text-sm max-w-sm mb-4">{t('adminQRs.empty.noCodesHint')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -301,7 +303,7 @@ export default function AdminQRs() {
                                                     {item.code}
                                                 </h3>
                                                 <span className={`text-[10px] uppercase font-black px-2 py-1 rounded-md border whitespace-nowrap ${item.is_active ? 'bg-accent-green/20 text-accent-green border-accent-green/30' : 'bg-black/50 text-text-sub border-border-theme'}`}>
-                                                    {item.is_active ? 'Activo' : 'Inactivo'}
+                                                    {item.is_active ? t('adminQRs.card.active') : t('adminQRs.card.inactive')}
                                                 </span>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -309,11 +311,11 @@ export default function AdminQRs() {
                                                     <span className="text-amber-500 font-black">{item.points} FC</span>
                                                 </div>
                                                 <button onClick={() => viewRedemptions(item.id, item.code)} className="flex items-center gap-1 text-text-sub font-bold text-xs bg-brand-primary/10 hover:bg-brand-primary hover:text-white transition px-2 py-1.5 rounded-lg border border-brand-primary/30 text-brand-primary">
-                                                    <PieChart size={14} /> {item.current_uses} / {item.max_uses || '∞'} Canjes
+                                                    <PieChart size={14} /> {t('adminQRs.card.redemptions', { current: item.current_uses, max: item.max_uses || '∞' })}
                                                 </button>
                                                 {item.expires_at && (
                                                     <div className="flex items-center gap-1 text-text-sub font-bold text-xs bg-bg-pop px-2 py-1.5 rounded-lg border border-border-theme w-full mt-1 opacity-70">
-                                                        Vence: {new Date(item.expires_at).toLocaleString()}
+                                                        {t('adminQRs.card.expires', { date: new Date(item.expires_at).toLocaleString() })}
                                                     </div>
                                                 )}
                                             </div>
@@ -321,18 +323,18 @@ export default function AdminQRs() {
 
                                         <div className="border-t border-border-theme pt-3 mt-auto w-full flex flex-wrap gap-2 justify-between items-center">
                                             <div className="flex gap-2">
-                                                <button onClick={() => toggleCodeStatus(item.id, item.is_active)} disabled={isLocked} className="p-2 bg-bg-pop text-text-muted hover:text-brand-primary disabled:opacity-30 rounded-lg border border-border-theme transition" title="Activar/Desactivar">
+                                                <button onClick={() => toggleCodeStatus(item.id, item.is_active)} disabled={isLocked} className="p-2 bg-bg-pop text-text-muted hover:text-brand-primary disabled:opacity-30 rounded-lg border border-border-theme transition" title={t('common.status')}>
                                                     <Power size={18} />
                                                 </button>
-                                                <button onClick={() => openEditModal(item)} className="p-2 bg-bg-pop text-text-muted hover:text-amber-500 rounded-lg border border-border-theme transition" title="Editar">
+                                                <button onClick={() => openEditModal(item)} className="p-2 bg-bg-pop text-text-muted hover:text-amber-500 rounded-lg border border-border-theme transition" title={t('common.edit')}>
                                                     <Edit3 size={18} />
                                                 </button>
-                                                <button onClick={() => deleteCode(item.id)} className="p-2 bg-bg-pop text-text-muted hover:text-accent-red hover:bg-accent-red/10 rounded-lg border border-border-theme transition" title="Eliminar">
+                                                <button onClick={() => deleteCode(item.id)} className="p-2 bg-bg-pop text-text-muted hover:text-accent-red hover:bg-accent-red/10 rounded-lg border border-border-theme transition" title={t('common.delete')}>
                                                     <Trash2 size={18} />
                                                 </button>
                                             </div>
                                             <button onClick={() => openQrModal(item.code, 'EVENT')} className="flex items-center gap-1 px-4 py-2 font-black bg-text-main text-bg-pop rounded-xl hover:bg-white transition ml-auto">
-                                                <QrCode size={16} /> Ver QR
+                                                <QrCode size={16} /> {t('adminQRs.card.viewQr')}
                                             </button>
                                         </div>
                                     </div>
@@ -344,8 +346,8 @@ export default function AdminQRs() {
                     assignments.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-text-muted text-center">
                             <Shield className="opacity-20 mb-4" size={48} />
-                            <p className="font-bold text-text-main text-lg mb-1">Sin asignaciones</p>
-                            <p className="text-sm max-w-sm mb-4">Transfiere códigos QR temporalmente a tu Staff.</p>
+                            <p className="font-bold text-text-main text-lg mb-1">{t('adminQRs.empty.noAssignments')}</p>
+                            <p className="text-sm max-w-sm mb-4">{t('adminQRs.empty.noAssignmentsHint')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,7 +359,7 @@ export default function AdminQRs() {
                                             <p className="text-xs text-text-muted">{item.profiles?.full_name}</p>
                                         </div>
                                         <span className={`text-[10px] uppercase font-black px-2 py-1 rounded-md border ${item.is_active ? 'bg-accent-green/20 text-accent-green border-accent-green/30' : 'bg-black/50 text-text-sub border-border-theme'}`}>
-                                            {item.is_active ? 'Vigente' : 'Inactiva'}
+                                            {item.is_active ? t('adminQRs.card.active_v') : t('adminQRs.card.inactive_v')}
                                         </span>
                                     </div>
                                     <div className="bg-bg-pop p-3 rounded-xl border border-border-theme font-bold flex flex-col gap-1">
@@ -365,15 +367,15 @@ export default function AdminQRs() {
                                         <span className="text-xs text-amber-500">{item.event_codes?.points} FC Pts</span>
                                     </div>
                                     <div className="flex flex-wrap items-center justify-between border-t border-border-theme pt-3 gap-2">
-                                        <span className="text-xs font-bold text-text-sub">Expira: {item.expires_at ? new Date(item.expires_at).toLocaleDateString() : 'Nunca'}</span>
+                                        <span className="text-xs font-bold text-text-sub">{t('adminQRs.card.expires', { date: item.expires_at ? new Date(item.expires_at).toLocaleDateString() : t('common.never') })}</span>
                                         <div className="flex gap-2">
                                             {item.is_active && (
                                                 <button onClick={() => deactivateAssignment(item.id)} className="p-1 px-3 text-xs font-bold text-text-sub bg-bg-pop hover:text-accent-red hover:bg-accent-red/10 border border-border-theme rounded-lg transition flex items-center gap-1">
-                                                    <XCircle size={14} /> Revocar
+                                                    <XCircle size={14} /> {t('adminQRs.card.revoke')}
                                                 </button>
                                             )}
                                             <button onClick={() => openQrModal(`ASSIGN:${item.id}`, 'ASSIGN')} className="p-1 px-3 text-xs font-bold bg-brand-primary text-white rounded-lg transition flex items-center gap-1 shadow-lg shadow-brand-primary/20">
-                                                <QrCode size={14} /> QR
+                                                <QrCode size={14} /> {t('common.qr')}
                                             </button>
                                         </div>
                                     </div>
@@ -389,27 +391,27 @@ export default function AdminQRs() {
                 <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in">
                     <div className="bg-bg-side w-full max-w-md h-full shadow-2xl flex flex-col border-l border-border-theme relative slide-in-from-right duration-300">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-border-theme bg-bg-pop">
-                            <h2 className="text-xl font-black text-text-main">{editingCode ? 'Editar Código QR' : 'Crear Código QR'}</h2>
+                            <h2 className="text-xl font-black text-text-main">{editingCode ? t('adminQRs.modals.create.editTitle') : t('adminQRs.modals.create.title')}</h2>
                             <button onClick={() => setShowCreateModal(false)} className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-bg-side transition">
                                 <XCircle size={24} />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             <div>
-                                <label className="block text-sm font-bold text-text-sub mb-1">Nombre del Código</label>
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.nameLabel')}</label>
                                 <input type="text" value={newCodeName} onChange={(e) => setNewCodeName(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main focus:ring-2 focus:ring-brand-primary outline-none" placeholder="Ej: EVENTO2026" />
-                                <p className="text-xs text-text-muted mt-1 ml-1">Prefijo EVENT: es añadido automáticamente.</p>
+                                <p className="text-xs text-text-muted mt-1 ml-1">{t('adminQRs.modals.create.nameHint')}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-text-sub mb-1">Puntos de recompensa (Frikicoins) *</label>
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.pointsLabel')}</label>
                                 <input type="number" value={points} onChange={(e) => setPoints(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 100" />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-text-sub mb-1">Uso máximo global (Opcional)</label>
-                                <input type="number" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main outline-none" placeholder="Ej: 50 (Ilimitado si vacío)" />
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.maxUsesLabel')}</label>
+                                <input type="number" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main outline-none" placeholder="Ej: 50" />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-text-sub mb-1">Expira en (días) (Opcional)</label>
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.expiryLabel')}</label>
                                 <input type="number" value={expiryDays} onChange={(e) => setExpiryDays(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main outline-none" placeholder="Ej: 7" />
                                 {editingCode && expiresAt && (
                                     <p className="text-xs text-amber-500 mt-2 font-bold">Expira: {new Date(expiresAt).toLocaleString()}</p>
@@ -419,7 +421,7 @@ export default function AdminQRs() {
                         <div className="p-4 border-t border-border-theme bg-bg-pop">
                             <button onClick={handleCreateCode} disabled={loading} className="w-full py-3 rounded-xl font-bold bg-brand-primary hover:bg-blue-600 text-white flex items-center justify-center gap-2 transition disabled:opacity-50">
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : <PlusCircle size={20} />}
-                                {editingCode ? 'Guardar Cambios' : 'Generar QR'}
+                                {editingCode ? t('adminQRs.modals.create.saveChanges') : t('adminQRs.modals.create.generate')}
                             </button>
                         </div>
                     </div>
@@ -431,19 +433,19 @@ export default function AdminQRs() {
                 <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in">
                     <div className="bg-bg-side w-full max-w-md h-full shadow-2xl flex flex-col border-l border-border-theme relative slide-in-from-right duration-300">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-border-theme bg-bg-pop">
-                            <h2 className="text-xl font-black text-text-main">Asignar QR a Staff</h2>
+                            <h2 className="text-xl font-black text-text-main">{t('adminQRs.modals.assign.title')}</h2>
                             <button onClick={() => setShowAssignModal(false)} className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-bg-side transition">
                                 <XCircle size={24} />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             <div>
-                                <label className="block text-sm font-bold text-text-sub mb-1">Buscar Miembro de Staff (Username / Mail)</label>
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.assign.searchLabel')}</label>
                                 <div className="relative">
                                     <Search className="absolute left-4 top-[14px] text-text-muted" size={18} />
-                                    <input type="text" value={searchQuery} onChange={(e) => searchStaff(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl pl-12 pr-4 py-3 text-text-main outline-none focus:border-brand-primary" placeholder="Buscar..." />
+                                    <input type="text" value={searchQuery} onChange={(e) => searchStaff(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl pl-12 pr-4 py-3 text-text-main outline-none focus:border-brand-primary" placeholder={t('common.search')} />
                                 </div>
-                                {searching ? <p className="text-xs text-brand-primary mt-2 font-bold flex items-center gap-1"><Loader2 className="animate-spin" size={12} /> Buscando...</p> : null}
+                                {searching ? <p className="text-xs text-brand-primary mt-2 font-bold flex items-center gap-1"><Loader2 className="animate-spin" size={12} /> {t('adminQRs.modals.assign.searching')}</p> : null}
                                 {searchResults.length > 0 && !selectedWorker && (
                                     <div className="mt-2 bg-bg-pop border border-border-theme rounded-xl overflow-hidden divide-y divide-border-theme max-h-48 overflow-y-auto">
                                         {searchResults.map(w => (
@@ -465,16 +467,16 @@ export default function AdminQRs() {
                             {selectedWorker && (
                                 <>
                                     <div>
-                                        <label className="block text-sm font-bold text-text-sub mb-1">Seleccionar Código de Evento</label>
+                                        <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.assign.selectCode')}</label>
                                         <select value={selectedEventCode} onChange={(e) => setSelectedEventCode(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main outline-none focus:ring-2 focus:ring-[#10b981]">
-                                            <option value="">Selecciona un código activo...</option>
+                                            <option value="">{t('adminQRs.modals.assign.selectPlaceholder')}</option>
                                             {codes.filter(c => c.is_active).map(c => (
                                                 <option key={c.id} value={c.id}>{c.code} ({c.points} FC)</option>
                                             ))}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-text-sub mb-1">Expira en (días) (Opcional)</label>
+                                        <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.expiryLabel')}</label>
                                         <input type="number" value={assignmentExpiry} onChange={(e) => setAssignmentExpiry(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main outline-none focus:ring-2 focus:ring-[#10b981]" placeholder="Ej: 1 (Recomendado)" />
                                     </div>
                                 </>
@@ -483,7 +485,7 @@ export default function AdminQRs() {
                         <div className="p-4 border-t border-border-theme bg-bg-pop">
                             <button onClick={handleCreateAssignment} disabled={!selectedWorker || !selectedEventCode || loading} className="w-full py-3 rounded-xl font-bold bg-[#10b981] hover:bg-[#059669] text-white flex items-center justify-center gap-2 transition disabled:opacity-50">
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : <UserPlus size={20} />}
-                                Confirmar Asignación
+                                {t('adminQRs.modals.assign.confirm')}
                             </button>
                         </div>
                     </div>
@@ -496,7 +498,7 @@ export default function AdminQRs() {
                     <div className="bg-bg-side w-full max-w-lg shadow-2xl rounded-2xl border border-border-theme relative flex flex-col max-h-[90vh]">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-border-theme bg-bg-pop rounded-t-2xl">
                             <div>
-                                <h2 className="text-xl font-black text-text-main">Historial de Canjes</h2>
+                                <h2 className="text-xl font-black text-text-main">{t('adminQRs.modals.redemptions.title')}</h2>
                                 <p className="text-sm font-bold text-brand-primary break-all">{currentQrView}</p>
                             </div>
                             <button onClick={() => setShowRedemptionsModal(false)} className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-bg-side transition">
@@ -507,11 +509,11 @@ export default function AdminQRs() {
                             {loadingRedemptions ? (
                                 <div className="p-10 text-center text-text-muted flex flex-col items-center">
                                     <Loader2 className="animate-spin mb-3 text-brand-primary" size={32} />
-                                    <p className="font-bold">Cargando transacciones...</p>
+                                    <p className="font-bold">{t('adminQRs.modals.redemptions.loading')}</p>
                                 </div>
                             ) : redemptionsList.length === 0 ? (
                                 <div className="p-10 text-center text-text-muted">
-                                    <p className="font-bold">Nadie ha canjeado este código aún.</p>
+                                    <p className="font-bold">{t('adminQRs.modals.redemptions.empty')}</p>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-border-theme">
@@ -521,7 +523,7 @@ export default function AdminQRs() {
                                                 <p className="font-black text-text-main">@{item.username || 'Usuario'}</p>
                                                 <p className="text-xs text-text-muted font-bold">{new Date(item.redeemed_at).toLocaleString()}</p>
                                             </div>
-                                            <span className="text-xs font-black text-accent-green bg-accent-green/10 px-2 py-1 rounded-md">Reclamado</span>
+                                            <span className="text-xs font-black text-accent-green bg-accent-green/10 px-2 py-1 rounded-md">{t('adminQRs.modals.redemptions.status')}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -549,7 +551,7 @@ export default function AdminQRs() {
                         </div>
 
                         <p className="text-center text-sm font-bold text-gray-500">
-                            {currentQrType === 'EVENT' ? 'Los usuarios pueden escanear esto con su cámara en la app.' : 'Código de trabajador seguro para asignar desde Scanner.'}
+                            {currentQrType === 'EVENT' ? t('adminQRs.modals.view.eventHint') : t('adminQRs.modals.view.assignHint')}
                         </p>
                     </div>
                 </div>

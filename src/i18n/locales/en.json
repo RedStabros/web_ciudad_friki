@@ -5,7 +5,9 @@
         "surveys": "Polls",
         "trivias": "Trivia",
         "profile": "Profile",
-        "play": "Play"
+        "play": "Play",
+        "notifications": "Notifications",
+        "adminPanel": "Admin Panel"
     },
     "splash": {
         "wait": "Loading..."
@@ -17,14 +19,26 @@
         "cancel": "Cancel",
         "confirm": "Confirm",
         "save": "Save",
+        "edit": "Edit",
+        "edited": "Edited",
+        "delete": "Delete",
+        "replies": "Replies",
+        "share": "Share",
+        "viewResults": "View Results",
+        "createDuel": "Create Duel",
+        "errorLoading": "Error loading legal document.",
         "create": "Create",
         "loading": "Loading...",
         "copied": "Copied",
         "copy": "Copy",
         "change": "Change",
+        "refresh": "Refresh Data",
         "required": "Required",
         "share": "Share",
         "search": "Search...",
+        "totalHistorial": "Total History",
+        "noUsername": "No Username",
+        "you": "You",
         "noResults": "No results found",
         "active": "Active",
         "close": "Close",
@@ -43,10 +57,27 @@
         "retry": "Retry",
         "trends": "Trends",
         "tbd": "TBD",
+        "active": "active",
         "community": "Community",
         "past": "Past",
         "interested": "Interested",
-        "publish": "Publish"
+        "publish": "Publish",
+        "loginRequired": "You must sign in to perform this action",
+        "noLimit": "No limit",
+        "member": "Member",
+        "report": "Report",
+        "update": "Update",
+        "send": "Send",
+        "back": "Back",
+        "preview": "Preview",
+        "edit": "Edit",
+        "delete": "Delete",
+        "errorHighlight": "Please fill in the required fields (*).",
+        "openPanel": "Open Panel",
+        "viewPanel": "View Panel",
+        "hide": "Hide",
+        "enable": "Enable",
+        "new": "New"
     },
     "auth": {
         "welcome": "Welcome to Ciudad Friki",
@@ -99,7 +130,7 @@
         "invalidEmail": "Invalid email",
         "checkEmail": "Check your email to verify your account",
         "signUpSuccessTitle": "Check your Email",
-        "signUpSuccessMessage": "We've sent a confirmation link to your email. Please activate it to log in.",
+        "signUpSuccessMessage": "We've sent a confirmation link to your email. Please activate it to sign in.",
         "userExistsTitle": "Account Exists",
         "userExistsMessage": "An account is already registered with this email. Please sign in.",
         "signInError": "Error signing in",
@@ -107,8 +138,30 @@
         "agreeTo": "By continuing, you agree to our",
         "terms": "Terms & Conditions",
         "privacy": "Privacy Policy",
-        "and": "and"
+        "and": "and",
+        "changePassword": "Change Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "passwordChangedSuccess": "Password changed successfully!",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "fillAllFields": "Please complete all fields correctly."
     },
+    "admin": {
+        "sidebar": {
+            "title": "Admin Panel",
+            "restricted": "RESTRICTED ACCESS",
+            "roles": "Role Management",
+            "events": "Event Moderation",
+            "surveys": "Survey Panel",
+            "trivias": "Trivia Panel",
+            "qrs": "QR Events",
+            "tavern": "Tavern Panel",
+            "tools": "Admin Tools",
+            "frikimart": "FrikiMart Panel",
+            "gm": "GM Panel"
+        }
+    },
+
     "dashboard": {
         "welcome": "Welcome,",
         "logout": "Logout",
@@ -121,7 +174,458 @@
             "interests": "Interests"
         },
         "pastEvents": "View past events",
-        "eventsTab": "Events"
+        "eventsTab": "Events",
+        "activityWall": "Activity Wall",
+        "live": "Live",
+        "totalInteractions": "Total Interactions",
+        "trending": "Trending",
+        "rankingVS": "Friki VS Ranking",
+        "comingSoon": "Coming Soon",
+        "activeSurveys": "Active Polls",
+        "availableTrivias": "Available Trivias",
+        "communityLatest": "Latest from the community",
+        "noRecentActivity": "No recent activity yet.",
+        "wonDuel": "won a VS duel",
+        "completedTrivia": "completed a trivia",
+        "likedEvent": "liked an event",
+        "interactions": "Friki Works",
+        "emptyEventsInterests": "We couldn't find events that match your specific interests yet."
+    },
+
+    "home": {
+        "recentActivity": "Recent Activity"
+    },
+    "events": {
+        "title": "Events",
+        "noDate": "TBD",
+        "sponsored": "Sponsored",
+        "interested": "Interested",
+        "save": "Save event",
+        "share": "Share event"
+    },
+    "adminRoles": {
+        "title": "Role Management",
+        "subtitle": "Assign or revoke administrative permissions",
+        "searchPlaceholder": "Search by @username or email...",
+        "profileHeader": "Profile",
+        "emailHeader": "Contact Email",
+        "permissionsHeader": "Permissions",
+        "rangeSelectorHeader": "Rank Selector",
+        "indexing": "Indexing files...",
+        "to": "TO:",
+        "noMatches": "No matches",
+        "noMatchesHint": "Enter the exact username or parts of the email.",
+        "searchButton": "Search",
+        "powerTitle": "Power Classification ⚔️",
+        "workersTitle": "Workers",
+        "workersDesc": "Use of base tools (read and dispatch QRs) and Frikimart physical store control.",
+        "techniciansTitle": "Technicians",
+        "techniciansDesc": "Partial moderation. Same functions as worker, plus access to the panel in some areas.",
+        "adminsTitle": "Admins",
+        "adminsDesc": "Master systems control. (Only you, as SuperAdmin, can grant or revoke this role in the list).",
+        "roleLabels": {
+            "user": "User",
+            "worker": "Worker",
+            "tecnico": "Technician",
+            "admin": "Admin"
+        },
+        "errors": {
+            "search": "Error searching for users",
+            "update": "Error updating the role",
+            "superAdminProtect": "You cannot change the role of the Master Super Administrator.",
+            "confirmUpdate": "Are you sure you want to change the role to {{role}}?"
+        }
+    },
+    "adminQRs": {
+        "title": "QR Event Management",
+        "subtitle": "Generation of reward codes (FC)",
+        "createCode": "Create Code",
+        "assignCode": "Assign Code",
+        "stats": {
+            "totalCodes": "Codes Created",
+            "activeCodes": "Active Codes",
+            "staffAssignments": "Staff Assignments"
+        },
+        "tabs": {
+            "global": "Global QR Codes",
+            "staff": "Staff Assignments"
+        },
+        "errors": {
+            "invalidPoints": "Please enter a valid points number greater than 0",
+            "saveError": "Error saving: {{message}}",
+            "deleteConfirm": "Are you sure you want to delete this code? History will be lost.",
+            "loadRedemptionsError": "Error loading redemptions",
+            "selectionRequired": "Select a worker and a QR code first.",
+            "deactivateConfirm": "Deactivate this assignment?"
+        },
+        "empty": {
+            "noCodes": "No codes generated",
+            "noCodesHint": "Add scannable rewards by creating event QRs.",
+            "noAssignments": "No assignments",
+            "noAssignmentsHint": "Transfer QR codes temporarily to your Staff."
+        },
+        "card": {
+            "active": "Active",
+            "inactive": "Inactive",
+            "active_v": "Valid",
+            "inactive_v": "Inactive",
+            "redemptions": "{{current}} / {{max}} Redemptions",
+            "expires": "Expires: {{date}}",
+            "viewQr": "View QR",
+            "revoke": "Revoke"
+        },
+        "modals": {
+            "create": {
+                "title": "Create QR Code",
+                "editTitle": "Edit QR Code",
+                "nameLabel": "Code Name",
+                "nameHint": "EVENT: prefix is added automatically.",
+                "pointsLabel": "Reward points (Frikicoins) *",
+                "maxUsesLabel": "Global max use (Optional)",
+                "expiryLabel": "Expires in (days) (Optional)",
+                "saveChanges": "Save Changes",
+                "generate": "Generate QR"
+            },
+            "assign": {
+                "title": "Assign QR to Staff",
+                "searchLabel": "Search Staff Member (Username / Email)",
+                "searching": "Searching...",
+                "selectCode": "Select Event Code",
+                "selectPlaceholder": "Select an active code...",
+                "confirm": "Confirm Assignment"
+            },
+            "redemptions": {
+                "title": "Redemption History",
+                "loading": "Loading transactions...",
+                "empty": "No one has redeemed this code yet.",
+                "status": "Claimed"
+            },
+            "view": {
+                "eventHint": "Users can scan this with their camera in the app.",
+                "assignHint": "Secure worker code to assign from Scanner."
+            }
+        }
+    },
+    "adminTrivias": {
+        "title": "Trivia Panel",
+        "subtitle": "Timed challenges for the community",
+        "createTrivia": "Create Trivia",
+        "stats": {
+            "totalCreated": "Total Created",
+            "active": "In Progress",
+            "paused": "Paused",
+            "drafts": "Drafts",
+            "globalAttempts": "Global Attempts"
+        },
+        "tabs": {
+            "all": "All",
+            "enCurso": "Ongoing",
+            "borrador": "Draft",
+            "pausada": "Paused",
+            "cerrada": "Closed"
+        },
+        "status": {
+            "enCurso": "In progress",
+            "borrador": "Draft",
+            "pausada": "Paused",
+            "caducada": "Expired",
+            "cancelada": "Cancelled",
+            "cerrada": "Closed"
+        },
+        "errors": {
+            "loadError": "Error loading trivias",
+            "statusChangeError": "Error changing status: {{message}}",
+            "cancelConfirm": "Cancel this trivia? No more attempts will be allowed."
+        },
+        "empty": {
+            "noTrivia": "Your first challenge",
+            "noTriviaHint": "Create a timed trivia for the community to compete.",
+            "createFirst": "Create New",
+            "noResults": "No trivias with this filter."
+        },
+        "card": {
+            "attempts": "{{count}} Attempts",
+            "basePoints": "{{count}} Base Pts",
+            "pause": "Pause",
+            "resume": "Resume",
+            "publish": "Publish",
+            "cancel": "Cancel",
+            "edit": "Edit",
+            "viewAnalytics": "View Analytics"
+        },
+        "analytics": {
+            "title": "Trivia Analytics",
+            "loading": "Loading analytics...",
+            "players": "Players",
+            "coinsDistributed": "FC Distributed",
+            "averageScore": "Average Score",
+            "participantsList": "Participants List",
+            "attemptsCount": "{{count}} attempts",
+            "noActivity": "No activity yet."
+        }
+    },
+    "adminSurveys": {
+        "title": "Survey Panel",
+        "subtitle": "Research and feedback with rewards",
+        "createSurvey": "Create Survey",
+        "stats": {
+            "totalCreated": "Total Created",
+            "active": "Active",
+            "paused": "Paused",
+            "drafts": "Drafts",
+            "globalResponses": "Global Responses"
+        },
+        "tabs": {
+            "all": "All",
+            "activa": "Active",
+            "borrador": "Draft",
+            "programada": "Scheduled",
+            "pausada": "Paused",
+            "caducada": "Expired",
+            "cancelada": "Cancelled"
+        },
+        "status": {
+            "activa": "Active",
+            "borrador": "Draft",
+            "programada": "Scheduled",
+            "pausada": "Paused",
+            "caducada": "Expired",
+            "cancelada": "Cancelled"
+        },
+        "errors": {
+            "loadError": "Error loading surveys",
+            "loadQuestionsError": "Error loading survey questions",
+            "statusChangeError": "Error changing status: {{message}}",
+            "cancelConfirm": "Cancel this survey prematurely? No more responses will be allowed."
+        },
+        "empty": {
+            "noSurvey": "Your first questionnaire",
+            "noSurveyHint": "Create a rewarded survey to interact with citizens.",
+            "createFirst": "Create New",
+            "noResults": "Oops, no results for this filter."
+        },
+        "card": {
+            "responses": "{{count}} Resp.",
+            "pause": "Pause",
+            "resume": "Resume",
+            "publish": "Publish",
+            "cancel": "Cancel",
+            "edit": "Edit",
+            "viewResults": "View Results"
+        },
+        "statusLabels": {
+            "active": "Active",
+            "draft": "Drafts",
+            "paused": "Paused",
+            "finished": "Finished"
+        },
+        "analytics": {
+            "title": "Survey Results",
+            "statsTab": "General Statistics",
+            "responsesTab": "Individual Responses",
+            "backToList": "Back to list",
+            "anonymous": "Anonymous",
+            "noAnswer": "No answer",
+            "totalResponses": "Total Responses",
+            "questions": "Questions",
+            "questionPrefix": "Question",
+            "averageRating": "Average Rating",
+            "latestResponses": "Latest responses:",
+            "noResponses": "No responses yet.",
+            "loading": "Loading data...",
+            "exportHint": "Export CSV"
+        }
+    },
+    "adminGM": {
+        "title": "GM Panel",
+        "subtitle": "Exclusive controls for Superadmin",
+        "accessDenied": "Access Denied",
+        "accessDeniedHint": "Only the GM can access these master controls.",
+        "saving": "Saving...",
+        "errors": {
+            "updateError": "Could not update setting: {{message}}",
+            "metricsError": "Could not load metrics.",
+            "toggleConfirm": "Are you sure you want to {{action}} this feature?\n\n{{confirmationMsg}}"
+        },
+        "controls": {
+            "tavern": {
+                "title": "The Tavern",
+                "description": "Public social forum protected by automod.",
+                "confirmMsg": "The Tavern will be hidden from the general public."
+            },
+            "vs": {
+                "title": "Trivia VS",
+                "description": "1vs1 Duel mode from the community library.",
+                "confirmMsg": "Multiplayer duels will be disabled globally."
+            },
+            "frikiMart": {
+                "title": "FrikiMart Store",
+                "visibleUsers": {
+                    "title": "Visible to Users",
+                    "description": "Store visible on common users' Dashboard.",
+                    "confirmMsg": "This will hide the FrikiMart store from end users."
+                },
+                "adminPanel": {
+                    "title": "Admin Panel",
+                    "description": "Allows Workers/Admins to see the store management tab.",
+                    "confirmMsg": "This will hide the FrikiMart administrative panel from all Admins."
+                }
+            }
+        },
+        "metrics": {
+            "title": "General Metrics",
+            "physicalSold": "Sales (Physical)",
+            "fcSpent": "FC Spent",
+            "donations": "Donations",
+            "collected": "Collected",
+            "pending": "Pending",
+            "uniqueBuyers": "Unique Buyers",
+            "avgFcPerSale": "Average FC / Sale",
+            "activeItems": "Active Items"
+        }
+    },
+    "adminFrikiMart": {
+        "title": "Admin FrikiMart",
+        "subtitle": "Inventory and order management",
+        "tabs": {
+            "orders": "Orders",
+            "inventory": "Inventory",
+            "donations": "Donations"
+        },
+        "chat": {
+            "title": "Delivery Chat",
+            "buyer": "Buyer",
+            "placeholder": "Write as the FrikiMart team...",
+            "noMessages": "No messages yet.",
+            "status": {
+                "delivered": "✅ Delivered",
+                "cancelled": "❌ Cancelled",
+                "pending": "⏳ Pending"
+            },
+            "actions": {
+                "pickup": "Pickup Point",
+                "mail": "Mail Shipping",
+                "confirmDelivered": "Confirm that the product was delivered?",
+                "confirmCancelled": "Cancel this order? FC will not be automatically refunded."
+            }
+        },
+        "orders": {
+            "status": {
+                "delivered": "Delivered",
+                "cancelled": "Cancelled",
+                "pending": "Pending"
+            },
+            "delivery": {
+                "pickup": "📍 Pickup",
+                "mail": "📬 Mail"
+            }
+        },
+        "donations": {
+            "addNew": "+ New IAP Package",
+            "confirmDelete": "Delete this package permanently?",
+            "modal": {
+                "edit": "Edit Package",
+                "new": "New IAP Package",
+                "name": "Name",
+                "sku": "Google SKU",
+                "reward": "FC Reward",
+                "price": "Price (Cents)",
+                "priceHint": "199 = $1.99",
+                "activeLabel": "Active on platform",
+                "activeHint": "Determines if users can see it."
+            }
+        },
+        "inventory": {
+            "addNew": "+ Add Item",
+            "stock": "Stock: {{count}}",
+            "statusLabel": "Status: {{status}}",
+            "modal": {
+                "edit": "Edit Item",
+                "new": "New Item",
+                "title": "Title",
+                "price": "Price (FC)",
+                "stock": "Stock",
+                "status": "Status",
+                "active": "Active",
+                "hidden": "Hidden"
+            }
+        },
+        "errors": {
+            "incompleteItem": "Complete title and price",
+            "incompletePackage": "Complete all mandatory fields"
+        }
+    },
+    "adminTavern": {
+        "title": "Admin: La Taberna",
+        "subtitle": "Moderation of reported posts and global settings",
+        "tabs": {
+            "pending": "AutoMod Queue",
+            "settings": "Global Settings"
+        },
+        "stats": {
+            "reportsCount": "{{count}} Reports",
+            "dislikesCount": "{{count}} Dislikes"
+        },
+        "itemType": {
+            "thread": "Thread",
+            "reply": "Reply"
+        },
+        "actions": {
+            "restore": "Restore Post",
+            "keepHidden": "Keep Hidden"
+        },
+        "loading": {
+            "searching": "Searching for reports...",
+            "saving": "Saving..."
+        },
+        "empty": {
+            "title": "Everything's clean and in order",
+            "description": "There are no hidden posts waiting for review by AutoMod.",
+            "refresh": "Update queue"
+        },
+        "settings": {
+            "title": "Global Preferences",
+            "tavernStatus": {
+                "label": "\"La Taberna\" Availability",
+                "description": "If you turn off this switch, the social forum La Taberna will disappear for all users. Useful for maintenance or massive community punishments."
+            }
+        },
+        "errors": {
+            "updateStatus": "Error updating La Taberna status",
+            "processReview": "Could not process: {{error}}"
+        }
+    },
+    "seo": {
+        "home": {
+            "title": "Geek Events, Anime and Video Games",
+            "description": "Discover the ultimate community for Anime, Cosplay, and Video Game lovers in Medellín and all of Colombia. Find events, challenges and more in Ciudad Friki.",
+            "keywords": "Anime, Cosplay, Video Games, Geek, Medellín, Colombia, Manga, K-Pop, Rol, Comics"
+        },
+        "surveys": {
+            "title": "Friki Polls | Your opinion counts",
+            "description": "Participate in Ciudad Friki polls. Vote for your favorite anime, games and geek culture trends and earn Frikicoins.",
+            "keywords": "Anime Polls, Geek Voting, Frikicoins, Manga Trends, Ciudad Friki"
+        },
+        "trivias": {
+            "title": "Friki Trivias | Show your knowledge",
+            "description": "Challenge your knowledge about Anime, Video Games and Geek Culture in the Ciudad Friki Trivias. Answer correctly and earn Frikicoins!",
+            "keywords": "Trivia Anime, Quiz Video Games, Geek Knowledge, Frikicoins, Mental Games"
+        },
+        "tavern": {
+            "title": "The Tavern | Geek Community",
+            "description": "Join the conversation in the Ciudad Friki Tavern. Debate forums about Anime, Video Games and Pop Culture in Medellín and Colombia.",
+            "keywords": "Geek Forum, Anime Community, Gaming Debate, Medellín Friki, The Tavern"
+        },
+        "frikimart": {
+            "title": "FrikiMart | Redeem your Frikicoins",
+            "description": "Visit the official Ciudad Friki store. Redeem your Frikicoins for exclusive items, anime figures, geek accessories and more.",
+            "keywords": "Geek Store, Prize Redemption, Frikicoins, Anime Merch, Medellín"
+        },
+        "vs": {
+            "title": "Friki VS | 1vs1 Duels",
+            "description": "Compete in real-time trivia duels. Challenge other Frikis, wager your Frikicoins and prove you know the most about Anime and Video Games.",
+            "keywords": "Geek Duels, Trivia VS, Anime Competition, Frikicoins Wager, VS Ranking"
+        }
     },
     "tavern": {
         "title": "The Tavern",
@@ -150,6 +654,10 @@
         "emptyCategory": "Be the first to start a conversation in {{category}}.",
         "loading": "Loading the tavern...",
         "loadMore": "Load more posts",
+        "closed": "The Tavern is Closed",
+        "closedSubtitle": "The Ciudad Friki Tavern is under maintenance. Please come back later.",
+        "posts": "Posts",
+        "online": "Geeks Online",
         "rules": {
             "title": "Community Rules",
             "respect": "Be respectful to other users.",
@@ -162,13 +670,17 @@
             "share": "Share",
             "edit": "Edit",
             "delete": "Delete",
+            "report": "Report",
+            "reportTitle": "Report post",
+            "reportSubtitle": "Tell us why you consider it violates the rules.",
+            "reportPlaceholder": "e.g., Spam, inappropriate content, harassment...",
+            "reportSent": "Report sent!",
+            "reportThanks": "Thanks for helping maintain the community.",
+            "author": "Author",
+            "edited": "Edited",
+            "editedByAdmin": "Edited by an admin",
             "deleteConfirm": "Are you sure you want to delete this thread?",
             "deleteError": "Could not delete the thread",
-            "edit": {
-                "title": "Edit Thread",
-                "success": "Thread updated!",
-                "error": "Error updating"
-            },
             "time": {
                 "moments": "just now",
                 "min": "{{count}} min ago",
@@ -238,7 +750,22 @@
             "fullNameRequired": "Full name is required",
             "countryRequired": "Country is required",
             "cityRequired": "City is required"
-        }
+        },
+        "steps": {
+            "identity": "Identity",
+            "location": "Location",
+            "interests": "Interests",
+            "bio": "Bio"
+        },
+        "summary": {
+            "title": "Summary",
+            "username": "Username",
+            "name": "Name",
+            "city": "City",
+            "interests": "Interests",
+            "selected": "selected"
+        },
+        "letsGo": "Let's Go!"
     },
     "profile": {
         "title": "My Profile",
@@ -247,71 +774,125 @@
         "contact": "Contact",
         "location": "Location",
         "bio": "Bio",
-        "website": "Personal Website",
+        "website": "Website",
         "interests": "Interests",
         "interestsSubtitle": "Select your favorite topics to receive recommendations:",
         "saveChanges": "Save Changes",
         "saved": "Profile updated successfully",
-        "qrLabel": "Your unique deposit code:",
+        "saveSuccess": "Profile saved successfully",
+        "saveError": "Could not save profile",
+        "qrLabel": "Your code to receive Frikicoins",
         "qrHint": "Tap to copy code",
-        "balanceLabel": "Available Frikicoins Balance:",
-        "copySuccess": "QR code copied to clipboard: {{code}}",
+        "balanceLabel": "Current Balance",
+        "copySuccess": "Code {{code}} copied to clipboard",
         "avatar": "Avatar",
         "selectAvatar": "Select your avatar",
-        "tapToChange": "Tap to change",
-        "changePassword": "Change Password",
-        "newPassword": "New Password",
-        "confirmPassword": "Confirm Password",
-        "passwordStrength": "Strength",
+        "tapToChange": "Tap the avatar to change it",
+        "shareCardTitle": "Share my profile card",
+        "passwordStrength": "Security",
         "weak": "Weak",
         "medium": "Medium",
-        "strong": "Strong",
-        "passwordRules": "Password requirements:",
+        "strong": "High",
+        "passwordRules": "The password must meet the security requirements.",
         "ruleMinLength": "Minimum 8 characters",
-        "ruleHasUppercase": "One uppercase letter",
-        "ruleHasLowercase": "One lowercase letter",
-        "ruleHasNumber": "One number",
-        "ruleHasSymbol": "One special symbol",
-        "passwordMismatch": "Passwords do not match",
-        "passwordChangeSuccess": "Password updated successfully",
-        "passwordChangeError": "Error changing password",
-        "currentPasswordWrong": "Current password is incorrect",
-        "saveSuccess": "Profile saved successfully",
-        "saveError": "Error saving profile",
+        "ruleHasUppercase": "Uppercase",
+        "ruleHasLowercase": "Lowercase",
+        "ruleHasNumber": "Numbers",
+        "ruleHasSymbol": "Symbols (!@#$)",
+        "bugReportTitle": "Report an Issue",
+        "bugReportSubtitle": "Report errors or bugs found in the app",
+        "bugReportDesc": "Describe in detail the problem, error, or unexpected behavior you encountered in the app.",
+        "bugReportPlaceholder": "What happened? How can we reproduce it?",
+        "bugReportSuccess": "Report sent. Thank you for your help.",
         "modals": {
-            "avatar": "Select your Dragon",
+            "avatar": "Select your Avatar",
             "theme": "Available Themes"
+        },
+        "interests_list": {
+            "Anime": "Anime",
+            "Manga": "Manga",
+            "Cosplay": "Cosplay",
+            "Videojuegos": "Video Games",
+            "Juegos de Mesa": "Board Games",
+            "Rol": "Roleplay",
+            "Cómics": "Comics",
+            "Tecnología": "Technology",
+            "Cine": "Cinema",
+            "Series": "TV Series",
+            "K-Pop": "K-Pop",
+            "Arte": "Art",
+            "Música": "Music",
+            "Deportes": "Sports",
+            "Teatro": "Theater",
+            "Cultura": "Culture",
+            "SoftCombat": "SoftCombat",
+            "Talleres": "Workshops",
+            "Educación": "Education",
+            "Literatura": "Literature",
+            "Geek": "Geek",
+            "Baile": "Dance"
+        },
+        "seo": {
+            "title": "Profile - Ciudad Friki",
+            "description": "Configure your Ciudad Friki profile and manage your Frikicoins."
         }
     },
-    "maintenance": {
-        "title": "Under Construction",
-        "message": "We are working to bring you the best experience. Ciudad Friki Web will be ready very soon.",
-        "scheduled": "Scheduled Maintenance",
-        "adminLogin": "Administrative Management"
-    },
-    "interests": {
-        "anime": "Anime",
-        "manga": "Manga",
-        "cosplay": "Cosplay",
-        "videoGames": "Video Games",
-        "boardGames": "Board Games",
-        "roleplay": "Roleplay",
-        "comics": "Comics",
-        "technology": "Technology",
-        "movies": "Movies",
-        "series": "TV Series",
-        "kpop": "K-Pop",
-        "art": "Art",
-        "music": "Music",
-        "sports": "Sports",
-        "theater": "Theater",
-        "culture": "Culture",
-        "softCombat": "SoftCombat",
-        "workshops": "Workshops",
-        "education": "Education",
-        "literature": "Literature",
-        "geek": "Geek",
-        "dance": "Dance"
+    "wallet": {
+        "title": "Wallet",
+        "tabs": {
+            "main": "Main",
+            "send": "Send",
+            "history": "History",
+            "scan": "Scan"
+        },
+        "balance": "Total Balance",
+        "balanceOverview": "Balance Overview",
+        "totalAvailable": "Total Available",
+        "syncing": "Syncing...",
+        "send": "Send Frikicoins",
+        "receive": "Receive",
+        "confirmTransfer": "Confirm Transfer",
+        "transactionalId": "My Transactional Identifier",
+        "recipientQr": "Recipient QR",
+        "amount": "Amount",
+        "history": "Transaction History",
+        "received": "Received",
+        "sent": "Sent",
+        "income": "Income",
+        "expense": "Expense",
+        "noActivity": "No activity yet.",
+        "infoDisclaimer": "Protect your code, Frikicoin transfers cannot be reversed.",
+        "loadError": "Error loading wallet",
+        "enterAmount": "Please enter a valid QR code and amount.",
+        "insufficientFunds": "Insufficient funds.",
+        "confirmMessage": "Are you sure you want to send {{amount}} Frikicoins to {{recipient}}?",
+        "successTransfer": "Transfer successful.",
+        "invalidQrCode": "Invalid QR code. Must start with FRIKI:, ASSIGN:, or EVENT:",
+        "shareMessage": "Send Frikicoins to @{{username}} using this code: {{code}}",
+        "records": "Records",
+        "event": {
+            "redeemSuccess": "Success! You have received {{amount}} Frikicoins.",
+            "redeemError": "Could not redeem code.",
+            "invalidCode": "Invalid event code",
+            "processing": "Processing code...",
+            "alreadyRedeemed": "You have already redeemed this code",
+            "expired": "This code has expired"
+        },
+        "scanFromCamera": "Scan with Camera",
+        "scanFromGallery": "Scan from Gallery",
+        "selectQrImage": "Select an image with QR code",
+        "noQrFound": "No QR code found in the image",
+        "selfTransfer": "Cannot transfer to yourself",
+        "recentTransactions": "Recent Transactions",
+        "noTransactions": "No recent transactions",
+        "bonus": "Bonus",
+        "surveyReward": "Survey Reward",
+        "from": "From",
+        "to": "To",
+        "enterQr": "Enter or scan code",
+        "reward": "Reward",
+        "cameraPermissionRequired": "Camera permission required for scanning",
+        "cameraPermissionDenied": "Camera permission denied"
     },
     "settings": {
         "title": "Options",
@@ -322,7 +903,8 @@
         "appearance": "Theme",
         "theme": {
             "selectTheme": "Select Theme",
-            "current": "Current theme"
+            "current": "Current theme",
+            "base": "Base: {{color}}"
         },
         "account": "Account",
         "myProfile": "My Profile",
@@ -336,7 +918,7 @@
         "fiestaFriki": "Fiesta Friki",
         "logout": "Logout",
         "confirmLogout": "Are you sure you want to logout?",
-        "adminTools": "Admin Tools",
+        "adminTools": "Administrative Tools",
         "onlineUsers": "Online Users",
         "totalAccounts": "Total Accounts",
         "circulationSupply": "Circulation (Users)",
@@ -348,7 +930,27 @@
         "pastSurveysTitle": "Past Surveys",
         "transactionsTotal": "Transactions (Total)",
         "transactionsMonth": "Transactions (30d)",
-        "topUsers": "Top 5 Users",
+        "topUsers": "Top 5 Wealthiest (Whales)",
+        "topUsersDesc": "Users with the highest Frikicoins balance on the platform.",
+        "analyzingSystem": "Analyzing core systems...",
+        "healthMetrics": "Ciudad Friki health metrics",
+        "monetaryMass": "Monetary Mass (₣)",
+        "circulationSupplyDesc": "Frikicoins in public circulation",
+        "realTimePresence": "Real-time presence",
+        "surveysStatus": "Surveys Status",
+        "transactionsLog": "Transactions Log",
+        "rank": "Rank",
+        "user": "User",
+        "totalBalance": "Total Balance",
+        "power": "Power",
+        "noWhales": "No whale data available.",
+        "trackingSignals": "Tracking signals...",
+        "connectedAt": "Connected at {{time}}",
+        "growingActively": "Growing actively",
+        "shareImage": "Share Image",
+        "whalesTitle": "Whales Top 5 | Ciudad Friki",
+        "whalesText": "🏆 These are the 5 largest fortunes of Ciudad Friki right now!",
+        "whalesFilename": "top-wealth-ciudad-friki.png",
         "pastSurveysHistory": "Past Surveys History",
         "versionHistory": "Version History",
         "currentVersion": "Current Version",
@@ -359,14 +961,26 @@
         "notifications": "Notifications",
         "admin": {
             "maintenanceMode": "Maintenance Mode",
-            "active": "ACTIVE (Lockdown)",
-            "inactive": "DEACTIVATED",
-            "maintenanceChanged": "Maintenance mode {{status}}"
+            "active": "Active",
+            "inactive": "Inactive",
+            "maintenanceChanged": "Maintenance changed to {{status}}",
+            "userReports": "User Reports",
+            "bugManagement": "Bug Management",
+            "storeWeb": "FrikiMart on Web",
+            "storeWebStatusOn": "🟢 Visible on web",
+            "storeWebStatusOff": "🔴 Hidden on web (app only)",
+            "storeAdmin": "FrikiMart Admin",
+            "storeAdminDesc": "Orders and inventory management"
         }
     },
     "notifications": {
         "title": "Notifications",
-        "empty": "You have no notifications",
+        "subtitle": "Keep up to date with what's happening at Ciudad Friki.",
+        "scanning": "Scanning...",
+        "new": "New",
+        "emptyTitle": "Radio silence",
+        "emptyDesc": "No notifications yet, adventurer.",
+        "emptyMessage": "No notifications yet, adventurer.",
         "markAllRead": "Mark all as read",
         "deleteAll": "Delete all",
         "confirmDeleteAllTitle": "Delete all notifications",
@@ -411,58 +1025,6 @@
         "fiestaFrikiTitle": "Fiesta Friki",
         "fiestaFrikiContent": "What does friki mean?\nThe term \"friki\" is an adaptation of the English \"freaky\" and is used to describe people whose interests and tastes are often classified as unusual, extravagant or out of the ordinary. In Spanish-speaking countries, it is also used with the meaning of \"fanatic\" in certain contexts.\nColloquially, the term \"friki\" refers to those people who present unconventional behaviors or lifestyles and who enjoy hobbies that require imagination, creativity and artistic expression. Within these activities are role-playing games, animation, comics, manga, modeling, origami, board games, theater, dance, music and some alternative sports, among others.\n\nFiesta Friki:\nFiesta Friki is one of the most emblematic events of geek and alternative culture in our country, with a trajectory that exceeds fourteen years of uninterrupted realization, this celebration has been consolidated as a platform for massive, creative and diverse encounters, annually bringing together thousands of people around emerging cultural practices, independent artistic expressions and collective experiences that reflect the dynamism of the geek, otaku and alternative communities of the region.\n\nThis free and open access event transforms public space for four consecutive days, proposing a cultural ecosystem that articulates entertainment, art, training and geek entrepreneurship.\n\nFiesta Friki thus becomes an event where cosplay scenarios, dance, concerts, workshops, entrepreneurship fairs, video game tournaments, role-playing games, genre literature, performance, illustration and multiple disciplines that configure the contemporary nerdy universe converge.\n\nEvery year, it invites to explore the symbolic, aesthetic and emotional relationship that geek communities have built with real, fantastic or anthropomorphized animals. From pokémon to nekomimi, from the guardian animals of science fiction to the mythical creatures of epic fantasy, this thematically oriented edition proposes an affective reading of the geek world, addressing topics such as animal protection, the human-animal bond in pop narratives, and the visual representation of creatures in manga, comics, cinema, music and video games.\n\nThe event maintains its already characteristic carousel-type format, in which attendees can move between exhibition, creation, training, socialization and competition zones, in an immersive and continuous experience, this format allows participation in drawing contests, cosplay parades (including categories for cosplayers with pets), academic sessions, recreational activities for children, audiovisual projections, musical shows, k-pop and spaces for the circulation of creative products from geek entrepreneurs.\n\nThrough articulation with social networks, digital platforms and community media, Fiesta Friki also amplifies its reach through live broadcasts, interviews, narrative capsules and coverage of tournaments and awards, this digital strategy guarantees the participation of audiences that cannot attend in person, generating a hybrid dimension that strengthens the appropriation and permanence of the event in the collective imagination.\n\nFar from being just an entertainment showcase, Fiesta Friki acts as a node for visibility and circulation of knowledge, affections, talents and ways of life that have traditionally been marginalized or made invisible within the dominant cultural spectrum, at the same time, it serves as a celebration of the continuous work of an organizational fabric committed to the integral development of its members, community building and the consolidation of an alternative, solidarity and sustainable cultural economy.\n\nFiesta Friki is not just an event, but a vital experience, a contemporary ritual and a shared celebration of the possible worlds dreamed by girls, boys, adolescents, young people and adults who find in geek culture a space for expression, belonging and transformation."
     },
-    "wallet": {
-        "title": "Wallet",
-        "balance": "Total Balance",
-        "send": "Send",
-        "receive": "Receive",
-        "balanceOverview": "Total Balance",
-        "history": "History",
-        "scan": "Scan QR",
-        "scanFromCamera": "Scan with Camera",
-        "scanFromGallery": "Scan from Gallery",
-        "selectQrImage": "Select an image with QR code",
-        "noQrFound": "No QR code found in the image",
-        "invalidQrCode": "This QR code is not from a Frikicoins wallet",
-        "event": {
-            "redeemSuccess": "Code redeemed successfully! You earned {{amount}} Frikicoins.",
-            "redeemError": "Error redeeming code",
-            "invalidCode": "Invalid event code",
-            "processing": "Processing code...",
-            "alreadyRedeemed": "You have already redeemed this code",
-            "expired": "This code has expired"
-        },
-        "shareMessage": "Hi! I'm @{{username}} 👋\n\nThis is my Frikicoins deposit QR code:\n{{code}}\n\nSend me Frikicoins by scanning this code 🪙",
-        "recipientQr": "Recipient Code",
-        "amount": "Amount",
-        "confirmTransfer": "Confirm Transfer",
-        "confirmMessage": "Are you sure you want to send {{amount}} Frikicoins to this user?",
-        "successTransfer": "Transfer successful",
-        "insufficientFunds": "Insufficient funds",
-        "invalidQr": "Invalid QR code",
-        "selfTransfer": "Cannot transfer to yourself",
-        "recentTransactions": "Recent Transactions",
-        "noTransactions": "No recent transactions",
-        "sent": "Sent",
-        "received": "Received",
-        "bonus": "Bonus",
-        "surveyReward": "Survey Reward",
-        "from": "From",
-        "to": "To",
-        "enterAmount": "Enter amount",
-        "enterQr": "Enter or scan code",
-        "reward": "Reward",
-        "syncing": "Syncing with the Friki Central Bank...",
-        "totalAvailable": "Total Available",
-        "transactionalId": "Your Transactional Identity",
-        "records": "RECORDS",
-        "income": "INCOME",
-        "expense": "EXPENSE",
-        "completed": "COMPLETED",
-        "noActivity": "No recent activity",
-        "infoDisclaimer": "This wallet is for informational purposes only. For transfers, use the official Ciudad Friki mobile app.",
-        "loadError": "Error loading wallet"
-    },
     "surveys": {
         "title": "Surveys",
         "available": "Available",
@@ -491,6 +1053,9 @@
         "enterText": "Enter your answer",
         "rateFrom": "Rate from {{min}} to {{max}}",
         "charactersLeft": "{{count}} characters left",
+        "new": "NEW!",
+        "voted": "Already voted",
+        "vote": "Vote",
         "submitting": "Submitting...",
         "errorSubmitting": "Error submitting survey",
         "errorLoading": "Error loading surveys"
@@ -538,7 +1103,7 @@
         "cannotGoBack": "You won't be able to change your answers after submitting.",
         "results": {
             "title": "Trivia Completed!",
-            "correctAlert": "Correct Answer! You've earned Frikicoins.",
+            "correctAlert": "Correct! You've earned {{reward}} Frikicoins.",
             "incorrectAlert": "Oops! That wasn't the correct answer.",
             "finished": "Game over! Final score: {{score}}",
             "score": "Score",
@@ -546,7 +1111,12 @@
             "incorrect": "Incorrect",
             "reward": "Reward",
             "close": "Close",
-            "timeBonus": "Time bonus"
+            "timeBonus": "Time bonus",
+            "perfectScore": "PERFECT! You are a geek master.",
+            "goodScore": "Well done! Keep it up.",
+            "lowScore": "Good try. Try again soon!",
+            "totalQuestions": "Total questions",
+            "playAgain": "Play again"
         }
     },
     "surveyAdmin": {
@@ -717,32 +1287,6 @@
             "noAttempts": "Nobody has played this trivia yet"
         }
     },
-    "adminEvents": {
-        "title": "Event Moderation",
-        "tabs": {
-            "pending": "Pending",
-            "published": "Published",
-            "history": "History"
-        },
-        "actions": {
-            "approve": "Approve",
-            "reject": "Reject",
-            "cancel": "Cancel",
-            "confirm": "Confirm"
-        },
-        "modals": {
-            "rejectTitle": "Reject Event",
-            "reasonPlaceholder": "Reason for rejection...",
-            "approveTitle": "Approve Event",
-            "markSponsored": "Sponsored?",
-            "sponsoredInfo": "Appears at top. Max 2 active."
-        },
-        "messages": {
-            "approved": "Event approved successfully"
-        },
-        "empty": "No events found.",
-        "by": "By"
-    },
     "roleManagement": {
         "title": "Role Management",
         "assignRole": "Assign Role",
@@ -791,6 +1335,8 @@
         "deleteConfirmMessage": "Are you sure you want to delete this code and all its redemptions?"
     },
     "events": {
+        "upcomingTitle": "Upcoming Events",
+        "pastTitle": "Past Events",
         "title": "Event Title",
         "description": "Description",
         "startDate": "Start Date",
@@ -809,6 +1355,9 @@
         "create": "Create Event",
         "createTitle": "Create New Event",
         "editTitle": "Edit Event",
+        "editWarningTitle": "Event will go back to review",
+        "editWarningMessage": "Updating your event will change its status to Pending and it must be approved again by an administrator before becoming public.",
+        "updateSuccess": "Event updated! It will be pending review by admins.",
         "sections": {
             "basics": "Basic Info",
             "schedule": "Schedule",
@@ -866,6 +1415,34 @@
         "postponeWarning": "Are you sure you want to mark this event as 'Delayed'?"
     },
     "myEvents": {
+        "title": "My Events",
+        "publishedEvents": "Events you've created",
+        "savedEvents": "Events you've saved",
+        "tabPublished": "📅 My Publications",
+        "tabSaved": "🔖 Saved",
+        "loading": "Loading events...",
+        "noCreated": "You haven't created any events yet",
+        "saveLater": "Save events to view them later",
+        "createFirst": "Create your first event and it will appear here",
+        "noSaved": "You don't have any saved events",
+        "createButton": "Create Event",
+        "remove": "Remove",
+        "edit": "Edit",
+        "postpone": "Postpone",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "cancelTitle": "Cancel event?",
+        "postponeTitle": "Postpone event?",
+        "cancelWarning": "The event will be cancelled and this cannot be reversed.",
+        "postponeWarning": "The event will be postponed. You can update the new date later.",
+        "status": {
+            "approved": "Approved",
+            "pending": "Pending",
+            "rejected": "Rejected",
+            "cancelled": "Cancelled",
+            "delayed": "Postponed",
+            "finished": "Finished"
+        },
         "reminder": {
             "scheduled": "Reminder On",
             "muted": "Muted",
@@ -876,12 +1453,12 @@
         "details": "Details",
         "reviews": {
             "tab": "Reviews",
-            "share": "Share your experience",
             "title": "Reviews",
+            "share": "Write a review",
             "yourReview": "Your review",
             "writeReview": "Write a review",
             "editReview": "Edit your review",
-            "placeholder": "Tell us how it was, you can include links to photos or videos... (minimum 10 characters or media)",
+            "placeholder": "What did you think of this event?",
             "submit": "Submit",
             "update": "Update Review",
             "edit": "Edit",
@@ -890,18 +1467,20 @@
             "sending": "Sending...",
             "unavailable": "Reviews will be available once the event has ended.",
             "beFirst": "Be the first to share your opinion about this event.",
-            "thanks": "Thanks for your opinion.",
-            "wantToReview": "Want to leave a review?",
-            "waitToReview": "You'll be able to rate the event once it has finished.",
-            "loginToReview": "Sign in with your account to leave a review on this past event.",
-            "noReviews": "No reviews yet. Be the first!",
+            "thankYou": "Thanks for your opinion!",
+            "thanks": "Your opinion helps other adventurers.",
             "commentRequired": "Please write a comment.",
             "deleteConfirm": "Are you sure?",
             "deleteTitle": "Delete review",
             "deleteError": "Could not delete.",
             "saveError": "Could not save your review.",
             "moderationError": "Your comment contains inappropriate language. Please be respectful.",
-            "alreadySubmitted": "You've already submitted a review for this event."
+            "alreadySubmitted": "You have already rated this event",
+            "wantToReview": "Want to rate this event?",
+            "waitToReview": "You can leave your review once the event has ended.",
+            "loginToReview": "Log in to rate this event",
+            "noReviews": "No reviews yet. Be the first to rate!",
+            "rating": "Rating"
         }
     },
     "staffCenter": {
@@ -963,7 +1542,236 @@
         "markInProgress": "Mark In Progress",
         "markResolved": "Resolve"
     },
+    "triviaVS": {
+        "title": "Friki VS",
+        "subtitle": "Challenge the community. Wager Frikicoins. Show who knows more.",
+        "muralTitle": "What are you an Expert In?",
+        "muralSubtitle": "Choose a category to challenge the world",
+        "collaborate": "Collaborate",
+        "leaderboard": {
+            "title": "TOP Friki VS",
+            "fullTitle": "TOP VS WINNERS",
+            "empty": "No legends yet",
+            "emptyHint": "Be the first to dominate the VS ranking."
+        },
+        "wins": "Wins",
+        "unknownCategory": "Unknown category",
+        "waiting": "Waiting for opponent",
+        "joinDuelTitle": "Accept Challenge",
+        "joinDuelMessage": "Do you want to accept this duel for {{amount}} FC? The winner takes it all.",
+        "createDuel": "Create Duel",
+        "selectCategory": "Choose a category",
+        "questionCount": "Number of Questions",
+        "publicDuels": "Available",
+        "myDuels": "My Challenges",
+        "noPublicDuels": "No duels available",
+        "noPendingDuels": "You have no pending challenges",
+        "disabled": "Friki VS under maintenance",
+        "disabledHint": "VS duels are temporarily disabled. Come back soon. ⚔️",
+        "wager": {
+            "title": "Wager Amount",
+            "subtitle": "How many Frikicoins are you wagering on {{category}}?",
+            "customLabel": "Custom amount:",
+            "confirm": "Confirm Duel",
+            "insufficient": "Insufficient balance to create this duel."
+        },
+        "gameplay": {
+            "loadError": "Error starting duel",
+            "saveError": "Could not save result"
+        },
+        "result": {
+            "won": "You Won!",
+            "lost": "Defeat",
+            "tie": "It's a Tie!",
+            "waiting": "Waiting for opponent...",
+            "yourScore": "Your score",
+            "opponent": "Opponent"
+        },
+        "viewAll": "View All"
+    },
+    "crowdsourcing": {
+        "title": "Collaborate",
+        "info": "Help us grow the community. If your question is original and correct, you'll earn +5 Frikicoins.",
+        "category": "Category",
+        "question": "The Question",
+        "questionPlaceholder": "Ex: Who is the author of Berserk?",
+        "options": "Options (Tap the circle to mark the correct one)",
+        "optionLabel": "Option",
+        "submit": "SUBMIT FOR REVIEW",
+        "submitting": "Submitting...",
+        "success": "Submitted!",
+        "successDetail": "Your question has been sent for review. You'll receive 5 Frikicoins if it's approved.",
+        "errors": {
+            "incomplete": "Please complete the question and select a category",
+            "emptyOptions": "All options must have text",
+            "questionTooLong": "Question cannot exceed 250 characters.",
+            "optionTooLong": "Options cannot exceed 80 characters.",
+            "loadError": "Could not submit the question"
+        }
+    },
+    "share": {
+        "tavern": {
+            "title": "Ciudad Friki Tavern",
+            "captureHeader": "THE TAVERN - CIUDAD FRIKI",
+            "quoteHeader": "CIUDAD FRIKI QUOTES",
+            "joinConversation": "Join the conversation at the Tavern! 🤓",
+            "joinDebate": "Join the debate at the Tavern! 🤓",
+            "readFullThread": "Read the full thread here:",
+            "readFullResponse": "Read the full response on Ciudad Friki 🤓",
+            "userResponded": "{{author}} replied in \"{{title}}\":",
+            "responseBy": "Reply from {{author}}",
+            "someone": "Someone"
+        },
+        "events": {
+            "ticketHeader": "OFFICIAL CIUDAD FRIKI PASS",
+            "dontMiss": "Don't miss this event at Ciudad Friki!",
+            "checkApp": "Check app",
+            "getInfo": "Get all your info here! 👇",
+            "watchOn": "Check it out on Ciudad Friki! 🤓",
+            "atTime": " at {{time}}"
+        },
+    "vs": {
+            "leaderboardTitle": "Friki VS Leaders | Ciudad Friki",
+            "leaderboardText": "⚔️ This is the Top 10 of the most powerful warriors in Friki VS! Do you dare to challenge them?",
+            "tieTitle": "Tie in Friki VS!",
+            "victoryTitle": "Victory in Friki VS!",
+            "defeatTitle": "Duel finished in Friki VS",
+            "tieText": "⚔️ I just finished a duel in Friki VS! It's been an epic tie!",
+            "victoryText": "⚔️ I just finished a duel in Friki VS! I emerged victorious!",
+            "defeatText": "⚔️ I just finished a duel in Friki VS! Good duel!"
+        },
+        "profile": {
+            "title": "My Friki Identity",
+            "text": "🎮 This is my official Ciudad Friki card! Rank: {{role}}. Got yours yet?",
+            "captureHeader": "FRIKI IDENTITY",
+            "member": "Member"
+        }
+    },
+    "media": {
+        "video": "Video",
+        "youtube": "YouTube",
+        "tiktok": "TikTok",
+        "facebookReel": "Facebook Reel",
+        "attachment": "attachment"
+    },
     "footer": {
         "tagline": "Explore • Play • Connect"
+    },
+    "legal": {
+        "privacyTitle": "Privacy Policy",
+        "termsTitle": "Terms & Conditions",
+        "description": "Legal documents, terms of use and privacy policies of the Ciudad Friki platform."
+    },
+    "frikimart": {
+        "title": "FrikiMart",
+        "subtitle": "Redeem your Frikicoins",
+        "balance": "Your balance",
+        "loading": "Loading FrikiMart...",
+        "closed": "Store Closed",
+        "closedSubtitle": "FrikiMart is temporarily unavailable. Our team is working on new rewards. 🐉",
+        "returnHome": "Back to home",
+        "tabs": {
+            "items": "Items",
+            "orders": "My Orders",
+            "donations": "Donations"
+        },
+        "chat": {
+            "title": "Delivery Chat",
+            "empty": "No messages yet. The FrikiMart team will contact you soon.",
+            "placeholder": "Type a message...",
+            "confirmReceived": "Do you confirm you received your item?",
+            "received": "Received",
+            "confirmButton": "Confirm receipt ✅",
+            "status": {
+                "delivered": "Delivered",
+                "cancelled": "Cancelled",
+                "pending": "Pending delivery"
+            }
+        },
+        "items": {
+            "empty": "No items available right now.",
+            "lastUnit": "Last unit!",
+            "fewUnits": "{{count}} units left",
+            "available": "{{count}} available",
+            "buy": "Buy",
+            "noFC": "No FC",
+            "buyConfirm": "Buy \"{{title}}\" for {{price}} FC?\n\n⚠️ Frikicoin purchases are non-refundable.",
+            "insufficientFC": "You need {{required}} FC.\nYou have {{balance}} FC.",
+            "purchaseSuccess": "Purchase successful!",
+            "adminContact": "An administrator will contact you to coordinate delivery.",
+            "viewOrders": "View my orders"
+        },
+        "orders": {
+            "empty": "You have no purchases yet.",
+            "status": {
+                "delivered": "Delivered",
+                "cancelled": "Cancelled",
+                "pending": "Pending"
+            }
+        },
+        "donations": {
+            "comingSoon": "Donations — Coming soon on web",
+            "availability": "Real money donations are available on the Ciudad Friki mobile app via Google Play. You can see available packages here. To donate, download the app.",
+            "empty": "No active donation packages.",
+            "onlyInApp": "App Only 📱"
+        },
+        "errors": {
+            "noFC": "You don't have enough Frikicoins.",
+            "outOfStock": "Item out of stock.",
+            "generic": "An error occurred. Try again."
+        }
+    },
+    "adminEvents": {
+        "title": "Event Moderation",
+        "subtitle": "Manage approvals, rejections, and featured events",
+        "tabs": {
+            "pending": "Pending",
+            "published": "Published",
+            "history": "History"
+        },
+        "card": {
+            "featured": "Featured",
+            "viewDetails": "View Details",
+            "by": "By: {{username}}",
+            "reject": "Reject",
+            "approve": "Approve",
+            "sponsor": "Sponsor",
+            "cancel": "Cancel",
+            "status": {
+                "finished": "Finished",
+                "rejected": "Rejected",
+                "cancelled": "Cancelled"
+            }
+        },
+        "modals": {
+            "reject": {
+                "title": "Reject Event",
+                "reasonLabel": "Reason for rejection",
+                "reasonPlaceholder": "Explain why this event cannot be approved...",
+                "confirm": "Confirm Rejection"
+            },
+            "approve": {
+                "title": "Approve Event",
+                "hint": "Do you want to approve the event \"{{title}}\"?",
+                "sponsorLabel": "Sponsor Event",
+                "sponsorHint": "It will appear in the App's featured slider.",
+                "confirm": "Approve Now"
+            }
+        },
+        "empty": {
+            "noEvents": "No events in this section",
+            "noEventsHint": "Come back later to check for new requests."
+        },
+        "errors": {
+            "loadError": "Error loading administration events",
+            "sponsorLimit": "Cannot approve more featured events (limit reached)",
+            "approveError": "Error approving the event",
+            "rejectionReasonRequired": "Please enter a reason for the rejection",
+            "rejectError": "Error rejecting the event",
+            "sponsorLimitSimultaneous": "Sponsored limit reached (Max 2)",
+            "sponsorError": "Error updating sponsor status",
+            "cancelConfirm": "Are you sure you want to cancel this event?",
+            "cancelError": "Error cancelling the event"
+        }
     }
 }

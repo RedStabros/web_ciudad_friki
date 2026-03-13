@@ -3,6 +3,7 @@ import {
     X, Users, Trophy, Coins,
     Loader2, BarChart3, Calendar
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { TriviaAdminService } from '../../services/TriviaAdminService';
 import { getAvatarSource } from '../../config/avatars';
@@ -31,6 +32,7 @@ export function TriviaAnalyticsModal({
     triviaId,
     triviaTitle
 }: TriviaAnalyticsModalProps) {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [attempts, setAttempts] = useState<TriviaAttempt[]>([]);
     const [stats, setStats] = useState({
@@ -69,7 +71,7 @@ export function TriviaAnalyticsModal({
                 <div className="flex items-center justify-between px-6 py-5 border-b border-border-theme bg-bg-pop">
                     <div>
                         <h2 className="text-xl font-black text-text-main flex items-center gap-2">
-                            <BarChart3 className="text-brand-primary" /> Analytics de Trivia
+                            <BarChart3 className="text-brand-primary" /> {t('adminTrivias.analytics.title')}
                         </h2>
                         <p className="text-sm text-text-muted font-bold">{triviaTitle}</p>
                     </div>
@@ -83,7 +85,7 @@ export function TriviaAnalyticsModal({
                     {loading ? (
                         <div className="h-full flex flex-col items-center justify-center space-y-4">
                             <Loader2 className="animate-spin text-brand-primary" size={40} />
-                            <p className="text-text-muted font-bold">Cargando analytics...</p>
+                            <p className="text-text-muted font-bold">{t('adminTrivias.analytics.loading')}</p>
                         </div>
                     ) : (
                         <>
@@ -94,35 +96,35 @@ export function TriviaAnalyticsModal({
                                         <Users size={20} />
                                     </div>
                                     <p className="text-xl font-black text-text-main">{stats.totalAttempts}</p>
-                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">Jugadores</p>
+                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">{t('adminTrivias.analytics.players')}</p>
                                 </div>
                                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex flex-col items-center text-center">
                                     <div className="p-2 bg-accent-green/10 rounded-lg text-accent-green mb-2">
                                         <Coins size={20} />
                                     </div>
                                     <p className="text-xl font-black text-text-main">{stats.totalCoinsDistributed}</p>
-                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">FC Distribuidos</p>
+                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">{t('adminTrivias.analytics.coinsDistributed')}</p>
                                 </div>
                                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex flex-col items-center text-center">
                                     <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500 mb-2">
                                         <Trophy size={20} />
                                     </div>
                                     <p className="text-xl font-black text-text-main">{stats.averageScore.toFixed(0)}%</p>
-                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">Score Promedio</p>
+                                    <p className="text-[10px] text-text-muted font-black uppercase tracking-wider">{t('adminTrivias.analytics.averageScore')}</p>
                                 </div>
                             </div>
 
                             {/* Participants List */}
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="font-black text-text-main uppercase tracking-tight text-sm">Lista de Participantes</h3>
-                                    <span className="text-xs text-text-muted font-bold">{attempts.length} intentos</span>
+                                    <h3 className="font-black text-text-main uppercase tracking-tight text-sm">{t('adminTrivias.analytics.participantsList')}</h3>
+                                    <span className="text-xs text-text-muted font-bold">{t('adminTrivias.analytics.attemptsCount', { count: attempts.length })}</span>
                                 </div>
 
                                 {attempts.length === 0 ? (
                                     <div className="bg-bg-pop border border-border-theme border-dashed rounded-2xl p-12 text-center">
                                         <Users className="mx-auto text-text-muted opacity-20 mb-4" size={48} />
-                                        <p className="text-text-muted font-bold">Sin actividad todavía.</p>
+                                        <p className="text-text-muted font-bold">{t('adminTrivias.analytics.noActivity')}</p>
                                     </div>
                                 ) : (
                                     <div className="space-y-3">

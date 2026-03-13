@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 /**
  * shareContent.ts
  * Centralized share logic for Ciudad Friki web.
@@ -103,7 +105,7 @@ export function buildEventShare(event: {
         locationStr,
         event.description ? event.description.substring(0, 120).trim() + (event.description.length > 120 ? '…' : '') : '',
         '',
-        `¡Míralo en ${APP_NAME}! 🤓`,
+        i18n.t('share.events.watchOn'),
     ].filter(Boolean).join('\n');
 
     return {
@@ -133,11 +135,11 @@ export function buildThreadShare(thread: {
         '',
         preview + (preview.length >= 180 ? '…' : ''),
         '',
-        `Únete a la conversación en ${APP_NAME} 🤓`,
+        i18n.t('share.tavern.joinConversation'),
     ].filter(Boolean).join('\n');
 
     return {
-        title: `${thread.title} — La Taberna de ${APP_NAME}`,
+        title: `${thread.title} — ${i18n.t('share.tavern.title')}`,
         text,
         url,
     };
@@ -153,18 +155,18 @@ export function buildReplyShare(opts: {
 }): ShareOptions {
     const url = `${WEB_ORIGIN}/tavern?thread=${opts.threadId}&reply=${opts.replyId}`;
     const preview = opts.content.replace(/<[^>]*>/g, '').substring(0, 180).trim();
-    const by = opts.author_username ? `@${opts.author_username}` : 'Alguien';
+    const by = opts.author_username ? `@${opts.author_username}` : i18n.t('share.tavern.someone');
 
     const text = [
-        `💬 ${by} respondió en "${opts.threadTitle}":`,
+        i18n.t('share.tavern.userResponded', { author: by, title: opts.threadTitle }),
         '',
         preview + (preview.length >= 180 ? '…' : ''),
         '',
-        `Lee el hilo completo en ${APP_NAME} 🤓`,
+        i18n.t('share.tavern.readFullResponse'),
     ].filter(Boolean).join('\n');
 
     return {
-        title: `Respuesta en La Taberna — ${APP_NAME}`,
+        title: `${i18n.t('share.tavern.responseBy', { author: by })} — ${APP_NAME}`,
         text,
         url,
     };

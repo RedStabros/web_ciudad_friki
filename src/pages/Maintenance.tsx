@@ -22,11 +22,11 @@ export function MaintenancePage() {
                 </div>
 
                 <h1 className="text-4xl font-extrabold text-text-main mb-4 tracking-tight font-display italic uppercase">
-                    {t('maintenance.title', 'En Construcción')}
+                    {t('maintenance.title')}
                 </h1>
 
                 <p className="text-text-sub text-lg mb-10 leading-relaxed font-black uppercase tracking-tighter opacity-70">
-                    {t('maintenance.message', 'Estamos trabajando para brindarte la mejor experiencia. Ciudad Friki Web estará lista muy pronto.')}
+                    {t('maintenance.message')}
                 </p>
 
                 <div className="space-y-6">

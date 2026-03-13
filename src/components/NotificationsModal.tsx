@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X, Bell, Check, Loader2, MessageSquare, Trophy, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { UserService, type Notification } from '../services/UserService';
 
 export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen: boolean, onClose: () => void, userId: string }) {
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -41,7 +43,7 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
                         <div className="p-2 bg-primary/10 rounded-xl text-primary">
                             <Bell size={20} />
                         </div>
-                        <h2 className="text-xl font-bold dark:text-white">Notificaciones</h2>
+                        <h2 className="text-xl font-bold dark:text-white">{t('notifications.title')}</h2>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
                         <X size={20} />
@@ -52,7 +54,7 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20 grayscale opacity-50">
                             <Loader2 className="animate-spin text-primary mb-2" />
-                            <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Escaneando señal...</p>
+                            <p className="text-sm font-bold uppercase tracking-widest text-slate-400">{t('notifications.scanning')}</p>
                         </div>
                     ) : notifications.length > 0 ? (
                         notifications.map((notif) => (
@@ -77,7 +79,7 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
                                         </p>
                                         <div className="mt-3 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
                                             <span>{new Date(notif.created_at).toLocaleString()}</span>
-                                            {!notif.is_read && <span className="text-primary flex items-center gap-1"><Check size={10} /> Nueva</span>}
+                                            {!notif.is_read && <span className="text-primary flex items-center gap-1"><Check size={10} /> {t('notifications.new')}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -86,15 +88,15 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center px-10">
                             <Bell size={48} className="mb-4" />
-                            <p className="text-lg font-black uppercase italic tracking-widest">Silencio de radio</p>
-                            <p className="mt-2 text-xs font-bold leading-relaxed">Aún no hay notificaciones para tu zona, aventurero.</p>
+                            <p className="text-lg font-black uppercase italic tracking-widest">{t('notifications.emptyTitle')}</p>
+                            <p className="mt-2 text-xs font-bold leading-relaxed">{t('notifications.emptyDesc')}</p>
                         </div>
                     )}
                 </div>
 
                 <footer className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                     <button className="w-full py-3 rounded-xl hover:bg-primary/10 text-primary font-black text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                        <Check size={14} /> Marcar todas como leídas
+                        <Check size={14} /> {t('notifications.markAllRead')}
                     </button>
                 </footer>
             </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ShieldAlert, CheckCircle2, XCircle, FileText, MessageSquare,
     Settings, Loader2, Beer, AlertTriangle
@@ -8,6 +9,7 @@ import type { PendingReviewItem } from '../../services/TavernAdminService';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminTavern() {
+    const { t } = useTranslation();
     const { user, isSuperuser } = useAuth();
 
     const [activeTab, setActiveTab] = useState<'pending' | 'settings'>('pending');
@@ -42,7 +44,7 @@ export default function AdminTavern() {
         const newVal = !tavernEnabled;
         const { error } = await TavernAdminService.toggleGlobalSetting('tavern_enabled', newVal);
         if (error) {
-            alert('Error actualizando estado de La Taberna');
+            alert(t('adminTavern.errors.updateStatus'));
         } else {
             setTavernEnabled(newVal);
         }
@@ -53,7 +55,7 @@ export default function AdminTavern() {
         setProcessingId(id);
         const { error } = await TavernAdminService.processReview(id, type, approve);
         if (error) {
-            alert('No se pudo procesar: ' + error.message);
+            alert(t('adminTavern.errors.processReview', { error: error.message }));
         } else {
             setPendingItems(prev => prev.filter(item => item.id !== id));
         }
@@ -73,8 +75,8 @@ export default function AdminTavern() {
                         <ShieldAlert size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-text-main leading-tight">Admin: La Taberna</h1>
-                        <p className="text-sm text-amber-500 font-bold">Moderación de posts reportados y ajustes globales</p>
+                        <h1 className="text-2xl font-black text-text-main leading-tight">{t('adminTavern.title')}</h1>
+                        <p className="text-sm text-amber-500 font-bold">{t('adminTavern.subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -86,7 +88,7 @@ export default function AdminTavern() {
                     className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'pending' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                         }`}
                 >
-                    <AlertTriangle size={18} /> Cola de AutoMod {pendingItems.length > 0 && `(${pendingItems.length})`}
+                    <AlertTriangle size={18} /> {t('adminTavern.tabs.pending')} {pendingItems.length > 0 && `(${pendingItems.length})`}
                 </button>
                 {isSuperuser && (
                     <button
@@ -94,7 +96,7 @@ export default function AdminTavern() {
                         className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
                             }`}
                     >
-                        <Settings size={18} /> Ajustes Globales 👑
+                        <Settings size={18} /> {t('adminTavern.tabs.settings')} 👑
                     </button>
                 )}
             </div>
@@ -105,14 +107,14 @@ export default function AdminTavern() {
                     loading ? (
                         <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                             <Loader2 className="animate-spin text-amber-500 mb-4" size={40} />
-                            <p className="font-bold">Buscando reportes...</p>
+                            <p className="font-bold">{t('adminTavern.loading.searching')}</p>
                         </div>
                     ) : pendingItems.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-text-muted text-center">
                             <CheckCircle2 className="text-accent-green mb-4 opacity-50" size={48} />
-                            <p className="font-bold text-text-main text-lg mb-1">Todo limpio y en orden</p>
-                            <p className="text-sm max-w-sm mb-4">No hay publicaciones ocultas esperando revisión por AutoMod.</p>
-                            <button onClick={loadPendingReviews} className="text-amber-500 hover:underline font-bold text-sm">Actualizar cola</button>
+                            <p className="font-bold text-text-main text-lg mb-1">{t('adminTavern.empty.title')}</p>
+                            <p className="text-sm max-w-sm mb-4">{t('adminTavern.empty.description')}</p>
+                            <button onClick={loadPendingReviews} className="text-amber-500 hover:underline font-bold text-sm">{t('adminTavern.empty.refresh')}</button>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
@@ -124,7 +126,7 @@ export default function AdminTavern() {
                                         <div className="flex items-center gap-2">
                                             <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase text-white flex items-center gap-1 ${item.type === 'thread' ? 'bg-brand-primary' : 'bg-brand-secondary'}`}>
                                                 {item.type === 'thread' ? <FileText size={10} /> : <MessageSquare size={10} />}
-                                                {item.type === 'thread' ? 'Hilo' : 'Respuesta'}
+                                                {item.type === 'thread' ? t('adminTavern.itemType.thread') : t('adminTavern.itemType.reply')}
                                             </span>
                                             <span className="text-xs text-text-muted font-bold">
                                                 @{item.profiles?.username || 'Usuario'} • {formatDate(item.created_at)}
@@ -134,10 +136,10 @@ export default function AdminTavern() {
 
                                     <div className="flex items-center gap-3 z-10 text-xs font-black">
                                         <div className="flex items-center gap-1 text-accent-red bg-accent-red/10 px-2 py-1 rounded-md border border-accent-red/20">
-                                            <AlertTriangle size={12} /> {item.report_count} Reportes
+                                            <AlertTriangle size={12} /> {t('adminTavern.stats.reportsCount', { count: item.report_count })}
                                         </div>
                                         <div className="flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20">
-                                            {item.downvotes} Dislikes
+                                            {t('adminTavern.stats.dislikesCount', { count: item.downvotes })}
                                         </div>
                                     </div>
 
@@ -154,14 +156,14 @@ export default function AdminTavern() {
                                             disabled={processingId === item.id}
                                             className="px-3 py-2 flex items-center justify-center gap-2 rounded-xl text-xs font-bold bg-accent-green/10 text-accent-green hover:bg-accent-green hover:text-white border border-accent-green/30 transition disabled:opacity-50"
                                         >
-                                            <CheckCircle2 size={16} /> Restaurar Post
+                                            <CheckCircle2 size={16} /> {t('adminTavern.actions.restore')}
                                         </button>
                                         <button
                                             onClick={() => processItem(item.id, item.type, false)}
                                             disabled={processingId === item.id}
                                             className="px-3 py-2 flex items-center justify-center gap-2 rounded-xl text-xs font-bold bg-accent-red/10 text-accent-red hover:bg-accent-red hover:text-white border border-accent-red/30 transition disabled:opacity-50"
                                         >
-                                            <XCircle size={16} /> Mantener Oculto
+                                            <XCircle size={16} /> {t('adminTavern.actions.keepHidden')}
                                         </button>
                                     </div>
                                     {processingId === item.id && (
@@ -176,7 +178,7 @@ export default function AdminTavern() {
                 ) : activeTab === 'settings' && isSuperuser ? (
                     <div className="max-w-2xl">
                         <h2 className="text-xl font-black text-text-main mb-6 flex items-center gap-2">
-                            <Settings size={20} className="text-amber-500" /> Preferencias Globales
+                            <Settings size={20} className="text-amber-500" /> {t('adminTavern.settings.title')}
                         </h2>
 
                         <div className="bg-bg-side border border-border-theme rounded-2xl p-5 flex flex-col gap-4">
@@ -186,8 +188,8 @@ export default function AdminTavern() {
                                         <Beer size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-text-main">Disponibilidad de "La Taberna"</h3>
-                                        <p className="text-sm text-text-secondary mt-1 max-w-sm">Si apagas este interruptor, el foro social de La Taberna desaparecerá para todos los usuarios. Útil por mantenimiento o castigos comunitarios masivos.</p>
+                                        <h3 className="font-bold text-text-main">{t('adminTavern.settings.tavernStatus.label')}</h3>
+                                        <p className="text-sm text-text-secondary mt-1 max-w-sm">{t('adminTavern.settings.tavernStatus.description')}</p>
                                     </div>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 mt-3">
@@ -202,7 +204,7 @@ export default function AdminTavern() {
                                     </div>
                                 </label>
                             </div>
-                            {savingSetting && <p className="text-xs text-brand-primary flex gap-1 items-center justify-end"><Loader2 className="animate-spin" size={12} /> Guardando...</p>}
+                            {savingSetting && <p className="text-xs text-brand-primary flex gap-1 items-center justify-end"><Loader2 className="animate-spin" size={12} /> {t('adminTavern.loading.saving')}</p>}
                         </div>
                     </div>
                 ) : null}

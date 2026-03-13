@@ -6,7 +6,7 @@ import type { TavernThread, TavernReply } from '../../types/tavern';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
 import ContentRenderer from './ContentRenderer';
-import { shareContent, buildThreadShare, buildReplyShare, registerCopiedCallback } from '../../utils/shareContent';
+import { shareContent, buildThreadShare, buildReplyShare } from '../../utils/shareContent';
 import { toPng } from 'html-to-image';
 
 interface ThreadDetailsModalProps {
@@ -16,7 +16,7 @@ interface ThreadDetailsModalProps {
 }
 
 export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsModalProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
 
     const [thread, setThread] = useState<TavernThread | null>(null);
@@ -27,7 +27,6 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
     const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
     const [editReplyContent, setEditReplyContent] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date());
-    const [copiedId, setCopiedId] = useState<string | null>(null); // 'thread' | replyId
     const [reportingId, setReportingId] = useState<string | null>(null); // id being reported
     const [reportReason, setReportReason] = useState('');
     const [reportSubmitting, setReportSubmitting] = useState(false);
@@ -64,7 +63,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                 flex-direction: column !important;
             }
             .tavern-quote-capture::before {
-                content: 'CITAS CIUDAD FRIKI';
+                content: '${t('share.tavern.quoteHeader')}';
                 position: absolute;
                 top: 15px;
                 right: 25px;
@@ -117,11 +116,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                 const file = new File([blob], fileName, { type: 'image/png' });
                 
                 const shareText = type === 'thread' 
-                    ? `🏰 *${thread!.title}*\n\n¡Únete al debate en La Taberna! 🤓\n\nLee el hilo completo:`
-                    : `💬 *${replyAuthor}* responde en: "${thread!.title}"\n\n"${replyContent?.substring(0, 100)}..."\n\nLee la respuesta completa en Ciudad Friki 🤓`;
+                    ? i18n.t('share.tavern.joinDebate') + '\n\n' + i18n.t('share.tavern.readFullThread')
+                    : i18n.t('share.tavern.userResponded', { author: replyAuthor, title: thread!.title }) + '\n\n"' + replyContent?.substring(0, 100) + '..."\n\n' + i18n.t('share.tavern.readFullResponse');
 
                 await shareContent({
-                    title: type === 'thread' ? thread!.title : `Respuesta de ${replyAuthor}`,
+                    title: type === 'thread' ? thread!.title : t('share.tavern.responseBy', { author: replyAuthor }),
                     text: shareText,
                     url: window.location.origin + `/tavern?thread=${thread!.id}${type === 'reply' ? `&reply=${replyId}` : ''}`,
                     file
@@ -349,7 +348,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                             }`}>
                                             <Pencil size={10} />
                                             {thread.edited_by_admin
-                                                ? t('tavern.thread.editedByAdmin', 'Editado por un administrador')
+                                                ? t('tavern.thread.editedByAdmin')
                                                 : t('tavern.thread.edited')}
                                         </div>
                                     )}
@@ -375,7 +374,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         className={`share-hide-el flex items-center gap-2 text-sm font-medium transition ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
                                     >
                                         {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
-                                        {isSharing ? t('common.sharing', 'Compartiendo...') : t('tavern.modals.details.share')}
+                                        {isSharing ? t('common.sharing') : t('tavern.modals.details.share')}
                                     </button>
                                     {/* Report thread — only for non-authors (Hidden during capture) */}
                                     {user && user.id !== thread.author_id && (
@@ -393,7 +392,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
                                                     >
                                                         <Flag size={14} />
-                                                        {t('tavern.thread.report', 'Reportar')}
+                                                        {t('tavern.thread.report')}
                                                     </button>
                                                 </div>
                                             )}
@@ -408,7 +407,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         <div className="text-center text-text-muted py-8 italic">{t('tavern.modals.details.noReplies')}</div>
                                     ) : (
                                         replies.map(reply => (
-                                            <div key={reply.id} ref={el => repliesRefs.current[reply.id] = el} className="flex gap-3 pt-4 border-t border-divider-theme">
+                                            <div key={reply.id} ref={el => { repliesRefs.current[reply.id] = el; }} className="flex gap-3 pt-4 border-t border-divider-theme">
                                                 <img
                                                     src={getAvatarSource(reply.author_avatar_url || null)}
                                                     className="h-8 w-8 rounded-full flex-shrink-0"
@@ -440,7 +439,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                                     className="px-4 py-1.5 bg-brand-primary text-text-inv text-xs font-bold rounded-lg shadow-md hover:bg-brand-primary-light transition flex items-center gap-1"
                                                                 >
                                                                     {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-                                                                    {t('common.save', 'Guardar')}
+                                                                    {t('common.save')}
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -455,7 +454,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                                     }`}>
                                                                     <Pencil size={10} />
                                                                     {reply.edited_by_admin
-                                                                        ? t('tavern.thread.editedByAdmin', 'Editado por un administrador')
+                                                                        ? t('tavern.thread.editedByAdmin')
                                                                         : t('tavern.thread.edited')}
                                                                 </div>
                                                             )}
@@ -493,7 +492,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                                                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
                                                                             >
                                                                                 <Flag size={14} />
-                                                                                {t('tavern.thread.report', 'Reportar')}
+                                                                                {t('tavern.thread.report')}
                                                                             </button>
                                                                         </div>
                                                                     )}
@@ -572,8 +571,8 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                         {reportDone ? (
                             <div className="text-center py-4">
                                 <Check size={36} className="mx-auto mb-3 text-accent-green" />
-                                <p className="font-bold text-text-main">{t('tavern.reportSent', '¡Reporte enviado!')}</p>
-                                <p className="text-xs text-text-muted mt-1">{t('tavern.reportThanks', 'Gracias por ayudar a mantener la comunidad.')}</p>
+                                <p className="font-bold text-text-main">{t('tavern.reportSent')}</p>
+                                <p className="text-xs text-text-muted mt-1">{t('tavern.reportThanks')}</p>
                             </div>
                         ) : (
                             <>
@@ -582,14 +581,14 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         <Flag size={20} />
                                     </div>
                                     <div>
-                                        <h3 className="font-black text-text-main text-base">{t('tavern.reportTitle', 'Reportar publicación')}</h3>
-                                        <p className="text-xs text-text-muted">{t('tavern.reportSubtitle', 'Cuéntanos por qué consideras que viola las reglas.')}</p>
+                                        <h3 className="font-black text-text-main text-base">{t('tavern.reportTitle')}</h3>
+                                        <p className="text-xs text-text-muted">{t('tavern.reportSubtitle')}</p>
                                     </div>
                                 </div>
                                 <textarea
                                     value={reportReason}
                                     onChange={e => setReportReason(e.target.value)}
-                                    placeholder={t('tavern.reportPlaceholder', 'Ej: Spam, contenido inapropiado, acoso...')}
+                                    placeholder={t('tavern.reportPlaceholder')}
                                     className="w-full bg-bg-sub border border-border-theme rounded-xl px-4 py-3 text-sm text-text-main focus:outline-none focus:border-accent-red transition resize-none mb-4"
                                     rows={3}
                                     maxLength={300}
@@ -606,7 +605,7 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         disabled={!reportReason.trim() || reportSubmitting}
                                         className="flex-1 py-2.5 text-xs font-black uppercase tracking-widest bg-accent-red text-white rounded-xl hover:bg-accent-red/80 disabled:opacity-50 transition"
                                     >
-                                        {reportSubmitting ? '...' : t('tavern.report', 'Reportar')}
+                                        {reportSubmitting ? '...' : t('tavern.report')}
                                     </button>
                                 </div>
                             </>

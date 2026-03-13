@@ -46,7 +46,7 @@ export default function NotificationSettings() {
             const { error } = await UserService.updateNotificationPreferences(user.id, prefs);
             if (error) throw error;
             await refetch();
-            alert(t('notificationPreferences.saved', 'Preferencias guardadas exitosamente'));
+            alert(t('notificationPreferences.saved'));
         } catch (error: any) {
             alert(error.message || t('common.error'));
         } finally {
@@ -64,7 +64,7 @@ export default function NotificationSettings() {
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-text-main flex items-center gap-3">
                         <Bell size={40} className="text-brand-primary" />
-                        {t('notificationPreferences.title', 'Preferencias de Notificaciones')}
+                        {t('notificationPreferences.title')}
                     </h1>
                 </div>
                 <button
@@ -73,7 +73,7 @@ export default function NotificationSettings() {
                     className="px-6 py-2.5 rounded-xl bg-brand-primary text-text-inv hover:bg-brand-primary-light font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2 justify-center disabled:opacity-50"
                 >
                     {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                    {t('common.save', 'Guardar')}
+                    {t('common.save')}
                 </button>
             </header>
 
@@ -82,26 +82,26 @@ export default function NotificationSettings() {
                 <div space-y-6>
                     <div>
                         <h2 className="text-xl font-bold text-text-main flex items-center gap-2 mb-1">
-                            {t('notificationPreferences.general', 'General')}
+                            {t('notificationPreferences.general')}
                         </h2>
                         <p className="text-sm text-text-sub font-medium mb-6">
-                            {t('notificationPreferences.generalDescription', 'Controla cómo recibes las notificaciones')}
+                            {t('notificationPreferences.generalDescription')}
                         </p>
                     </div>
 
                     <div className="space-y-4">
                         <ToggleCard
                             icon={<Smartphone />}
-                            title={t('notificationPreferences.pushNotifications', 'Notificaciones Push')}
-                            description={t('notificationPreferences.pushDescription', 'Recibe notificaciones en tu dispositivo')}
+                            title={t('notificationPreferences.pushNotifications')}
+                            description={t('notificationPreferences.pushDescription')}
                             checked={prefs.push_enabled}
                             onChange={() => togglePref('push_enabled')}
                             disabled={true} // Push notifications often require extra setup on web so we might leave disabled or enabled if supported
                         />
                         <ToggleCard
                             icon={<MonitorSmartphone />}
-                            title={t('notificationPreferences.inAppNotifications', 'Notificaciones en la App')}
-                            description={t('notificationPreferences.inAppDescription', 'Muestra notificaciones dentro de la aplicación')}
+                            title={t('notificationPreferences.inAppNotifications')}
+                            description={t('notificationPreferences.inAppDescription')}
                             checked={prefs.in_app_enabled}
                             onChange={() => togglePref('in_app_enabled')}
                         />
@@ -112,53 +112,53 @@ export default function NotificationSettings() {
                 <div space-y-6>
                     <div>
                         <h2 className="text-xl font-bold text-text-main flex items-center gap-2 mb-1">
-                            {t('notificationPreferences.categories', 'Categorías')}
+                            {t('notificationPreferences.categories')}
                         </h2>
                         <p className="text-sm text-text-sub font-medium mb-6">
-                            {t('notificationPreferences.categoriesDescription', 'Elige qué tipos de notificaciones quieres recibir')}
+                            {t('notificationPreferences.categoriesDescription')}
                         </p>
                     </div>
 
                     <div className="space-y-4">
                         <ToggleCard
                             icon={<CalendarHeart className="text-brand-secondary" />}
-                            title={t('notificationPreferences.eventsByInterests', 'Eventos por Intereses')}
+                            title={t('notificationPreferences.eventsByInterests')}
                             description=""
                             checked={prefs.events_by_interests}
                             onChange={() => togglePref('events_by_interests')}
                         />
                         <ToggleCard
                             icon={<CalendarClock className="text-primary" />}
-                            title={t('notificationPreferences.eventUpdates', 'Actualizaciones de Eventos')}
+                            title={t('notificationPreferences.eventUpdates')}
                             description=""
                             checked={prefs.event_updates}
                             onChange={() => togglePref('event_updates')}
                         />
                         <ToggleCard
                             icon={<Coins className="text-amber-500" />}
-                            title={t('notificationPreferences.walletReceived', 'Frikicoins Recibidos')}
+                            title={t('notificationPreferences.walletReceived')}
                             description=""
                             checked={prefs.wallet_received}
                             onChange={() => togglePref('wallet_received')}
                         />
                         <ToggleCard
                             icon={<Send className="text-blue-500" />}
-                            title={t('notificationPreferences.walletSent', 'Frikicoins Enviados')}
+                            title={t('notificationPreferences.walletSent')}
                             description=""
                             checked={prefs.wallet_sent}
                             onChange={() => togglePref('wallet_sent')}
                         />
                         <ToggleCard
                             icon={<PieChart className="text-purple-500" />}
-                            title={t('notificationPreferences.surveys', 'Encuestas')}
+                            title={t('notificationPreferences.surveys')}
                             description=""
                             checked={prefs.surveys}
                             onChange={() => togglePref('surveys')}
                         />
                         <ToggleCard
                             icon={<ShieldAlert className="text-accent-red" />}
-                            title={t('notificationPreferences.admin', 'Notificaciones Administrativas')}
-                            description={t('notificationPreferences.adminDescription', 'Siempre activas (mantenimientos, anuncios importantes)')}
+                            title={t('notificationPreferences.admin')}
+                            description={t('notificationPreferences.adminDescription')}
                             checked={true}
                             onChange={() => { }}
                             disabled={true}

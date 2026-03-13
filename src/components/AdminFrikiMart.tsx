@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { X, Loader2, Store, Package, ShoppingBag, Send, Heart, RefreshCcw, MapPin, Mail, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +22,7 @@ interface AdminStoreChatModalProps {
 }
 
 function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: AdminStoreChatModalProps) {
+    const { t } = useTranslation();
     const [messages, setMessages] = useState<any[]>([]);
     const [order, setOrder] = useState<any>(null);
     const [text, setText] = useState('');
@@ -84,9 +86,9 @@ function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: Admi
                 {/* Header */}
                 <div className="flex items-center gap-3 p-4 border-b border-divider-theme shrink-0">
                     <div className="flex-1 min-w-0">
-                        <p className="font-black text-text-main text-sm truncate">{order?.store_items?.title ?? 'Chat de entrega'}</p>
+                        <p className="font-black text-text-main text-sm truncate">{order?.store_items?.title ?? t('adminFrikiMart.chat.title')}</p>
                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">
-                            @{order?.profiles?.username ?? '...'} · {order?.status === 'delivered' ? '✅ Entregado' : order?.status === 'cancelled' ? '❌ Cancelado' : '⏳ Pendiente'}
+                            @{order?.profiles?.username ?? '...'} · {order?.status === 'delivered' ? t('adminFrikiMart.chat.status.delivered') : order?.status === 'cancelled' ? t('adminFrikiMart.chat.status.cancelled') : t('adminFrikiMart.chat.status.pending')}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition text-text-muted">
@@ -102,37 +104,37 @@ function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: Admi
                             disabled={updating}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition ${order.delivery_method === 'pickup' ? 'bg-amber-500 text-black' : 'bg-bg-sub text-amber-500 border border-amber-500/20'}`}
                         >
-                            <MapPin size={12} /> Punto Recogida
+                            <MapPin size={12} /> {t('adminFrikiMart.chat.actions.pickup')}
                         </button>
                         <button
                             onClick={() => updateOrder({ delivery_method: 'mail' })}
                             disabled={updating}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition ${order.delivery_method === 'mail' ? 'bg-amber-500 text-black' : 'bg-bg-sub text-amber-500 border border-amber-500/20'}`}
                         >
-                            <Mail size={12} /> Envío Correo
+                            <Mail size={12} /> {t('adminFrikiMart.chat.actions.mail')}
                         </button>
                         <div className="flex-1" />
                         <button
                             onClick={() => {
-                                if (window.confirm('¿Confirmar que el producto fue entregado?')) {
+                                if (window.confirm(t('adminFrikiMart.chat.actions.confirmDelivered'))) {
                                     updateOrder({ status: 'delivered' });
                                 }
                             }}
                             disabled={updating}
                             className="bg-green-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-green-400 disabled:opacity-50"
                         >
-                            ✅ Entregado
+                            {t('adminFrikiMart.chat.status.delivered')}
                         </button>
                         <button
                             onClick={() => {
-                                if (window.confirm('¿Cancelar este pedido? Los FC no se devolverán automáticamente.')) {
+                                if (window.confirm(t('adminFrikiMart.chat.actions.confirmCancelled'))) {
                                     updateOrder({ status: 'cancelled' });
                                 }
                             }}
                             disabled={updating}
                             className="bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-red-500 hover:text-white disabled:opacity-50"
                         >
-                            ❌ Cancelar
+                            {t('adminFrikiMart.chat.status.cancelled')}
                         </button>
                     </div>
                 )}
@@ -140,14 +142,14 @@ function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: Admi
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                     {messages.length === 0 && (
-                        <p className="text-center text-text-muted text-sm py-8">Sin mensajes aún.</p>
+                        <p className="text-center text-text-muted text-sm py-8">{t('adminFrikiMart.chat.noMessages')}</p>
                     )}
                     {messages.map((m: any) => {
                         const isMine = m.sender_id === adminId && m.sender_role === 'admin';
                         return (
                             <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${isMine ? 'bg-amber-500 text-black' : 'bg-bg-sub text-text-main border border-divider-theme'}`}>
-                                    {!isMine && <p className="text-[10px] font-black text-brand-primary mb-1">Comprador</p>}
+                                    {!isMine && <p className="text-[10px] font-black text-brand-primary mb-1">{t('adminFrikiMart.chat.buyer')}</p>}
                                     <p>{m.content}</p>
                                 </div>
                             </div>
@@ -161,7 +163,7 @@ function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: Admi
                         value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMsg()}
-                        placeholder="Escribe como equipo FrikiMart..."
+                        placeholder={t('adminFrikiMart.chat.placeholder')}
                         className="flex-1 bg-bg-sub border border-border-theme text-text-main rounded-xl px-4 py-2 text-sm outline-none"
                     />
                     <button
@@ -179,6 +181,7 @@ function AdminStoreChatModal({ orderId, adminId, onClose, onStatusChange }: Admi
 
 
 export function AdminFrikiMartContent() {
+    const { t } = useTranslation();
     const { user, isSuperuser } = useAuth();
     const [tab, setTab] = useState<'items' | 'orders' | 'donations'>('orders');
 
@@ -232,7 +235,7 @@ export function AdminFrikiMartContent() {
     };
 
     const handleSaveItem = async () => {
-        if (!editingItem?.title || !editingItem.price_fc) return alert('Completa título y precio');
+        if (!editingItem?.title || !editingItem.price_fc) return alert(t('adminFrikiMart.errors.incompleteItem'));
 
         const payload = {
             title: editingItem.title,
@@ -256,7 +259,7 @@ export function AdminFrikiMartContent() {
 
     const handleSavePackage = async () => {
         if (!editingPackage?.name || !editingPackage.frikicoin_reward || !editingPackage.price_cents || !editingPackage.google_product_id) {
-            return alert('Completa todos los campos obligatorios');
+            return alert(t('adminFrikiMart.errors.incompletePackage'));
         }
 
         const payload = {
@@ -280,7 +283,7 @@ export function AdminFrikiMartContent() {
     };
 
     const handleDeletePackage = async (id: string) => {
-        if (!window.confirm('¿Eliminar este paquete permanentemente?')) return;
+        if (!window.confirm(t('adminFrikiMart.donations.confirmDelete'))) return;
         await supabase.from('donation_packages').delete().eq('id', id);
         fetchPackages();
     };
@@ -293,20 +296,20 @@ export function AdminFrikiMartContent() {
                     onClick={() => setTab('orders')}
                     className={`py-3 px-6 font-black text-xs uppercase tracking-widest border-b-2 transition-all ${tab === 'orders' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main'}`}
                 >
-                    <Package className="inline-block mr-2" size={14} /> Pedidos
+                    <Package className="inline-block mr-2" size={14} /> {t('adminFrikiMart.tabs.orders')}
                 </button>
                 <button
                     onClick={() => setTab('items')}
                     className={`py-3 px-6 font-black text-xs uppercase tracking-widest border-b-2 transition-all ${tab === 'items' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main'}`}
                 >
-                    <ShoppingBag className="inline-block mr-2" size={14} /> Inventario
+                    <ShoppingBag className="inline-block mr-2" size={14} /> {t('adminFrikiMart.tabs.inventory')}
                 </button>
                 {isSuperuser && (
                     <button
                         onClick={() => setTab('donations')}
                         className={`py-3 px-6 font-black text-xs uppercase tracking-widest border-b-2 transition-all ${tab === 'donations' ? 'border-amber-500 text-amber-500' : 'border-transparent text-text-muted hover:text-text-main'}`}
                     >
-                        <Heart className="inline-block mr-2" size={14} /> Donaciones
+                        <Heart className="inline-block mr-2" size={14} /> {t('adminFrikiMart.tabs.donations')}
                     </button>
                 )}
                 <div className="flex-1" />
@@ -335,11 +338,11 @@ export function AdminFrikiMartContent() {
                                     <div className="flex items-center gap-2 mt-1">
                                         <p className="text-xs text-text-muted">@{order.profiles?.username}</p>
                                         <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${order.status === 'delivered' ? 'bg-green-500/10 text-green-500' : order.status === 'cancelled' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                                            {order.status === 'delivered' ? 'Entregado' : order.status === 'cancelled' ? 'Cancelado' : 'Pendiente'}
+                                            {order.status === 'delivered' ? t('adminFrikiMart.orders.status.delivered') : order.status === 'cancelled' ? t('adminFrikiMart.orders.status.cancelled') : t('adminFrikiMart.orders.status.pending')}
                                         </div>
                                         {order.delivery_method && (
                                             <div className="text-[10px] font-bold text-text-muted opacity-60">
-                                                · {order.delivery_method === 'pickup' ? '📍 Pickup' : '📬 Correo'}
+                                                · {order.delivery_method === 'pickup' ? t('adminFrikiMart.orders.delivery.pickup') : t('adminFrikiMart.orders.delivery.mail')}
                                             </div>
                                         )}
                                     </div>
@@ -365,7 +368,7 @@ export function AdminFrikiMartContent() {
                                 onClick={() => setEditingPackage({ sort_order: 0, is_active: false })}
                                 className="w-full py-4 border-2 border-dashed border-amber-500/30 text-amber-500 rounded-2xl font-black uppercase text-sm hover:bg-amber-500/10 transition"
                             >
-                                + Nuevo Paquete IAP
+                                {t('adminFrikiMart.donations.addNew')}
                             </button>
                         )}
 
@@ -384,7 +387,7 @@ export function AdminFrikiMartContent() {
                                         onClick={() => setEditingPackage(pkg)}
                                         className="px-3 py-1.5 bg-bg-sub border border-border-theme text-text-main text-xs font-black uppercase rounded-lg"
                                     >
-                                        Editar
+                                        {t('common.edit')}
                                     </button>
                                     <button
                                         onClick={() => handleDeletePackage(pkg.id)}
@@ -399,11 +402,11 @@ export function AdminFrikiMartContent() {
                         {editingPackage && (
                             <div className="bg-bg-side border border-border-theme p-6 rounded-3xl space-y-4 animate-in slide-in-from-bottom-2">
                                 <h3 className="font-black text-lg text-amber-500 leading-none mb-4 uppercase italic">
-                                    {editingPackage.id ? 'Editar Paquete' : 'Nuevo Paquete IAP'}
+                                    {editingPackage.id ? t('adminFrikiMart.donations.modal.edit') : t('adminFrikiMart.donations.modal.new')}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Nombre</label>
+                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">{t('adminFrikiMart.donations.modal.name')}</label>
                                         <input
                                             value={editingPackage.name || ''}
                                             onChange={e => setEditingPackage({ ...editingPackage, name: e.target.value })}
@@ -412,7 +415,7 @@ export function AdminFrikiMartContent() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Google SKU</label>
+                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">{t('adminFrikiMart.donations.modal.sku')}</label>
                                         <input
                                             value={editingPackage.google_product_id || ''}
                                             onChange={e => setEditingPackage({ ...editingPackage, google_product_id: e.target.value })}
@@ -421,7 +424,7 @@ export function AdminFrikiMartContent() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">FC Recompensa</label>
+                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">{t('adminFrikiMart.donations.modal.reward')}</label>
                                         <input
                                             type="number"
                                             value={editingPackage.frikicoin_reward || ''}
@@ -430,20 +433,20 @@ export function AdminFrikiMartContent() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Precio (Centavos)</label>
+                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">{t('adminFrikiMart.donations.modal.price')}</label>
                                         <input
                                             type="number"
                                             value={editingPackage.price_cents || ''}
                                             onChange={e => setEditingPackage({ ...editingPackage, price_cents: e.target.value })}
-                                            placeholder="199 = $1.99"
+                                            placeholder={t('adminFrikiMart.donations.modal.priceHint')}
                                             className="w-full bg-bg-sub border border-border-theme p-2.5 rounded-xl text-text-main text-sm outline-none focus:border-amber-500/50"
                                         />
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-4 bg-bg-sub rounded-2xl border border-divider-theme">
                                     <div className="flex-1">
-                                        <p className="text-xs font-black text-text-main">Activo en la plataforma</p>
-                                        <p className="text-[10px] text-text-muted uppercase tracking-tight">Determina si los usuarios pueden verlo.</p>
+                                        <p className="text-xs font-black text-text-main">{t('adminFrikiMart.donations.modal.activeLabel')}</p>
+                                        <p className="text-[10px] text-text-muted uppercase tracking-tight">{t('adminFrikiMart.donations.modal.activeHint')}</p>
                                     </div>
                                     <label className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" className="sr-only peer" checked={editingPackage.is_active} onChange={e => setEditingPackage({ ...editingPackage, is_active: e.target.checked })} />
@@ -455,13 +458,13 @@ export function AdminFrikiMartContent() {
                                         onClick={() => setEditingPackage(null)}
                                         className="px-6 py-2.5 bg-bg-sub border border-border-theme text-text-muted rounded-xl font-bold text-sm"
                                     >
-                                        Cancelar
+                                        {t('common.cancel')}
                                     </button>
                                     <button
                                         onClick={handleSavePackage}
                                         className="px-8 py-2.5 bg-amber-500 text-black rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
                                     >
-                                        Guardar
+                                        {t('common.save')}
                                     </button>
                                 </div>
                             </div>
@@ -476,7 +479,7 @@ export function AdminFrikiMartContent() {
                             onClick={() => setEditingItem({ status: 'available', stock: 1 })}
                             className="w-full py-4 border-2 border-dashed border-amber-500/30 text-amber-500 rounded-2xl font-black uppercase text-sm hover:bg-amber-500/10 transition"
                         >
-                            + Agregar Artículo
+                            {t('adminFrikiMart.inventory.addNew')}
                         </button>
                         {loadingItems ? (
                             <div className="flex justify-center p-8"><Loader2 className="animate-spin text-amber-500" /></div>
@@ -484,13 +487,13 @@ export function AdminFrikiMartContent() {
                             <div key={item.id} className="bg-bg-side border border-border-theme p-4 rounded-2xl flex items-center justify-between">
                                 <div>
                                     <p className="font-bold text-sm">{item.title} <span className="text-amber-500">({item.price_fc} FC)</span></p>
-                                    <p className="text-xs text-text-muted">Stock: {item.stock} | Estado: {item.status}</p>
+                                    <p className="text-xs text-text-muted">{t('adminFrikiMart.inventory.stock', { count: item.stock })} | {t('adminFrikiMart.inventory.statusLabel', { status: item.status })}</p>
                                 </div>
                                 <button
                                     onClick={() => setEditingItem(item)}
                                     className="px-3 py-1.5 bg-bg-sub border border-border-theme text-text-main text-xs font-black uppercase rounded-lg hover:bg-bg-main"
                                 >
-                                    Editar
+                                    {t('common.edit')}
                                 </button>
                             </div>
                         ))}
@@ -500,9 +503,9 @@ export function AdminFrikiMartContent() {
                 {/* EDIT ITEM */}
                 {tab === 'items' && editingItem && (
                     <div className="bg-bg-side border border-border-theme p-6 rounded-2xl space-y-4">
-                        <h3 className="font-black text-lg text-amber-500 mb-4">{editingItem.id ? 'Editar Artículo' : 'Nuevo Artículo'}</h3>
+                        <h3 className="font-black text-lg text-amber-500 mb-4">{editingItem.id ? t('adminFrikiMart.inventory.modal.edit') : t('adminFrikiMart.inventory.modal.new')}</h3>
                         <div>
-                            <label className="block text-xs font-bold text-text-muted mb-1">Título</label>
+                            <label className="block text-xs font-bold text-text-muted mb-1">{t('adminFrikiMart.inventory.modal.title')}</label>
                             <input
                                 value={editingItem.title || ''}
                                 onChange={e => setEditingItem({ ...editingItem, title: e.target.value })}
@@ -510,7 +513,7 @@ export function AdminFrikiMartContent() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-text-muted mb-1">Precio (FC)</label>
+                            <label className="block text-xs font-bold text-text-muted mb-1">{t('adminFrikiMart.inventory.modal.price')}</label>
                             <input
                                 type="number"
                                 value={editingItem.price_fc || ''}
@@ -519,7 +522,7 @@ export function AdminFrikiMartContent() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-text-muted mb-1">Stock</label>
+                            <label className="block text-xs font-bold text-text-muted mb-1">{t('adminFrikiMart.inventory.modal.stock')}</label>
                             <input
                                 type="number"
                                 value={editingItem.stock || 0}
@@ -528,14 +531,14 @@ export function AdminFrikiMartContent() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-text-muted mb-1">Estado</label>
+                            <label className="block text-xs font-bold text-text-muted mb-1">{t('adminFrikiMart.inventory.modal.status')}</label>
                             <select
                                 value={editingItem.status}
                                 onChange={e => setEditingItem({ ...editingItem, status: e.target.value })}
                                 className="w-full bg-bg-sub border border-border-theme p-2 rounded-lg text-text-main text-sm outline-none"
                             >
-                                <option value="available">Activo</option>
-                                <option value="hidden">Oculto</option>
+                                <option value="available">{t('adminFrikiMart.inventory.modal.active')}</option>
+                                <option value="hidden">{t('adminFrikiMart.inventory.modal.hidden')}</option>
                             </select>
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
@@ -543,13 +546,13 @@ export function AdminFrikiMartContent() {
                                 onClick={() => setEditingItem(null)}
                                 className="px-4 py-2 bg-bg-sub border border-border-theme text-text-muted rounded-xl font-bold text-sm"
                             >
-                                Cancelar
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleSaveItem}
                                 className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-sm"
                             >
-                                Guardar
+                                {t('common.save')}
                             </button>
                         </div>
                     </div>
@@ -568,6 +571,7 @@ export function AdminFrikiMartContent() {
 }
 
 export function AdminFrikiMart({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+    const { t } = useTranslation();
     if (!isOpen) return null;
 
     return (
@@ -579,7 +583,7 @@ export function AdminFrikiMart({ isOpen, onClose }: { isOpen: boolean, onClose: 
                     <div className="flex items-center gap-3 text-amber-500">
                         <Store size={28} />
                         <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
-                            Admin FrikiMart
+                            {t('adminFrikiMart.title')}
                         </h2>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition-all">

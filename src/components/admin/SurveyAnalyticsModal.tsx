@@ -3,6 +3,7 @@ import {
     X, Download, Users, BarChart3, ListOrdered,
     ChevronRight, ArrowLeft, Star, Loader2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { SurveyAdminService } from '../../services/SurveyAdminService';
 import { getAvatarSource } from '../../config/avatars';
 import type { AdminSurvey, SurveyAnalytics, SurveyResponseDetail, SurveyQuestion } from '../../types/survey';
@@ -14,6 +15,7 @@ interface SurveyAnalyticsModalProps {
 }
 
 export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalyticsModalProps) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'stats' | 'responses'>('stats');
     const [loading, setLoading] = useState(false);
     const [stats, setStats] = useState<SurveyAnalytics | null>(null);
@@ -120,12 +122,12 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                 <div className="flex items-center justify-between px-6 py-5 border-b border-border-theme bg-bg-pop">
                     <div>
                         <h2 className="text-xl font-black text-text-main flex items-center gap-2">
-                            <BarChart3 className="text-amber-500" /> Resultados de Encuesta
+                            <BarChart3 className="text-amber-500" /> {t('adminSurveys.analytics.title')}
                         </h2>
                         <p className="text-sm text-text-muted font-bold">{survey.title}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={handleExport} className="p-2.5 text-text-muted hover:text-brand-primary rounded-xl hover:bg-bg-side transition" title="Exportar CSV">
+                        <button onClick={handleExport} className="p-2.5 text-text-muted hover:text-brand-primary rounded-xl hover:bg-bg-side transition" title={t('adminSurveys.analytics.exportHint')}>
                             <Download size={22} />
                         </button>
                         <button onClick={onClose} className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-bg-side transition">
@@ -140,14 +142,14 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                         onClick={() => { setActiveTab('stats'); setSelectedResponse(null); }}
                         className={`flex-1 py-4 font-bold text-sm transition-colors relative ${activeTab === 'stats' ? 'text-amber-500' : 'text-text-muted hover:text-text-main'}`}
                     >
-                        Estadísticas Generales
+                        {t('adminSurveys.analytics.statsTab')}
                         {activeTab === 'stats' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500" />}
                     </button>
                     <button
                         onClick={() => setActiveTab('responses')}
                         className={`flex-1 py-4 font-bold text-sm transition-colors relative ${activeTab === 'responses' ? 'text-amber-500' : 'text-text-muted hover:text-text-main'}`}
                     >
-                        Respuestas Individuales
+                        {t('adminSurveys.analytics.responsesTab')}
                         {activeTab === 'responses' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500" />}
                     </button>
                 </div>
@@ -157,12 +159,12 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                     {loading && !selectedResponse ? (
                         <div className="h-full flex flex-col items-center justify-center space-y-4">
                             <Loader2 className="animate-spin text-amber-500" size={40} />
-                            <p className="text-text-muted font-bold">Cargando datos...</p>
+                            <p className="text-text-muted font-bold">{t('adminSurveys.analytics.loading')}</p>
                         </div>
                     ) : selectedResponse ? (
                         <div className="p-6">
                             <button onClick={() => setSelectedResponse(null)} className="flex items-center gap-2 text-text-muted hover:text-text-main font-bold mb-6 transition">
-                                <ArrowLeft size={20} /> Volver a la lista
+                                <ArrowLeft size={20} /> {t('adminSurveys.analytics.backToList')}
                             </button>
 
                             <div className="bg-bg-pop border border-border-theme rounded-2xl overflow-hidden mb-6">
@@ -175,7 +177,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-text-main text-lg">{selectedResponse.username || 'Anónimo'}</h3>
+                                        <h3 className="font-bold text-text-main text-lg">{selectedResponse.username || t('adminSurveys.analytics.anonymous')}</h3>
                                         <p className="text-xs text-text-muted font-bold tracking-tight">{new Date(selectedResponse.created_at).toLocaleString()}</p>
                                     </div>
                                 </div>
@@ -187,7 +189,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                                 <p className="text-sm font-bold text-text-sub">{i + 1}. {q.text}</p>
                                                 <div className="bg-bg-side p-4 rounded-xl border border-border-theme">
                                                     <p className="text-text-main">
-                                                        {Array.isArray(answer) ? answer.join(', ') : (answer || <span className="text-text-muted italic">Sin respuesta</span>)}
+                                                        {Array.isArray(answer) ? answer.join(', ') : (answer || <span className="text-text-muted italic">{t('adminSurveys.analytics.noAnswer')}</span>)}
                                                         {q.type === 'rating' && answer && <span className="ml-2 text-amber-500">★</span>}
                                                     </p>
                                                 </div>
@@ -207,7 +209,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                     </div>
                                     <div>
                                         <p className="text-2xl font-black text-text-main">{survey.response_count}</p>
-                                        <p className="text-xs text-text-muted font-bold uppercase tracking-wider">Respuestas Totales</p>
+                                        <p className="text-xs text-text-muted font-bold uppercase tracking-wider">{t('adminSurveys.analytics.totalResponses')}</p>
                                     </div>
                                 </div>
                                 <div className="bg-bg-pop border border-border-theme rounded-2xl p-4 flex items-center gap-4">
@@ -216,7 +218,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                     </div>
                                     <div>
                                         <p className="text-2xl font-black text-text-main">{survey.questions.length}</p>
-                                        <p className="text-xs text-text-muted font-bold uppercase tracking-wider">Preguntas</p>
+                                        <p className="text-xs text-text-muted font-bold uppercase tracking-wider">{t('adminSurveys.analytics.questions')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -230,7 +232,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                     <div key={q.id} className="bg-bg-pop border border-border-theme rounded-2xl p-6 space-y-4">
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex-1">
-                                                <span className="text-xs font-black text-amber-500 uppercase tracking-tighter">Pregunta {i + 1}</span>
+                                                <span className="text-xs font-black text-amber-500 uppercase tracking-tighter">{t('adminSurveys.analytics.questionPrefix')} {i + 1}</span>
                                                 <h4 className="font-bold text-text-main leading-tight">{q.text}</h4>
                                             </div>
                                             <span className="px-2 py-1 bg-bg-side border border-border-theme rounded text-[10px] font-black uppercase text-text-muted">
@@ -269,20 +271,20 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                                                 <Star key={s} size={16} fill={s <= Math.round(qStats.average || 0) ? "#f59e0b" : "none"} className={s <= Math.round(qStats.average || 0) ? "text-amber-500" : "text-text-muted"} />
                                                             ))}
                                                         </div>
-                                                        <p className="text-xs text-text-muted font-bold">Promedio de valoración</p>
+                                                        <p className="text-xs text-text-muted font-bold">{t('adminSurveys.analytics.averageRating')}</p>
                                                     </div>
                                                 </div>
                                             )}
 
                                             {q.type === 'text' && (
                                                 <div className="space-y-2">
-                                                    <p className="text-xs text-text-muted font-bold mb-2 uppercase">Últimas respuestas:</p>
+                                                    <p className="text-xs text-text-muted font-bold mb-2 uppercase">{t('adminSurveys.analytics.latestResponses')}</p>
                                                     {qStats.samples?.map((sample, idx) => (
                                                         <div key={idx} className="bg-bg-side p-3 rounded-lg border border-border-theme text-sm text-text-main italic">
                                                             "{sample}"
                                                         </div>
                                                     ))}
-                                                    {!qStats.samples?.length && <p className="text-sm text-text-muted italic">No hay respuestas aún.</p>}
+                                                    {!qStats.samples?.length && <p className="text-sm text-text-muted italic">{t('adminSurveys.analytics.noResponses')}</p>}
                                                 </div>
                                             )}
                                         </div>
@@ -307,7 +309,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                                             />
                                         </div>
                                         <div className="text-left">
-                                            <p className="font-bold text-text-main leading-tight">{resp.username || 'Anónimo'}</p>
+                                            <p className="font-bold text-text-main leading-tight">{resp.username || t('adminSurveys.analytics.anonymous')}</p>
                                             <p className="text-[10px] text-text-muted font-bold uppercase">{new Date(resp.created_at).toLocaleDateString()}</p>
                                         </div>
                                     </div>
@@ -317,7 +319,7 @@ export function SurveyAnalyticsModal({ isOpen, onClose, survey }: SurveyAnalytic
                             {responses.length === 0 && (
                                 <div className="p-20 text-center">
                                     <Users className="mx-auto text-text-muted opacity-20 mb-4" size={64} />
-                                    <p className="text-text-muted font-bold">No hay respuestas todavía.</p>
+                                    <p className="text-text-muted font-bold">{t('adminSurveys.analytics.noResponses')}</p>
                                 </div>
                             )}
                         </div>

@@ -71,7 +71,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
             return;
         }
 
-        if (confirm(t('wallet.confirmMessage', `¿Estás seguro de enviar ${amountNum} Frikicoins a ${recipientQr}?`))) {
+        if (confirm(t('wallet.confirmMessage', { amount: amountNum, recipient: recipientQr }))) {
             setSending(true);
             try {
                 const { success, message, error } = await UserService.transferFrikicoins(userId, recipientQr, amountNum);
@@ -108,7 +108,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                 }
 
                 if (response.success) {
-                    alert(t('wallet.event.redeemSuccess', `¡Éxito! Has recibido ${response.amount} Frikicoins.`));
+                    alert(t('wallet.event.redeemSuccess', { amount: response.amount }));
                     await fetchWalletData();
                     setActiveTab('history');
                 } else {
@@ -160,19 +160,19 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                             onClick={() => setActiveTab('main')}
                             className={`flex-1 py-2 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'main' ? 'bg-bg-pop shadow-sm text-brand-primary' : 'text-text-muted hover:text-text-main'}`}
                         >
-                            <HomeIcon size={14} /> Main
+                            <HomeIcon size={14} /> {t('wallet.tabs.main')}
                         </button>
                         <button
                             onClick={() => setActiveTab('send')}
                             className={`flex-1 py-2 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'send' || activeTab === 'scan' ? 'bg-bg-pop shadow-sm text-brand-primary' : 'text-text-muted hover:text-text-main'}`}
                         >
-                            <Send size={14} /> Send
+                            <Send size={14} /> {t('wallet.tabs.send')}
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
                             className={`flex-1 py-2 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'history' ? 'bg-bg-pop shadow-sm text-brand-primary' : 'text-text-muted hover:text-text-main'}`}
                         >
-                            <History size={14} /> History
+                            <History size={14} /> {t('wallet.tabs.history')}
                         </button>
                     </div>
                 </header>
@@ -290,7 +290,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                                     <div className="flex items-center justify-between border-b border-border-theme pb-4">
                                         <h3 className="text-xl font-black uppercase text-text-main italic tracking-tighter">{t('wallet.history')}</h3>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full">{transactions.length} Registros</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full">{transactions.length} {t('wallet.records')}</span>
                                     </div>
 
                                     <div className="space-y-4">

@@ -6,7 +6,7 @@ import { getAvatarSource } from '../../config/avatars';
 import ContentRenderer from './ContentRenderer';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
-import { shareContent, buildThreadShare, registerCopiedCallback } from '../../utils/shareContent';
+import { shareContent, buildThreadShare } from '../../utils/shareContent';
 import { TavernService } from '../../services/TavernService';
 
 interface ThreadCardProps {
@@ -18,7 +18,7 @@ interface ThreadCardProps {
 }
 
 export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: ThreadCardProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -26,7 +26,6 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
     const [reportReason, setReportReason] = useState('');
     const [reporting, setReporting] = useState(false);
     const [reportDone, setReportDone] = useState(false);
-    const [copied, setCopied] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const cardRef = useRef<HTMLElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -104,7 +103,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                 flex-direction: column !important;
             }
             .tavern-capture::before {
-                content: 'LA TABERNA - CIUDAD FRIKI';
+                content: '${t('share.tavern.captureHeader')}';
                 position: absolute;
                 top: 15px;
                 right: 25px;
@@ -156,8 +155,8 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
             if (blob) {
                 const file = new File([blob], `thread-${thread.id.substring(0, 8)}.png`, { type: 'image/png' });
                 await shareContent({
-                    title: `📖 ${thread.title} | Ciudad Friki`,
-                    text: `🏰 *${thread.title}*\n\n¡Únete a la conversación en La Taberna! 🤓\n\nLee el hilo completo aquí:`,
+                    title: `📖 ${thread.title} | ${t('share.tavern.title')}`,
+                    text: `${i18n.t('share.tavern.joinConversation')}\n\n${i18n.t('share.tavern.readFullThread')}`,
                     url: window.location.origin + `/tavern?thread=${thread.id}`,
                     file
                 });
@@ -244,7 +243,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                             }`}>
                             <Pencil size={10} />
                             {thread.edited_by_admin
-                                ? t('tavern.thread.editedByAdmin', 'Editado por un administrador')
+                                ? t('tavern.thread.editedByAdmin')
                                 : t('tavern.thread.edited')}
                         </div>
                     )}
@@ -286,7 +285,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                             title={t('tavern.thread.share')}
                         >
                             {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} className="group-hover:text-brand-primary" />}
-                            <span className="text-sm font-medium">{isSharing ? t('common.sharing', 'Compartiendo...') : t('tavern.thread.share')}</span>
+                            <span className="text-sm font-medium">{isSharing ? t('common.sharing') : t('tavern.thread.share')}</span>
                         </button>
                     </div>
 
@@ -333,7 +332,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                                             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
                                         >
                                             <Flag size={15} />
-                                            {t('tavern.thread.report', 'Reportar')}
+                                            {t('tavern.thread.report')}
                                         </button>
                                     )}
                                 </div>
@@ -357,8 +356,8 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                         {reportDone ? (
                             <div className="text-center py-4">
                                 <Check size={36} className="mx-auto mb-3 text-accent-green" />
-                                <p className="font-bold text-text-main">{t('tavern.reportSent', '¡Reporte enviado!')}</p>
-                                <p className="text-xs text-text-muted mt-1">{t('tavern.reportThanks', 'Gracias por ayudar a mantener la comunidad.')}</p>
+                                <p className="font-bold text-text-main">{t('tavern.reportSent')}</p>
+                                <p className="text-xs text-text-muted mt-1">{t('tavern.reportThanks')}</p>
                             </div>
                         ) : (
                             <>
@@ -367,14 +366,14 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                                         <Flag size={20} />
                                     </div>
                                     <div>
-                                        <h3 className="font-black text-text-main text-base">{t('tavern.reportTitle', 'Reportar publicación')}</h3>
-                                        <p className="text-xs text-text-muted">{t('tavern.reportSubtitle', 'Cuéntanos por qué consideras que viola las reglas.')}</p>
+                                        <h3 className="font-black text-text-main text-base">{t('tavern.reportTitle')}</h3>
+                                        <p className="text-xs text-text-muted">{t('tavern.reportSubtitle')}</p>
                                     </div>
                                 </div>
                                 <textarea
                                     value={reportReason}
                                     onChange={e => setReportReason(e.target.value)}
-                                    placeholder={t('tavern.reportPlaceholder', 'Ej: Spam, contenido inapropiado, acoso...')}
+                                    placeholder={t('tavern.reportPlaceholder')}
                                     className="w-full bg-bg-sub border border-border-theme rounded-xl px-4 py-3 text-sm text-text-main focus:outline-none focus:border-accent-red transition resize-none mb-4"
                                     rows={3}
                                     maxLength={300}
@@ -391,7 +390,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                                         disabled={!reportReason.trim() || reporting}
                                         className="flex-1 py-2.5 text-xs font-black uppercase tracking-widest bg-accent-red text-white rounded-xl hover:bg-accent-red/80 disabled:opacity-50 transition"
                                     >
-                                        {reporting ? '...' : t('tavern.report', 'Reportar')}
+                                        {reporting ? '...' : t('tavern.report')}
                                     </button>
                                 </div>
                             </>

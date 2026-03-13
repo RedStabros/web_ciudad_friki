@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Store, Loader2 } from 'lucide-react';
 import { AdminFrikiMartContent } from '../../components/AdminFrikiMart';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +7,7 @@ import { SuperAdminService } from '../../services/SuperAdminService';
 import { Navigate } from 'react-router-dom';
 
 export default function AdminFrikiMartPage() {
+    const { t } = useTranslation();
     const { isSuperuser, isLoading } = useAuth();
     const [storeAdminVisible, setStoreAdminVisible] = useState<boolean | null>(null);
 
@@ -35,9 +37,9 @@ export default function AdminFrikiMartPage() {
                 </div>
                 <div>
                     <h1 className="text-2xl font-black text-text-main leading-tight flex items-center gap-2 uppercase italic tracking-tighter">
-                        Admin FrikiMart
+                        {t('adminFrikiMart.title')}
                     </h1>
-                    <p className="text-sm text-amber-500 font-bold">Gestión de inventario y pedidos</p>
+                    <p className="text-sm text-amber-500 font-bold">{t('adminFrikiMart.subtitle')}</p>
                 </div>
             </div>
 

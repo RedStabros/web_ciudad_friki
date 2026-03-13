@@ -37,9 +37,9 @@ export default function Tavern() {
 
     if (!tavern) return (
         <div className="flex flex-col items-center justify-center py-32 text-center px-8">
-            <img src="/assets/tabern_icon.png" alt="La Taberna" className="w-24 h-24 object-contain opacity-30 mb-6" />
-            <h2 className="text-2xl font-black text-text-main">La Taberna Cerrada</h2>
-            <p className="text-text-muted mt-2">La Taberna de Ciudad Friki está en mantenimiento. Vuelve más tarde.</p>
+            <img src="/assets/tabern_icon.png" alt={t('tavern.title')} className="w-24 h-24 object-contain opacity-30 mb-6" />
+            <h2 className="text-2xl font-black text-text-main">{t('tavern.closed')}</h2>
+            <p className="text-text-muted mt-2">{t('tavern.closedSubtitle')}</p>
         </div>
     );
 
@@ -83,9 +83,9 @@ export default function Tavern() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <SEO 
-                title="La Taberna | Comunidad Geek"
-                description="Únete a la conversación en La Taberna de Ciudad Friki. Foros de debate sobre Anime, Videojuegos y Cultura Pop en Medellín y Colombia."
-                keywords="Foro Geek, Comunidad Anime, Debate Gaming, Medellín Friki, La Taberna"
+                title={t('seo.tavern.title')}
+                description={t('seo.tavern.description')}
+                keywords={t('seo.tavern.keywords')}
                 image="/assets/seo/taberna_banner.png"
             />
 
@@ -95,7 +95,7 @@ export default function Tavern() {
 
                     <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden">
                         <div className="p-4">
-                            <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">{t('common.navigation', 'Navegación')}</h2>
+                            <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">{t('common.navigation')}</h2>
                             <nav className="space-y-1">
                                 <a className="flex items-center px-3 py-2 text-sm font-medium bg-brand-primary/10 text-brand-primary rounded-md" href="#">
                                     <HomeIcon className="text-xl mr-3" size={20} />
@@ -240,14 +240,14 @@ export default function Tavern() {
                         <div className="flex justify-between text-center border-t border-b border-divider-theme py-3 mb-4 px-2">
                             <div className="flex flex-col items-center justify-center flex-1 border-r border-divider-theme">
                                 <div className="font-bold text-text-main text-lg">{tavernInteractions > 0 ? (tavernInteractions >= 1000 ? `${(tavernInteractions / 1000).toFixed(1)}k+` : tavernInteractions) : '...'}</div>
-                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.posts', 'Posteos')}</div>
+                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.posts')}</div>
                             </div>
                             <div className="flex flex-col items-center justify-center flex-1">
                                 <div className="font-black text-text-main text-accent-green flex items-center gap-1.5 text-lg">
                                     <span className="w-2 h-2 bg-accent-green rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                                     {onlineUsersCount}
                                 </div>
-                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.online', 'Frikis Online')}</div>
+                                <div className="text-[10px] text-text-muted uppercase tracking-widest">{t('tavern.online')}</div>
                             </div>
                         </div>
 

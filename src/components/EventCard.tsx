@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Calendar, Bookmark, Heart, Share2, Check } from 'lucide-react';
+import { Calendar, Bookmark, Heart, Share2 } from 'lucide-react';
 import type { FrikiEvent } from '../services/EventService';
 import { getAvatarSource } from '../config/avatars';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
-import { shareContent, registerCopiedCallback } from '../utils/shareContent';
+import { shareContent } from '../utils/shareContent';
 import { toPng } from 'html-to-image';
 import { Loader2 } from 'lucide-react';
 import { useRef } from 'react';
@@ -17,14 +17,13 @@ interface EventCardProps {
     onClick?: () => void;
 }
 
-export function EventCard({ event, onInterested, onLike, onSave, onClick }: EventCardProps) {
+export function EventCard({ event, onInterested, onSave, onClick }: EventCardProps) {
     const { t, i18n } = useTranslation();
     const defaultImage = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop";
 
     // Fallback simple parsing for display
-    const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US') : t('events.noDate', 'TBD');
+    const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US') : t('events.noDate');
 
-    const [copied, setCopied] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +48,16 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                 width: 500px !important;
                 position: relative !important;
                 display: block !important;
+            }
+            .ticket-capture::before {
+                content: '${t('share.events.ticketHeader')}';
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                font-size: 10px;
+                font-weight: 900;
+                color: ${brandColor}40;
+                letter-spacing: 2px;
             }
             .ticket-capture .share-hide-el { display: none !important; }
             .ticket-capture .ticket-likes { 
@@ -77,7 +86,6 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
         `;
         document.head.appendChild(tempStyle);
 
-        const hideElements = el.querySelectorAll('.share-hide-el');
         el.classList.add('ticket-capture');
         const img = el.querySelector('img');
         if (img) img.classList.add('ticket-img');
@@ -116,7 +124,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                 
                 await shareContent({
                     title: `🎫 ${event.title} - Ciudad Friki`,
-                    text: `🔥 *${event.title}*\n¡No te pierdas este evento en Ciudad Friki!\n\n📅 ${dateStr}\n📍 ${event.location || 'Consultar app'}\n\n¡Consigue toda tu info aquí! 👇`,
+                    text: `🔥 *${event.title}*\n${t('share.events.dontMiss')}\n\n📅 ${dateStr}\n📍 ${event.location || t('share.events.checkApp')}\n\n${t('share.events.getInfo')}`,
                     url: window.location.origin + `/events?id=${event.id}`,
                     file
                 });
@@ -126,7 +134,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
             // Fallback to basic share
             shareContent({
                 title: event.title,
-                text: `🔥 *${event.title}*\nConsigue toda tu info en Ciudad Friki 👇`,
+                text: `🔥 *${event.title}*\n${t('share.events.getInfo')}`,
                 url: window.location.origin + `/events?id=${event.id}`
             });
         } finally {
@@ -147,7 +155,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                 />
                 {event.is_sponsored && (
                     <div className="absolute top-4 right-4 bg-brand-secondary text-text-inv text-[10px] font-black px-3 py-1 rounded-full flex items-center uppercase tracking-widest shadow-lg">
-                        ★ {t('events.sponsored', 'Patrocinado')}
+                        ★ {t('events.sponsored')}
                     </div>
                 )}
             </div>
@@ -165,7 +173,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                         </div>
                         {event.description && (
                             <div className="text-text-sub text-sm line-clamp-2 mb-2">
-                                {renderTextWithMedia(event.description)}
+                                {renderTextWithMedia(event.description, t)}
                             </div>
                         )}
                     </div>
@@ -187,7 +195,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                             disabled={isSharing}
                             className={`share-hide-el transition ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
                             aria-label="Compartir evento"
-                            title={t('common.share', 'Compartir')}
+                            title={t('common.share')}
                         >
                             {isSharing ? <Loader2 size={24} className="animate-spin" /> : <Share2 size={24} />}
                         </button>
@@ -208,7 +216,7 @@ export function EventCard({ event, onInterested, onLike, onSave, onClick }: Even
                         onClick={onInterested}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-xl shadow-sm text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20"
                     >
-                        {t('common.interested', 'Me Interesa')}
+                        {t('common.interested')}
                     </button>
                 </div>
             </div>

@@ -57,8 +57,8 @@ function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boole
             if (blob) {
                 const file = new File([blob], 'lideres-frikivs-ciudad-friki.png', { type: 'image/png' });
                 await shareContent({
-                    title: 'Líderes Friki VS | Ciudad Friki',
-                    text: '⚔️ ¡Este es el Top 10 de los guerreros más poderosos de Friki VS! ¿Te atreves a retarlos?',
+                    title: t('seo.vs.title'),
+                    text: t('seo.vs.description'),
                     url: window.location.origin + '/frikivs',
                     file
                 });
@@ -77,15 +77,15 @@ function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boole
     if (winners.length === 0) return (
         <div className="text-center py-16 opacity-40">
             <Trophy size={64} className="mx-auto mb-4 text-text-muted" />
-            <p className="font-black uppercase tracking-widest text-text-muted text-sm">{t('triviaVS.leaderboard.empty', 'Sin datos aún')}</p>
-            <p className="text-xs text-text-muted mt-2">{t('triviaVS.leaderboard.emptyHint', '¡Gana duelos para aparecer aquí!')}</p>
+            <p className="font-black uppercase tracking-widest text-text-muted text-sm">{t('triviaVS.leaderboard.empty')}</p>
+            <p className="text-xs text-text-muted mt-2">{t('triviaVS.leaderboard.emptyHint')}</p>
         </div>
     );
     return (
         <div ref={leaderboardRef} className="space-y-2 mt-4 relative">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex-1" />
-                <h3 className="text-center font-black text-xl text-text-main uppercase tracking-tighter">🏆 Top Ganadores VS</h3>
+                <h3 className="text-center font-black text-xl text-text-main uppercase tracking-tighter">🏆 {t('triviaVS.leaderboard.fullTitle', 'Top Ganadores VS')}</h3>
                 <div className="flex-1 flex justify-end">
                     <button 
                         onClick={shareLeaderboardImage}
@@ -104,7 +104,7 @@ function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boole
                     <div className="flex items-center gap-1">
                         <Shield size={13} className="text-brand-primary" />
                         <span className="text-xs font-black text-brand-primary">{w.duels_won}</span>
-                        <span className="text-[10px] text-text-muted ml-0.5">{t('triviaVS.wins', 'victorias')}</span>
+                        <span className="text-[10px] text-text-muted ml-0.5">{t('triviaVS.wins')}</span>
                     </div>
                 </div>
             ))}
@@ -125,7 +125,7 @@ function DuelCard({ duel, isMine, onJoin }: { duel: Duel; isMine: boolean; onJoi
         >
             <img src={iconSrc} alt={duel.triviaduels_categories?.name || 'VS'} className="w-10 h-10 object-contain flex-shrink-0" />
             <div className="flex-1 min-w-0">
-                <p className="font-bold text-text-main text-sm truncate">{duel.triviaduels_categories?.name || t('triviaVS.unknownCategory', 'Categoría')}</p>
+                <p className="font-bold text-text-main text-sm truncate">{duel.triviaduels_categories?.name || t('triviaVS.unknownCategory')}</p>
                 <p className="text-xs text-text-muted">{duel.question_ids?.length || 10} {t('common.questions', 'preguntas')}</p>
                 {!isMine && duel.profiles && (
                     <p className="text-xs text-text-sub mt-0.5">vs <span className="font-bold">@{duel.profiles.username}</span></p>
@@ -137,10 +137,10 @@ function DuelCard({ duel, isMine, onJoin }: { duel: Duel; isMine: boolean; onJoi
                     <span className="text-xs font-black text-amber-400">{duel.wager_amount} FC</span>
                 </div>
                 {isMine ? (
-                    <span className="text-[10px] font-bold text-accent-red uppercase tracking-wider">{t('triviaVS.waiting', 'Esperando...')}</span>
+                    <span className="text-[10px] font-bold text-accent-red uppercase tracking-wider">{t('triviaVS.waiting')}</span>
                 ) : (
                     <div className="flex items-center gap-1 text-brand-primary">
-                        <span className="text-[10px] font-bold uppercase">{t('triviaVS.joinDuelTitle', 'Unirse')}</span>
+                        <span className="text-[10px] font-bold uppercase">{t('triviaVS.joinDuelTitle')}</span>
                         <ChevronRight size={12} />
                     </div>
                 )}
@@ -256,7 +256,7 @@ function GameplayScreen({
         <div className="fixed inset-0 z-[300] bg-bg-main flex flex-col items-center justify-center gap-6 p-8 text-center">
             <XCircle size={56} className="text-accent-red" />
             <div>
-                <h2 className="font-black text-text-main text-xl">{t('triviaVS.gameplay.loadError', 'Error al cargar')}</h2>
+                <h2 className="font-black text-text-main text-xl">{t('triviaVS.gameplay.loadError')}</h2>
                 <p className="text-text-muted text-sm mt-2">{loadError || 'No se encontraron preguntas'}</p>
             </div>
             <button onClick={onClose} className="px-6 py-3 bg-brand-primary text-text-inv font-black rounded-2xl hover:bg-brand-primary-light transition">
@@ -392,11 +392,11 @@ function ResultScreen({
             const blob = await resp.blob();
 
             if (blob) {
-                const title = isTie ? '¡Empate en Friki VS!' : isWinner ? '¡Victoria en Friki VS!' : 'Duelo finalizado en Friki VS';
+                const title = isTie ? t('share.vs.tieTitle') : isWinner ? t('share.vs.victoryTitle') : t('share.vs.defeatTitle');
                 const file = new File([blob], 'resultado-frikivs.png', { type: 'image/png' });
                 await shareContent({
                     title,
-                    text: `⚔️ ¡Acabo de terminar un duelo en Friki VS! ${isTie ? '¡Ha sido un empate épico!' : isWinner ? '¡He salido victorioso!' : '¡Buen duelo!'}`,
+                    text: isTie ? t('share.vs.tieText') : isWinner ? t('share.vs.victoryText') : t('share.vs.defeatText'),
                     url: window.location.origin + '/frikivs',
                     file
                 });
@@ -431,27 +431,27 @@ function ResultScreen({
 
                 <div>
                     <h2 className="text-3xl font-black text-text-main uppercase">
-                        {isTie ? t('triviaVS.result.tie', '¡Empate!') : isWinner ? t('triviaVS.result.won', '¡Ganaste!') : t('triviaVS.result.lost', 'Derrota')}
+                        {isTie ? t('triviaVS.result.tie') : isWinner ? t('triviaVS.result.won') : t('triviaVS.result.lost')}
                     </h2>
                     {result?.message === 'waiting' && (
-                        <p className="text-sm text-text-muted mt-1 share-hide-el">{t('triviaVS.result.waiting', 'Esperando al oponente para confirmar el resultado...')}</p>
+                        <p className="text-sm text-text-muted mt-1 share-hide-el">{t('triviaVS.result.waiting')}</p>
                     )}
                 </div>
 
                 <div className="w-full flex items-center justify-around bg-bg-sub rounded-2xl p-4">
                     <div>
-                        <p className="text-xs text-text-muted font-bold uppercase tracking-widest mb-1">{t('triviaVS.result.yourScore', 'Tu puntaje')}</p>
+                        <p className="text-xs text-text-muted font-bold uppercase tracking-widest mb-1">{t('triviaVS.result.yourScore')}</p>
                         <p className="text-3xl font-black text-brand-primary">{result?.your_score ?? 0}<span className="text-sm text-text-muted">/{totalQuestions}</span></p>
                     </div>
                     <div className="h-10 w-px bg-border-theme" />
                     <div>
-                        <p className="text-xs text-text-muted font-bold uppercase tracking-widest mb-1">{t('triviaVS.result.opponent', 'Oponente')}</p>
+                        <p className="text-xs text-text-muted font-bold uppercase tracking-widest mb-1">{t('triviaVS.result.opponent')}</p>
                         <p className="text-3xl font-black text-text-sub">{result?.opponent_score ?? '?'}<span className="text-sm text-text-muted">/{totalQuestions}</span></p>
                     </div>
                 </div>
 
                 <button onClick={onClose} className="finish-btn-result w-full bg-brand-primary text-text-inv font-black py-4 rounded-2xl hover:bg-brand-primary-light transition-all shadow-lg shadow-brand-primary/30">
-                    {t('common.finish', 'Finalizar')}
+                    {t('common.finish')}
                 </button>
             </div>
         </div>
@@ -526,7 +526,7 @@ export default function FrikiVS() {
     const handleCreateDuel = async () => {
         if (!selectedCategory || !user) return;
         if (walletBalance !== null && wagerAmount > walletBalance) {
-            alert(t('triviaVS.wager.insufficient', 'Saldo insuficiente para esta apuesta'));
+            alert(t('triviaVS.wager.insufficient'));
             return;
         }
         setCreating(true);
@@ -537,7 +537,7 @@ export default function FrikiVS() {
             setShowCreateModal(false);
             setShowGameplay(true);
         } catch (e: any) {
-            alert(e.message || t('triviaVS.wager.insufficient', 'Saldo insuficiente'));
+            alert(e.message || t('triviaVS.wager.insufficient'));
         } finally { setCreating(false); }
     };
 
@@ -564,8 +564,8 @@ export default function FrikiVS() {
     if (!vsEnabled) return (
         <div className="flex flex-col items-center justify-center py-32 text-center px-8">
             <img src="/assets/icon_vs.png" alt="Friki VS" className="w-24 h-24 object-contain opacity-30 mb-6" />
-            <h2 className="text-2xl font-black text-text-main">{t('triviaVS.disabled', 'Friki VS en Mantenimiento')}</h2>
-            <p className="text-text-muted mt-2">{t('triviaVS.disabledHint', 'Los duelos VS están temporalmente desactivados. Vuelve pronto. ⚔️')}</p>
+            <h2 className="text-2xl font-black text-text-main">{t('triviaVS.disabled')}</h2>
+            <p className="text-text-muted mt-2">{t('triviaVS.disabledHint')}</p>
         </div>
     );
 
@@ -591,9 +591,9 @@ export default function FrikiVS() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
             <SEO 
-                title="Friki VS | Duelos 1vs1"
-                description="Compite en duelos de trivia en tiempo real. Reta a otros Frikis, apuesta tus Frikicoins y demuestra que eres el que más sabe de Anime y Videojuegos."
-                keywords="Duelos Geek, Trivia VS, Competición Anime, Apuestas Frikicoins, Ranking VS"
+                title={t('seo.vs.title')}
+                description={t('seo.vs.description')}
+                keywords={t('seo.vs.keywords')}
                 image="/assets/seo/vs_banner.png"
             />
 
@@ -602,7 +602,7 @@ export default function FrikiVS() {
                 <img src="/assets/icon_vs.png" alt="Friki VS" className="w-14 h-14 object-contain drop-shadow-lg" />
                 <div>
                     <h1 className="text-4xl font-black text-text-main uppercase tracking-tighter">Friki VS</h1>
-                    <p className="text-text-muted text-sm">{t('triviaVS.subtitle', 'Reta a la comunidad. Apuesta Frikicoins. Demuestra quién sabe más.')}</p>
+                    <p className="text-text-muted text-sm">{t('triviaVS.subtitle')}</p>
                 </div>
                 {user && (
                     <div className="ml-auto flex flex-col md:flex-row items-end md:items-center gap-2">
@@ -610,14 +610,14 @@ export default function FrikiVS() {
                             onClick={() => setShowSubmissionModal(true)}
                             className="flex items-center gap-2 bg-bg-sub text-brand-primary border-2 border-brand-primary px-4 py-3 rounded-2xl font-black hover:bg-brand-primary/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
                         >
-                            {t('crowdsourcing.title', 'Aportar Preguntas')}
+                            {t('crowdsourcing.title')}
                         </button>
                         <button
                             onClick={() => setShowCreateModal(true)}
                             className="flex items-center gap-2 bg-brand-primary text-text-inv px-5 py-3 rounded-2xl font-black shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-light transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
                         >
                             <Zap size={18} />
-                            {t('triviaVS.createDuel', 'Crear Duelo')}
+                            {t('triviaVS.createDuel')}
                         </button>
                     </div>
                 )}
@@ -631,9 +631,9 @@ export default function FrikiVS() {
                         onClick={() => setTab(t_)}
                         className={`relative px-5 py-3 text-sm font-bold transition-colors flex items-center gap-2 ${tab === t_ ? 'text-brand-primary' : 'text-text-muted hover:text-text-sub'}`}
                     >
-                        {t_ === 'public' && `${t('triviaVS.publicDuels', 'Disponibles')}${!loading ? ` (${publicDuels.length})` : ''}`}
-                        {t_ === 'mine' && `${t('triviaVS.myDuels', 'Mis Retos')}${!loading ? ` (${myDuels.length})` : ''}`}
-                        {t_ === 'leaderboard' && '🏆 Líderes'}
+                        {t_ === 'public' && `${t('triviaVS.publicDuels')}${!loading ? ` (${publicDuels.length})` : ''}`}
+                        {t_ === 'mine' && `${t('triviaVS.myDuels')}${!loading ? ` (${myDuels.length})` : ''}`}
+                        {t_ === 'leaderboard' && `🏆 ${t('triviaVS.leaderboard.title')}`}
                         {tab === t_ && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary rounded-t" />}
                     </button>
                 ))}
@@ -650,7 +650,7 @@ export default function FrikiVS() {
                         <div className="text-center py-16 opacity-40">
                             <Swords size={56} className="mx-auto mb-4 text-text-muted" />
                             <p className="font-black uppercase text-text-muted text-sm">
-                                {tab === 'public' ? t('triviaVS.noPublicDuels', 'No hay duelos disponibles') : t('triviaVS.noPendingDuels', 'No tienes retos pendientes')}
+                                {tab === 'public' ? t('triviaVS.noPublicDuels') : t('triviaVS.noPendingDuels')}
                             </p>
                         </div>
                     ) : (tab === 'public' ? publicDuels : myDuels).map(duel => (
@@ -670,12 +670,12 @@ export default function FrikiVS() {
                                 className="w-16 h-16 object-contain mx-auto mb-3"
                             />
                             <h3 className="font-black text-text-main text-xl">{confirmDuel.triviaduels_categories?.name}</h3>
-                            <p className="text-text-muted text-sm mt-1">{t('triviaVS.joinDuelMessage', 'La apuesta es de {{amount}} FC. ¿Aceptas el reto?', { amount: confirmDuel.wager_amount })}</p>
+                            <p className="text-text-muted text-sm mt-1">{t('triviaVS.joinDuelMessage', { amount: confirmDuel.wager_amount })}</p>
                         </div>
                         <div className="flex gap-3">
                             <button onClick={() => setConfirmDuel(null)} className="flex-1 py-3 rounded-2xl border border-border-theme text-text-muted font-bold hover:bg-bg-sub transition">{t('common.cancel')}</button>
                             <button onClick={() => handleJoinDuel(confirmDuel)} className="flex-1 py-3 rounded-2xl bg-brand-primary text-text-inv font-black hover:bg-brand-primary-light transition shadow-lg shadow-brand-primary/30">
-                                {t('common.accept', 'Aceptar')}
+                                {t('common.confirm')}
                             </button>
                         </div>
                     </div>
@@ -688,11 +688,11 @@ export default function FrikiVS() {
                     <div className="bg-bg-side border border-border-theme rounded-3xl p-8 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                         <h3 className="font-black text-text-main text-xl mb-6 flex items-center gap-3">
                             <Zap size={22} className="text-brand-primary" />
-                            {t('triviaVS.createDuel', 'Crear Duelo')}
+                            {t('triviaVS.createDuel')}
                         </h3>
 
                         {/* Category grid */}
-                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.selectCategory', 'Elige una categoría')}</p>
+                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.selectCategory')}</p>
                         <div className="grid grid-cols-3 gap-2 mb-6">
                             {categories.map(cat => (
                                 <button
@@ -714,7 +714,7 @@ export default function FrikiVS() {
                         </div>
 
                         {/* Wager */}
-                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.wager.title', 'Apuesta (FC)')}</p>
+                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.wager.title')}</p>
                         <div className="flex gap-2 flex-wrap mb-2">
                             {[50, 100, 250, 500].map(amt => (
                                 <button key={amt} onClick={() => setWagerAmount(amt)} className={`px-4 py-2 rounded-xl font-black text-sm border-2 transition-all ${wagerAmount === amt ? 'border-brand-primary bg-brand-primary text-text-inv' : 'border-border-theme text-text-sub hover:border-brand-primary/40'}`}>{amt}</button>
@@ -732,7 +732,7 @@ export default function FrikiVS() {
                         </div>
 
                         {/* Question Count Selector — mirrors app TriviaCategorySelectModal */}
-                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.questionCount', 'Cantidad de Preguntas')}</p>
+                        <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">{t('triviaVS.questionCount')}</p>
                         <div className="flex gap-2 mb-6">
                             {[5, 10, 15].map(count => (
                                 <button
@@ -771,7 +771,7 @@ export default function FrikiVS() {
                                     ? t('common.loading')
                                     : walletBalance !== null && wagerAmount > walletBalance
                                         ? 'Saldo insuficiente'
-                                        : t('triviaVS.wager.confirm', 'Crear y Jugar')}
+                                        : t('triviaVS.wager.confirm')}
                             </button>
                         </div>
                     </div>

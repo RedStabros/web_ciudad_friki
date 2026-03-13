@@ -108,7 +108,7 @@ export default function Home() {
                     type: 'duel_win' as const,
                     username: d.profiles.username,
                     avatar_url: d.profiles.avatar_url,
-                    detail: t('triviaVS.wonDuel', 'ganó un duelo VS'),
+                    detail: t('dashboard.wonDuel'),
                     created_at: d.created_at,
                 }));
 
@@ -131,7 +131,7 @@ export default function Home() {
     };
 
     const handleLikeToggle = async (event: FrikiEvent) => {
-        if (!user) return alert(t('common.loginRequired', 'Debes iniciar sesión para dar me gusta'));
+        if (!user) return alert(t('common.loginRequired'));
         const wasLiked = event.isLiked || false;
         await EventService.toggleLikeEvent(user.id, event.id, wasLiked);
         refetch();
@@ -141,7 +141,7 @@ export default function Home() {
     };
 
     const handleSaveToggle = async (event: FrikiEvent) => {
-        if (!user) return alert(t('common.loginRequired', 'Debes iniciar sesión para guardar eventos'));
+        if (!user) return alert(t('common.loginRequired'));
         const wasSaved = event.isSaved || false;
         await EventService.toggleSaveEvent(user.id, event.id, wasSaved);
         refetch();
@@ -162,9 +162,9 @@ export default function Home() {
     return (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <SEO 
-                title="Eventos Geek, Anime y Videojuegos"
-                description="Descubre la comunidad definitiva para amantes del Anime, Cosplay y Videojuegos en Medellín y toda Colombia. Encuentra eventos, retos y más en Ciudad Friki."
-                keywords="Anime, Cosplay, Videojuegos, Geek, Medellín, Colombia, Manga, K-Pop, Rol, Cómics"
+                title={t('seo.home.title')}
+                description={t('seo.home.description')}
+                keywords={t('seo.home.keywords')}
             />
 
             {/* LEFT SIDEBAR (Navigation) */}
@@ -205,13 +205,13 @@ export default function Home() {
                     {frikiVs && (
                         <Link to="/friki-vs" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                             <img src="/assets/icon_vs.png" alt="Friki VS" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
-                            Friki VS
+                            {t('triviaVS.title')}
                         </Link>
                     )}
                     {frikiMartVisible && (
                         <Link to="/frikimart" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                             <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
-                            FrikiMart
+                            {t('frikimart.title')}
                         </Link>
                     )}
                 </nav>
@@ -220,13 +220,13 @@ export default function Home() {
 
                 <button
                     onClick={() => {
-                        if (!user) return alert(t('auth.signInToPlay', 'Debes iniciar sesión para publicar eventos'));
+                        if (!user) return alert(t('common.loginRequired'));
                         setIsCreateModalOpen(true);
                     }}
                     className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20 mb-6"
                 >
                     <PlusCircle className="mr-2" size={20} />
-                    {t('events.publish', 'Publicar Evento')}
+                    {t('events.publish')}
                 </button>
 
                 {/* Info Card - Frikis Online */}
@@ -234,14 +234,14 @@ export default function Home() {
                     <div className="flex justify-between text-center items-center py-4 px-2">
                         <div className="flex flex-col items-center justify-center flex-1 border-r border-divider-theme">
                             <div className="font-bold text-text-main text-xl">{totalInteractions > 0 ? (totalInteractions >= 1000 ? `${(totalInteractions / 1000).toFixed(1)}k+` : totalInteractions) : '...'}</div>
-                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('dashboard.interactions', 'Obras Frikis')}</div>
+                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('dashboard.interactions')}</div>
                         </div>
                         <div className="flex flex-col items-center justify-center flex-1">
                             <div className="font-black text-text-main text-accent-green flex items-center gap-1.5 text-xl">
                                 <span className="w-2.5 h-2.5 bg-accent-green rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                                 {onlineUsersCount}
                             </div>
-                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('tavern.online', 'Frikis Online')}</div>
+                            <div className="text-[10px] text-text-muted uppercase tracking-widest leading-none mt-1">{t('tavern.online')}</div>
                         </div>
                     </div>
                 </div>
@@ -253,10 +253,10 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h2 className="text-xl font-bold text-text-main capitalize">
                         {feedType === 'upcoming'
-                            ? t('events.upcomingTitle', 'Próximos Eventos')
+                            ? t('events.upcomingTitle')
                             : feedType === 'interests'
-                                ? t('profile.interests', 'Mis Intereses')
-                                : t('events.pastTitle', 'Eventos Pasados')}
+                                ? t('profile.interests')
+                                : t('events.pastTitle')}
                     </h2>
                     <div className="flex bg-bg-side p-1 rounded-xl border border-border-theme">
                         <button
@@ -275,7 +275,7 @@ export default function Home() {
                             onClick={() => setFeedType('past')}
                             className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'past' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
                         >
-                            {t('common.past', 'Pasados')}
+                            {t('common.past')}
                         </button>
                     </div>
                 </div>
@@ -294,8 +294,8 @@ export default function Home() {
                         <h3 className="text-text-main font-bold text-lg">{t('common.noResults')}</h3>
                         <p className="text-text-sub text-sm mt-1">
                             {feedType === 'interests'
-                                ? t('dashboard.emptyEventsInterests', 'No pudimos encontrar eventos que coincidan con tus intereses específicos aún.')
-                                : t('dashboard.emptyEvents', 'No hay eventos programados en esta categoría por ahora.')}
+                                ? t('dashboard.emptyEventsInterests')
+                                : t('dashboard.emptyEvents')}
                         </p>
                     </div>
                 ) : (
@@ -348,7 +348,7 @@ export default function Home() {
                         </div>
 
                         <div className="bg-bg-sub/50 px-6 py-3 border-t border-border-theme flex justify-between items-center">
-                            <span className="text-xs text-text-muted">{t('wallet.balanceOverview', 'Balance Total')}</span>
+                            <span className="text-xs text-text-muted">{t('wallet.balanceOverview')}</span>
                             <button
                                 onClick={() => setIsWalletOpen(true)}
                                 className="text-sm font-medium text-brand-primary hover:text-brand-primary-light flex items-center transition-colors px-0 py-1"
@@ -370,7 +370,7 @@ export default function Home() {
                                     <h3 className="text-sm font-black text-text-main uppercase tracking-wider">Top Friki VS</h3>
                                 </div>
                                 <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full border border-brand-primary/20">
-                                    {t('triviaVS.leaderboard.title', 'Líderes')}
+                                    {t('triviaVS.leaderboard.title')}
                                 </span>
                             </div>
 
@@ -381,7 +381,7 @@ export default function Home() {
                             ) : vsWinners.length === 0 ? (
                                 <div className="text-center py-6 opacity-40">
                                     <Trophy size={32} className="mx-auto mb-2 text-text-muted" />
-                                    <p className="text-xs text-text-muted font-bold uppercase tracking-widest">{t('triviaVS.leaderboard.empty', 'Sin datos aún')}</p>
+                                    <p className="text-xs text-text-muted font-bold uppercase tracking-widest">{t('triviaVS.leaderboard.empty')}</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -414,7 +414,7 @@ export default function Home() {
                                 to="/friki-vs"
                                 className="mt-4 flex items-center justify-center gap-1 text-xs font-bold text-text-muted hover:text-brand-primary transition-colors py-1"
                             >
-                                {t('triviaVS.viewAll', 'Ver todos los duelos')} <ChevronRight size={14} />
+                                {t('triviaVS.viewAll')} <ChevronRight size={14} />
                             </Link>
                         </div>
                     </div>
@@ -424,7 +424,7 @@ export default function Home() {
                 <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <Clock size={16} className="text-text-muted" />
-                        <h3 className="text-sm font-bold text-text-main">{t('home.recentActivity', 'Actividad Reciente')}</h3>
+                        <h3 className="text-sm font-bold text-text-main">{t('home.recentActivity')}</h3>
                     </div>
 
                     {activityLoading ? (
@@ -458,7 +458,7 @@ export default function Home() {
 
                 {/* Trending Topics */}
                 <div className="bg-bg-side rounded-xl shadow-sm border border-border-theme p-5">
-                    <h3 className="text-sm font-semibold text-text-main mb-4">{t('profile.interests')} & {t('common.trends', 'Tendencias')}</h3>
+                    <h3 className="text-sm font-semibold text-text-main mb-4">{t('profile.interests')} & {t('common.trends')}</h3>
                     <div className="flex flex-wrap gap-2">
                         {trendingTopics.length > 0 ? trendingTopics.map(topic => (
                             <span
@@ -468,7 +468,7 @@ export default function Home() {
                                 #{topic}
                             </span>
                         )) : (
-                            <p className="text-xs text-text-muted">{t('common.loading')}</p>
+                                <p className="text-xs text-text-muted">{t('common.loading')}</p>
                         )}
                     </div>
                 </div>
