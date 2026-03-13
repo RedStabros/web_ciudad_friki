@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
 import { getAvatarSource } from '../config/avatars';
-import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings, AlertCircle } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
