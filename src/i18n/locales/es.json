@@ -34,6 +34,10 @@
         "change": "Cambiar",
         "refresh": "Actualizar Datos",
         "required": "Requerido",
+        "share": "Compartir",
+        "markAllRead": "Marcar todo como leído",
+        "new": "Nuevo",
+        "preferences": "Preferencias",
         "search": "Buscar...",
         "totalHistorial": "Histórico Total",
         "noUsername": "Sin Username",
@@ -74,8 +78,7 @@
         "send": "Enviar",
         "back": "Volver",
         "preview": "Vista Previa",
-        "errorHighlight": "Por favor llena los campos requeridos (*).",
-        "new": "Nuevo"
+        "errorHighlight": "Por favor llena los campos requeridos (*)."
     },
     "auth": {
         "welcome": "Bienvenido a Ciudad Friki",
