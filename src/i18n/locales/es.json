@@ -10,7 +10,8 @@
         "adminPanel": "Admin Panel"
     },
     "splash": {
-        "loading": "Cargando..."
+        "loading": "Cargando...",
+        "wait": "Cargando..."
     },
     "common": {
         "user": "user",
@@ -34,7 +35,6 @@
         "change": "Cambiar",
         "refresh": "Actualizar Datos",
         "required": "Requerido",
-        "share": "Compartir",
         "markAllRead": "Marcar todo como leído",
         "new": "Nuevo",
         "preferences": "Preferencias",
@@ -109,7 +109,7 @@
         "signInToPlay": "Inicia sesión para jugar",
         "email": "Correo electrónico",
         "password": "Contraseña",
-        "confirmPassword": "Confirmar contraseña",
+        "confirmPassword": "Confirmar Contraseña",
         "resetPassword": "Restablecer Contraseña",
         "enterEmailToReset": "Ingresa tu correo para recibir un enlace de restablecimiento.",
         "sendResetLink": "Enviar Enlace",
@@ -121,7 +121,7 @@
         "updatePassword": "Actualizar Contraseña",
         "passwordResetSuccess": "Tu contraseña ha sido actualizada exitosamente.",
         "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
-        "fillAllFields": "Por favor completa todos los campos.",
+        "fillAllFields": "Por favor completa todos los campos correctamente.",
         "dontHaveAccount": "¿No tienes cuenta?",
         "alreadyHaveAccount": "¿Ya tienes cuenta?",
         "createAccount": "Crear cuenta",
@@ -141,11 +141,7 @@
         "privacy": "Política de Privacidad",
         "and": "y",
         "changePassword": "Cambiar Contraseña",
-        "newPassword": "Nueva Contraseña",
-        "confirmPassword": "Confirmar Contraseña",
-        "passwordChangedSuccess": "¡Contraseña cambiada con éxito!",
-        "passwordsDoNotMatch": "Las contraseñas no coinciden",
-        "fillAllFields": "Por favor completa todos los campos correctamente."
+        "passwordChangedSuccess": "¡Contraseña cambiada con éxito!"
     },
     "admin": {
         "sidebar": {
@@ -161,14 +157,6 @@
             "frikimart": "Panel FrikiMart",
             "gm": "Panel GM"
         }
-    },
-    "notifications": {
-        "title": "Notificaciones",
-        "emptyTitle": "Silencio de radio",
-        "emptyDesc": "Aún no hay notificaciones para tu zona, aventurero.",
-        "scanning": "Escaneando señal...",
-        "markAllRead": "Marcar todas como leídas",
-        "new": "Nueva"
     },
     "dashboard": {
         "welcome": "Bienvenido",
@@ -203,12 +191,68 @@
         "recentActivity": "Actividad Reciente"
     },
     "events": {
-        "title": "Eventos",
-        "noDate": "TBD",
+        "title": "Título del Evento",
+        "noDate": "Fecha TBD",
         "sponsored": "Patrocinado",
         "interested": "Me Interesa",
         "save": "Guardar evento",
-        "share": "Compartir evento"
+        "share": "Compartir evento",
+        "upcomingTitle": "Próximos Eventos",
+        "pastTitle": "Eventos Pasados",
+        "description": "Descripción",
+        "startDate": "Fecha Inicio",
+        "startTime": "Hora de Inicio",
+        "endDate": "Fecha Fin (Opcional)",
+        "endTime": "Hora Fin (Opcional)",
+        "locationName": "Lugar del Evento",
+        "mapLink": "Enlace de Mapa (Google/Waze)",
+        "ticketValue": "Precio inicial de entrada",
+        "freeEvent": "Evento Gratuito",
+        "externalLink": "Link Web / Entradas (Opcional)",
+        "whatsapp": "WhatsApp de Contacto",
+        "loadError": "Error al cargar los eventos. Verifica tu conexión.",
+        "tagsHint": "Selecciona los intereses que mejor definan tu evento para mejorar el filtrado.",
+        "clickToUpload": "Haz clic para subir la imagen",
+        "publish": "Publicar Evento",
+        "create": "Crear Evento",
+        "createTitle": "Crear Nuevo Evento",
+        "editTitle": "Editar Evento",
+        "editWarningTitle": "El evento volverá a revisión",
+        "editWarningMessage": "Al editar tu evento, su estado cambiará a Pendiente y deberá ser aprobado de nuevo por un administrador antes de ser público.",
+        "updateSuccess": "¡Evento actualizado! Quedará pendiente de nueva revisión por los admins.",
+        "sections": {
+            "basics": "Información Básica",
+            "schedule": "Horarios",
+            "location": "Ubicación",
+            "tickets": "Tickets & Valor",
+            "contact": "Contacto",
+            "tags": "Categorías e Intereses",
+            "image": "Flyer del Evento"
+        },
+        "placeholders": {
+            "title": "Ej: Gran Torneo de Cosplay",
+            "description": "Cuéntanos de qué trata tu evento...",
+            "place": "Ej: Centro de Eventos, Parque, Local...",
+            "location": "Dirección o nombre del lugar"
+        },
+        "success": "¡Evento creado exitosamente!",
+        "error": "Error al crear el evento",
+        "status": {
+            "pending": "En Revisión",
+            "approved": "Publicado",
+            "rejected": "Rechazado",
+            "cancelled": "Cancelado",
+            "delayed": "Aplazado",
+            "finished": "Finalizado"
+        },
+        "viewOnMaps": "Ver en Mapas",
+        "contactWhatsApp": "Contactar por WhatsApp",
+        "officialWebsite": "Sitio Web Oficial",
+        "about": "Acerca del Evento",
+        "free": "Gratis",
+        "paid": "De Pago",
+        "noDescription": "Sin descripción.",
+        "date": "Fecha"
     },
     "adminRoles": {
         "title": "Gestión de Roles",
@@ -709,17 +753,7 @@
                 "h": "hace {{count}} h"
             }
         },
-        "report": {
-            "title": "Reportar Contenido",
-            "spam": "Spam o Publicidad",
-            "harassment": "Acoso o Insultos",
-            "nsfw": "Contenido Inapropiado (NSFW)",
-            "spoilers": "Spoilers sin marcar",
-            "other": "Otro motivo",
-            "button": "Enviar Reporte",
-            "success": "Reporte enviado. Un moderador lo revisará.",
-            "error": "No se pudo enviar el reporte."
-        },
+        "report": "Reportar",
         "loginToVote": "Inicia sesión para votar",
         "modals": {
             "create": {
@@ -754,6 +788,7 @@
             "details": {
                 "loading": "Cargando hilo...",
                 "replies": "Respuestas",
+                "reply": "Responder",
                 "noReplies": "¡Sé el primero en responder!",
                 "replyPlaceholder": "Escribe una respuesta...",
                 "loginToReply": "Inicia sesión para responder",
@@ -766,7 +801,6 @@
         "reportTitle": "Reportar publicación",
         "reportSubtitle": "Cuéntanos por qué consideras que viola las reglas.",
         "reportPlaceholder": "Ej: Spam, contenido inapropiado, acoso...",
-        "report": "Reportar",
         "update": "Actualizar",
         "send": "Enviar",
         "back": "Volver",
@@ -778,7 +812,7 @@
     "onboarding": {
         "title": "¡Bienvenido a Ciudad Friki!",
         "subtitle": "Para comenzar, necesitamos conocerte un poco mejor.",
-        "reward": "Completa tu perfil y gana 1000 Frikicoins \uD83E\uDE99",
+        "reward": "Completa tu perfil y gana 1000 Frikicoins 🪙",
         "username": "Nombre de Usuario *",
         "fullName": "Nombre Completo *",
         "country": "País *",
@@ -789,7 +823,7 @@
         "submit": "Completar y Ganar Recompensa",
         "successTitle": "¡Bienvenido!",
         "successMessage": "¡Perfil completado exitosamente!",
-        "rewardMessage": "\n\n\uD83C\uDF89 ¡Has recibido {{amount}} Frikicoins de bienvenida!",
+        "rewardMessage": "\n\n🎉 ¡Has recibido {{amount}} Frikicoins de bienvenida!",
         "placeholders": {
             "username": "Ej: geek_master",
             "fullName": "Ej: Juan Pérez",
@@ -1025,13 +1059,7 @@
         "byCiudadFriki": "por @RedStabros",
         "totalResponses": "Respuestas",
         "totalSpent": "Gastado",
-        "notifications": "Notificaciones",
-        "admin": {
-            "maintenanceMode": "Modo Mantenimiento",
-            "active": "ACTIVO (Lockdown)",
-            "inactive": "DESACTIVADO",
-            "maintenanceChanged": "Modo de mantenimiento {{status}}"
-        }
+        "notifications": "Notificaciones"
     },
     "notifications": {
         "title": "Notificaciones",
@@ -1040,6 +1068,7 @@
         "new": "Nuevo",
         "emptyTitle": "Silencio de radio",
         "emptyDesc": "Aún no hay notificaciones, aventurero.",
+        "emptyMessage": "Aún no hay notificaciones, aventurero.",
         "markAllRead": "Marcar todo leído",
         "deleteAll": "Eliminar todo",
         "confirmDeleteAllTitle": "Eliminar todas las notificaciones",
@@ -1076,13 +1105,14 @@
         "privacyTitle": "Política de Privacidad",
         "privacyContent": "En Ciudad Friki, valoramos tu privacidad.\n\n1. Recolección de Datos\nRecolectamos información básica (nombre, correo, ubicación) para mejorar tu experiencia y ofrecerte recompensas personalizadas.\n\n2. Uso de la Información\nUtilizamos tus datos para gestionar tu cuenta, procesar transacciones de Frikicoins y enviarte notificaciones relevantes.\n\n3. Compartir con Terceros\nIMPORTANTE: Al aceptar esta política, autorizas a Corporación Ciudad Friki a compartir tus datos (como intereses y ubicación general) con aliados estratégicos y patrocinadores para ofrecerte beneficios exclusivos, eventos y promociones. Nunca venderemos tus datos a spammers.\n\n4. Seguridad\nImplementamos medidas de seguridad estándar para proteger tu información.\n\n5. Derechos del Usuario\nTienes derecho a:\n• Acceder a tus datos personales\n• Solicitar corrección de información incorrecta\n• Solicitar eliminación de tu cuenta y datos\n• Revocar consentimiento en cualquier momento\n\nPara ejercer estos derechos, contáctanos en: udcarkangel@gmail.com\n\n6. Retención de Datos\nConservamos tus datos mientras tu cuenta esté activa. Si eliminas tu cuenta, tus datos serán eliminados en un plazo de 30 días.\n\n7. Autenticación con Google\nCuando inicias sesión con Google, recibimos tu nombre, email y foto de perfil. No almacenamos tu contraseña de Google. Puedes revocar el acceso desde tu cuenta de Google en cualquier momento.\n\n8. Cambios a esta Política\nNos reservamos el derecho de actualizar esta política. Te notificaremos sobre cambios importantes a través de la app.\n\n9. Contacto\nPara preguntas sobre esta política:\nEmail: udcarkangel@gmail.com\nCorporación Ciudad Friki - NIT 901.597.939-0",
         "frikicoinsTitle": "¿Qué son las Frikicoins?",
-        "frikicoinsContent": "Las Frikicoins son la moneda oficial de Ciudad Friki.\n\n\uD83E\uDE99 ¿Para qué sirven?\nSirven para canjear recompensas, acceder a eventos exclusivos, obtener descuentos en tiendas aliadas y participar en sorteos.\n\n\uD83D\uDE80 ¿Cómo se ganan?\nPuedes ganar Frikicoins asistiendo a eventos, completando misiones en la app, invitando amigos o comprando en tiendas patrocinadoras.\n\n¡Acumula y domina Ciudad Friki!",
+        "frikicoinsContent": "Las Frikicoins son la moneda oficial de Ciudad Friki.\n\n🪙 ¿Para qué sirven?\nSirven para canjear recompensas, acceder a eventos exclusivos, obtener descuentos en tiendas aliadas y participar en sorteos.\n\n🚀 ¿Cómo se ganan?\nPuedes ganar Frikicoins asistiendo a eventos, completando misiones en la app, invitando amigos o comprando en tiendas patrocinadoras.\n\n¡Acumula y domina Ciudad Friki!",
         "ecoTitle": "Reducción de Huella de Carbono",
-        "ecoContent": "\uD83C\uDF0D Nuestro Compromiso con el Planeta\n\nDurante 10 años, las Frikicoins fueron monedas físicas impresas en papel y plástico. Aunque eran coleccionables, generaban un impacto ambiental significativo.\n\n\uD83C\uDF31 La Evolución Digital\nHemos digitalizado nuestra economía para reducir nuestra huella de carbono. Al eliminar la impresión física:\n- Ahorramos papel y agua.\n- Reducimos residuos plásticos.\n- Disminuimos las emisiones por transporte y logística.\n\nGracias por ser parte de este cambio. ¡Ahora tu billetera es digital y ecológica!",
+        "ecoContent": "🌍 Nuestro Compromiso con el Planeta\n\nDurante 10 años, las Frikicoins fueron monedas físicas impresas en papel y plástico. Aunque eran coleccionables, generaban un impacto ambiental significativo.\n\n🌱 La Evolución Digital\nHemos digitalizado nuestra economía para reducir nuestra huella de carbono. Al eliminar la impresión física:\n- Ahorramos papel y agua.\n- Reducimos residuos plásticos.\n- Disminuimos las emisiones por transporte y logística.\n\nGracias por ser parte de este cambio. ¡Ahora tu billetera es digital y ecológica!",
         "corporationTitle": "Corporación Ciudad Friki",
         "corporationContent": "¿Cómo se compone la comunidad friki?\nLa comunidad friki está compuesta por una amplia diversidad sociocultural de grupos y personas que se integran alrededor de una afición en común o una actividad que practican conjuntamente. Los numerosos subgrupos de frikis se encuentran constituidos por individuos con características comunes entre sí que construyen hermandad e identidades grupales, además de compartir sus conocimientos en diversos campos específicos, o participar en conjunto de actividades que aportan a dinamizar sus saberes y apropiación del entorno.\n\n¿Cómo se organiza la comunidad friki?\nEn el año 2011, un grupo de jóvenes y adultos con diversas aficiones y expresiones artísticas decidió articular esfuerzos para crear un espacio que promoviera múltiples manifestaciones culturales, recreativas y artísticas. Como resultado de este proceso, en la ciudad de Medellín nació la Red Cultural Juvenil Comunidad Underground, una plataforma de articulación conformada por grupos juveniles, culturales, lúdicos, deportivos y artísticos, que representan y promueven nuevas formas de expresión ciudadana.\nEsta Red ha estructurado un modelo de organización sociocultural en el municipio de Medellín, fundamentado en los marcos legales que protegen y fomentan la conformación y el desarrollo de procesos y expresiones culturales juveniles. Su enfoque integra las economías creativas, solidarias y populares, especialmente en lo concerniente a las culturas alternativas y digitales, reconociéndolas como dinamizadoras de procesos juveniles, participativos, socioculturales, políticos, artísticos y comerciales.\n\n¿Cual es el objetivo de esta organización?\nEl objetivo principal de la organización es facilitar el desarrollo, la comercialización, el intercambio y la difusión de bienes y servicios culturales, artísticos, lúdicos, tecnológicos y formativos. Esto incluye la oferta, permuta, distribución, alquiler, compra, investigación y desarrollo de productos y proyectos, así como la contratación de artistas y personal especializado en estos ámbitos.\nA través de la promoción del ejercicio creativo colectivo, se busca fortalecer el desarrollo de la cultura friki en sus múltiples manifestaciones, con especial énfasis en la participación de la infancia, la adolescencia y la juventud. Desde su propio lenguaje, símbolos y dinámicas sociales, la organización fomenta la investigación, la formación, la producción y la distribución de diversas expresiones culturales, ambientales, educativas, lúdicas, deportivas, tecnológicas y comunitarias.\nEste enfoque interdisciplinario e intercultural permite la generación de espacios de creación e intercambio, basados en principios de cooperación, libertad de expresión y apertura mental. En consecuencia, se crean condiciones propicias para la dignificación del trabajo cultural, el fortalecimiento de redes de apoyo, la promoción del empleo creativo y la producción de bienes innovadores con alto valor social y comercial.\n\n¿Qué es la Corporación Ciudad Friki?\nComo resultado del proceso organizativo de la Red Cultural Juvenil Comunidad Underground, se logró la formalización jurídica y el desarrollo corporativo de la Corporación Ciudad Friki, registrada con el NIT 901.597.939-0. Esta entidad se consolidó como la persona jurídica responsable y coordinadora de la Red, garantizando la sostenibilidad y el crecimiento de sus actividades.\nDurante más de 14 años de trayectoria, la Corporación Ciudad Friki ha sido reconocida en el Distrito de Medellín como un proceso asociativo juvenil, cultural, social, lúdico, deportivo y ciudadano. Ha contado con el respaldo y reconocimiento de diversas instituciones y entidades, entre ellas la Secretaría de Cultura, la Secretaría de Participación Ciudadana, la Secretaría de Juventud, Ruta N, la Casa Museo Pedro Nel Gómez, el Centro de Desarrollo Cultural de Moravia, la Fundación EPM, la Junta Administradora Local de la Comuna 4, ASOCOVIC IV, INDER, Parque Explora, Comfenalco, Comfama y el Programa de Planeación Local y Presupuesto Participativo del Distrito de Medellín. Estas entidades han contribuido de diversas formas al fortalecimiento y consolidación de la comunidad friki en la región.",
         "fiestaFrikiTitle": "Fiesta Friki",
-        "fiestaFrikiContent": "¿Qué significa friki?\nEl término \"friki\" es una adaptación del inglés \"freaky\" y se utiliza para describir a personas cuyos intereses y gustos suelen calificarse como inusuales, extravagantes o fuera de lo común. En los países de habla hispana, también se emplea con el significado de \"fanático\" en determinados contextos.\nColoquialmente, el término \"friki\" se refiere a aquellas personas que presentan comportamientos o estilos de vida poco convencionales y que disfrutan de aficiones que requieren imaginación, creatividad y expresión artística. Dentro de estas actividades se encuentran los juegos de rol, la animación, el cómic, el manga, el modelismo, el origami, los juegos de mesa, el teatro, la danza, la música y algunos deportes alternativos, entre otros.\n\nFiesta Friki:\nLa Fiesta Friki es uno de los eventos más emblemáticos de la cultura friki y alternativas en nuestro país, con una trayectoria que supera los catorce años de realización ininterrumpida, esta celebración se ha consolidado como una plataforma de encuentro masivo, creativo y diverso, reuniendo anualmente a miles de personas en torno a prácticas culturales emergentes, expresiones artísticas independientes y experiencias colectivas que reflejan el dinamismo de las comunidades geek, otaku y alternativas de la región.\n\nEste evento gratuito y de acceso libre transforma el espacio público durante cuatro días consecutivos, proponiendo un ecosistema cultural que articula el entretenimiento, el arte, la formación y el emprendimiento friki.\n\nLa Fiesta Friki se convierte así en un eventos donde convergen escenarios de cosplay, danza, conciertos, talleres, ferias de emprendimiento, torneos de videojuegos, juegos de rol, literatura de género, performance, illustration y múltiples disciplinas que configuran el universo ñoño contemporáneo.\n\nTodos los años, invita a explorar la relación simbólica, estética y emocional que las comunidades frikis han construido con los animals reales, fantásticos o antropomorfizados. Desde los pokémon hasta los nekomimi, desde los animals guardianes de la ciencia ficción hasta las criaturas míticas de la fantasía épica, esta edición temáticamente orientada propone una lectura afectiva del mundo friki, abordando temas como la protección animal, el vínculo humano-animal en las narrativas pop, y la representación visual de criaturas en el manga, el cómic, el cine, la música y los videojuegos.\n\nEl evento mantiene su ya característico formato tipo carrusel, en el que los y las asistentes pueden desplazarse entre zonas de exhibición, creación, formación, socialización y competencia, en una experiencia inmersiva y continua, este formato permite participar de concursos de dibujo, desfiles de cosplay (incluyendo categorías para cosplayers con mascotas), jornadas académicas, actividades lúdicas para la infancia, proyecciones audiovisuales, muestras musicales, k-pop y espacios para la circulación de productos creativos de emprendedores frikis.\n\nA través de la articulación con redes sociales, plataformas digitales y medios comunitarios, la Fiesta Friki también amplifica su alcance mediante transmisiones en vivo, entrevistas, cápsulas narrativas y cobertura de torneos y premiaciones, esta estrategia digital garantiza la participación de públicos que no pueden asistir presencialmente, generando una dimensión híbrida que fortalece la apropiación y permanencia del evento en el imaginario colectivo.\n\nLejos de ser solo una vitrina de entretenimiento, la Fiesta Friki actúa como un nodo de visibilización y circulación de saberes, afectos, talentos y formas de vida que tradicionalmente han sido marginalizadas o invisibilizadas dentro del espectro cultural dominante, al mismo tiempo, funge como una celebración del trabajo continuo de un tejido organizativo comprometido con el desarrollo integral de sus integrantes, la construcción de comunidad y la consolidación de una economía cultural alternativa, solidaria y sostenible.\n\nLa Fiesta Friki no es solo un evento, sino una experiencia vital, un ritual contemporáneo y una fiesta compartida de los mundos posibles soñados por niñas, niños, adolescentes, jóvenes y adultos que encuentran en la cultura friki un espacio de expresión, pertenencia y transformación."
+        "fiestaFrikiContent": "¿Qué significa friki?\nEl término \"friki\" es una adaptación del inglés \"freaky\" y se utiliza para describir a personas cuyos intereses y gustos suelen calificarse como inusuales, extravagantes o fuera de lo común. En los países de habla hispana, también se emplea con el significado de \"fanático\" en determinados contextos.\nColoquialmente, el término \"friki\" se refiere a aquellas personas que presentan comportamientos o estilos de vida poco convencionales y que disfrutan de aficiones que requieren imaginación, creatividad y expresión artística. Dentro de estas actividades se encuentran los juegos de rol, la animación, el cómic, el manga, el modelismo, el origami, los juegos de mesa, el teatro, la danza, la música y algunos deportes alternativos, entre otros.\n\nFiesta Friki:\nLa Fiesta Friki es uno de los eventos más emblemáticos de la cultura friki y alternativas en nuestro país, con una trayectoria que supera los catorce años de realización ininterrumpida, esta celebración se ha consolidado como una plataforma de encuentro masivo, creativo y diverso, reuniendo anualmente a miles de personas en torno a prácticas culturales emergentes, expresiones artísticas independientes y experiencias colectivas que reflejan el dinamismo de las comunidades geek, otaku y alternativas de la región.\n\nEste evento gratuito y de acceso libre transforma el espacio público durante cuatro días consecutivos, proponiendo un ecosistema cultural que articula el entretenimiento, el arte, la formación y el emprendimiento friki.\n\nLa Fiesta Friki se convierte así en un eventos donde convergen escenarios de cosplay, danza, conciertos, talleres, ferias de emprendimiento, torneos de videojuegos, juegos de rol, literatura de género, performance, illustration y múltiples disciplinas que configuran el universo ñoño contemporáneo.\n\nTodos los años, invita a explorar la relación simbólica, estética y emocional que las comunidades frikis han construido con los animals reales, fantásticos o antropomorfizados. Desde los pokémon hasta los nekomimi, desde los animals guardianes de la ciencia ficción hasta las criaturas míticas de la fantasía épica, esta edición temáticamente orientada propone una lectura afectiva del mundo friki, abordando temas como la protección animal, el vínculo humano-animal en las narrativas pop, y la representación visual de criaturas en el manga, el cómic, el cine, la música y los videojuegos.\n\nEl evento mantiene su ya característico formato tipo carrusel, en el que los y las asistentes pueden desplazarse entre zonas de exhibición, creación, formación, socialización y competencia, en una experiencia inmersiva y continua, este formato permite participar de concursos de dibujo, desfiles de cosplay (incluyendo categorías para cosplayers con mascotas), jornadas académicas, actividades lúdicas para la infancia, proyecciones audiovisuales, muestras musicales, k-pop y espacios para la circulación de productos creativos de emprendedores frikis.\n\nA través de la articulación con redes sociales, plataformas digitales y medios comunitarios, la Fiesta Friki también amplifica su alcance mediante transmisiones en vivo, entrevistas, cápsulas narrativas y cobertura de torneos y premiaciones, esta estrategia digital garantiza la participación de públicos que no pueden asistir presencialmente, generando una dimensión híbrida que fortalece la apropiación y permanencia del evento en el imaginario colectivo.\n\nLejos de ser solo una vitrina de entretenimiento, la Fiesta Friki actúa como un nodo de visibilización y circulación de saberes, afectos, talentos y formas de vida que tradicionalmente han sido marginalizadas o invisibilizadas dentro del espectro cultural dominante, al mismo tiempo, funge como una celebración del trabajo continuo de un tejido organizativo comprometido con el desarrollo integral de sus integrantes, la construcción de comunidad y la consolidación de una economía cultural alternativa, solidaria y sostenible.\n\nLa Fiesta Friki no es solo un evento, sino una experiencia vital, un ritual contemporáneo y una fiesta compartida de los mundos posibles soñados por niñas, niños, adolescentes, jóvenes y adultos que encuentran en la cultura friki un espacio de expresión, pertenencia y transformación.",
+        "description": "Documentos legales, términos de uso y políticas de privacidad de la plataforma Ciudad Friki."
     },
     "surveys": {
         "title": "Encuestas",
@@ -1203,7 +1233,12 @@
             "edit": "Editar",
             "cancel": "Cancelar",
             "viewStats": "Ver Estadísticas",
-            "results": "Resultados"
+            "results": "Resultados",
+            "limitTitle": "Límite Alcanzado",
+            "limitMessage": "Ya hay 2 eventos patrocinados activos (máximo permitido).",
+            "loadStatsFailed": "Error al cargar estadísticas.",
+            "loadResponsesFailed": "Error al cargar respuestas.",
+            "exportFailed": "Error al exportar datos."
         },
         "questionTypes": {
             "single_choice": "Opción Única",
@@ -1397,68 +1432,6 @@
         "updateStatusError": "Error al actualizar el estado",
         "deleteConfirmTitle": "Confirmar Eliminación",
         "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar este código y todas sus redenciones?"
-    },
-    "events": {
-        "upcomingTitle": "Próximos Eventos",
-        "pastTitle": "Eventos Pasados",
-        "title": "Título del Evento",
-        "description": "Descripción",
-        "startDate": "Fecha Inicio",
-        "startTime": "Hora Inicio",
-        "endDate": "Fecha Fin (Opcional)",
-        "endTime": "Hora Fin (Opcional)",
-        "locationName": "Lugar del Evento",
-        "mapLink": "Enlace de Mapa (Google/Waze)",
-        "ticketValue": "Precio inicial de entrada",
-        "freeEvent": "Evento Gratuito",
-        "externalLink": "Link Web / Entradas (Opcional)",
-        "whatsapp": "WhatsApp de Contacto",
-        "loadError": "Error al cargar los eventos. Verifica tu conexión.",
-        "tagsHint": "Selecciona los intereses que mejor definan tu evento para mejorar el filtrado.",
-        "clickToUpload": "Haz clic para subir la imagen",
-        "publish": "Publicar Evento",
-        "create": "Crear Evento",
-        "createTitle": "Crear Nuevo Evento",
-        "editTitle": "Editar Evento",
-        "editWarningTitle": "El evento volverá a revisión",
-        "editWarningMessage": "Al editar tu evento, su estado cambiará a Pendiente y deberá ser aprobado de nuevo por un administrador antes de ser público.",
-        "updateSuccess": "¡Evento actualizado! Quedará pendiente de nueva revisión por los admins.",
-        "sections": {
-            "basics": "Información Básica",
-            "schedule": "Horarios",
-            "location": "Ubicación",
-            "tickets": "Tickets & Valor",
-            "contact": "Contacto",
-            "tags": "Categorías e Intereses",
-            "image": "Flyer del Evento"
-        },
-        "placeholders": {
-            "title": "Ej: Gran Torneo de Cosplay",
-            "description": "Cuéntanos de qué trata tu evento...",
-            "place": "Ej: Centro de Eventos, Parque, Local...",
-            "location": "Dirección o nombre del lugar"
-        },
-        "success": "¡Evento creado exitosamente!",
-        "error": "Error al crear el evento",
-        "status": {
-            "pending": "En Revisión",
-            "approved": "Publicado",
-            "rejected": "Rechazado",
-            "cancelled": "Cancelado",
-            "delayed": "Aplazado",
-            "finished": "Finalizado"
-        },
-        "viewOnMaps": "Ver en Mapas",
-        "contactWhatsApp": "Contactar por WhatsApp",
-        "officialWebsite": "Sitio Web Oficial",
-        "about": "Acerca del Evento",
-        "sponsored": "Patrocinado",
-        "free": "Gratis",
-        "paid": "De Pago",
-        "noDescription": "Sin descripción.",
-        "noDate": "Fecha TBD",
-        "date": "Fecha",
-        "startTime": "Hora de Inicio"
     },
     "empty": {
         "published": "No has publicado eventos aún",
@@ -1694,7 +1667,7 @@
             "watchOn": "¡Míralo en Ciudad Friki! 🤓",
             "atTime": " a las {{time}}"
         },
-    "vs": {
+        "vs": {
             "leaderboardTitle": "Líderes Friki VS | Ciudad Friki",
             "leaderboardText": "⚔️ ¡Este es el Top 10 de los guerreros más poderosos de Friki VS! ¿Te atreves a retarlos?",
             "tieTitle": "¡Empate en Friki VS!",
@@ -1740,11 +1713,6 @@
     },
     "footer": {
         "tagline": "Explora • Juega • Conecta"
-    },
-    "legal": {
-        "privacyTitle": "Política de Privacidad",
-        "termsTitle": "Términos y Condiciones",
-        "description": "Documentos legales, términos de uso y políticas de privacidad de la plataforma Ciudad Friki."
     },
     "frikimart": {
         "title": "FrikiMart",
