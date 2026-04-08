@@ -1,10 +1,10 @@
 Terms and Conditions - Ciudad Friki
-Welcome to Ciudad Friki. By accessing or using our mobile application, you agree to be bound by these terms and conditions.
+Welcome to Ciudad Friki. By accessing or using our mobile application or web platform, you agree to be bound by these terms and conditions.
 
 1. Contractual Relationship and Intellectual Property
 Technical processing and software development belong to Mauricio Saldarriaga García. The terms are as follows:
 
-Software Ownership: All source code, database architecture (Supabase), server logic (Express), React Native development, and minigames are the exclusive property of the Developer.
+Software Ownership: All source code, database architecture (Supabase), server logic (Express), React Native and Web (React/Vite) development, and minigames are the exclusive property of the Developer.
 Branding Ownership: Names, logos, and the "Ciudad Friki" trademark are the property of Corporación Ciudad Friki (NIT: 901.597.939-0).
 Restrictions: You may not reverse engineer or attempt to extract the source code without express permission.
 
@@ -30,11 +30,11 @@ Users agree not to create multiple accounts to abuse the system, not to post dis
 Ciudad Friki is not responsible for the safety of events organized by third parties, temporary service interruptions, or user interactions occurring outside the application.
 
 9. Modifications to Terms
-We reserve the right to modify these terms at any time. Continued use of the app constitutes acceptance of the new conditions.
+We reserve the right to modify these terms at any time. Continued use of the platform (app or web) constitutes acceptance of the new conditions.
 
 10. Governing Law and Contact
 These terms are governed by the laws of the Republic of Colombia.
 
-Last updated: February 2026
+Last updated: April 2026
 Contact: udcarkangel@gmail.com
 Ciudad Friki © 2026

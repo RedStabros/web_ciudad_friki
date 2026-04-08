@@ -46,7 +46,7 @@ export default function Home() {
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
-    const { events, isLoading, error, refetch } = useEvents(user?.id, feedType, profile?.interests || []);
+    const { events, setEvents, isLoading, error, refetch } = useEvents(user?.id, feedType, profile?.interests || []);
 
     const [trendingTopics, setTrendingTopics] = useState<string[]>([]);
 
@@ -133,21 +133,29 @@ export default function Home() {
     const handleLikeToggle = async (event: FrikiEvent) => {
         if (!user) return alert(t('common.loginRequired'));
         const wasLiked = event.isLiked || false;
-        await EventService.toggleLikeEvent(user.id, event.id, wasLiked);
-        refetch();
+
+        // Optimistic Update
+        setEvents(prev => prev.map(e => e.id === event.id ? { ...e, isLiked: !wasLiked, likes_count: e.likes_count + (wasLiked ? -1 : 1) } : e));
         if (selectedEvent?.id === event.id) {
             setSelectedEvent(prev => prev ? { ...prev, isLiked: !wasLiked, likes_count: prev.likes_count + (wasLiked ? -1 : 1) } : null);
         }
+
+        await EventService.toggleLikeEvent(user.id, event.id, wasLiked);
+        refetch(false);
     };
 
     const handleSaveToggle = async (event: FrikiEvent) => {
         if (!user) return alert(t('common.loginRequired'));
         const wasSaved = event.isSaved || false;
-        await EventService.toggleSaveEvent(user.id, event.id, wasSaved);
-        refetch();
+
+        // Optimistic Update
+        setEvents(prev => prev.map(e => e.id === event.id ? { ...e, isSaved: !wasSaved, saved_count: e.saved_count + (wasSaved ? -1 : 1) } : e));
         if (selectedEvent?.id === event.id) {
             setSelectedEvent(prev => prev ? { ...prev, isSaved: !wasSaved, saved_count: prev.saved_count + (wasSaved ? -1 : 1) } : null);
         }
+
+        await EventService.toggleSaveEvent(user.id, event.id, wasSaved);
+        refetch(false);
     };
 
     const formatTimeAgo = (dateStr: string) => {

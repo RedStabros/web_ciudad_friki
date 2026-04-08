@@ -44,7 +44,14 @@ export default function Footer() {
                         <p className="flex items-center gap-1.5 text-[10px] font-bold text-text-muted opacity-60">
                             <Heart size={10} className="fill-brand-secondary text-brand-secondary animate-pulse flex-shrink-0" />
                             {t('settings.madeWith')}
-                            <span className="text-brand-secondary font-black">RedStabros</span>
+                            <a 
+                                href="https://github.com/RedStabros" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-brand-secondary font-black hover:underline"
+                            >
+                                RedStabros
+                            </a>
                         </p>
                         <span className="w-1 h-1 rounded-full bg-divider-theme opacity-40" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted opacity-60">

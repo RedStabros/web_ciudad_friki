@@ -1,10 +1,10 @@
 Términos y Condiciones - Ciudad Friki
-Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil, aceptas estar sujeto a estos términos y condiciones.
+Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil y plataforma web, aceptas estar sujeto a estos términos y condiciones.
 
 1. Relación Contractual y Propiedad Intelectual
 El tratamiento y desarrollo técnico del software pertenece a Mauricio Saldarriaga García. Los términos son los siguientes:
 
-Propiedad del Software: Todo el código fuente, arquitectura de base de datos (Supabase), lógica de servidor (Express), desarrollo en React Native y minijuegos son propiedad exclusiva del Desarrollador.
+Propiedad del Software: Todo el código fuente, arquitectura de base de datos (Supabase), lógica de servidor (Express), desarrollo en React Native, entorno Web (React/Vite) y minijuegos son propiedad exclusiva del Desarrollador.
 Propiedad de Marca: Los nombres, logotipos y la marca "Ciudad Friki" son propiedad de la Corporación Ciudad Friki (NIT: 901.597.939-0).
 Restricciones: No puedes realizar ingeniería inversa o intentar extraer el código fuente sin permiso expreso.
 
@@ -30,11 +30,11 @@ Los usuarios aceptan no crear múltiples cuentas para abusar del sistema, no pub
 Ciudad Friki no se hace responsable por la seguridad de eventos organizados por terceros, interrupciones temporales del servicio o interacciones entre usuarios fuera de la aplicación.
 
 9. Modificaciones de los Términos
-Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado de la app constituye la aceptación de las nuevas condiciones.
+Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado de la plataforma (app o web) constituye la aceptación de las nuevas condiciones.
 
 10. Ley Aplicable y Contacto
 Estos términos se rigen por las leyes de la República de Colombia.
 
-Última actualización: Febrero 2026
+Última actualización: Abril 2026
 Contacto: udcarkangel@gmail.com
 Ciudad Friki © 2026

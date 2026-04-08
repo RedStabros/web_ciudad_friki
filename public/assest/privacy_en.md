@@ -8,7 +8,7 @@ Data processing is carried out by Mauricio Saldarriaga García (the Developer), 
 We collect the following information to improve your experience:
 
 Basic Information: Name, email, city, and profile picture.
-App Usage: Saved events, reviews, survey responses, and preferences.
+Platform Usage (App and Web): Saved events, reviews, survey responses, and preferences.
 Activities and Gaming: Scores, story mode levels, achievements, and Frikicoins usage (loyalty points with no real monetary value).
 Technical Information: Device model and operating system for technical support.
 
@@ -34,7 +34,7 @@ Restricted access protocols to the Supabase database.
 Internal security audits.
 
 6. User Rights
-You have the right to know, update, rectify, and delete your data. You may request the deletion of your account by sending an email to udcarkangel@gmail.com or using the option within the App. We will process the deletion within a maximum of 30 days.
+You have the right to know, update, rectify, and delete your data. You may request the deletion of your account by sending an email to udcarkangel@gmail.com or using the option within the platform. We will process the deletion within a maximum of 30 days.
 
 7. Google Authentication
 When signing in with Google, we receive your name, email, and photo. We do not store your password. You can revoke this access from your Google account at any time.
@@ -43,7 +43,7 @@ When signing in with Google, we receive your name, email, and photo. We do not s
 We request permission to send you alerts about events, surveys, or system updates. You can disable them from your device settings.
 
 9. Cookies and Local Storage
-We use local device storage to keep your session active and save language or theme preferences, optimizing offline performance.
+We use cookies and local device (or browser) storage to keep your session active and save language or theme preferences, optimizing general performance.
 
 10. Minors
 The application requires a minimum age of 13 years. Users under 18 must have authorization from their parents or legal guardians.
@@ -51,6 +51,6 @@ The application requires a minimum age of 13 years. Users under 18 must have aut
 11. International Transfers and Changes
 Your data may be processed on servers outside of Colombia (global infrastructure). We reserve the right to update this policy; we will notify you of any significant changes through the application.
 
-Last updated: February 2026
+Last updated: April 2026
 Contact: udcarkangel@gmail.com
 Ciudad Friki © 2026

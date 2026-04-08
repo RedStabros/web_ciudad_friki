@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import {
     ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug, Lock, ChevronDown, ChevronUp,
-    Eye, EyeOff, CheckCircle2, Circle, Bell, ChevronRight
+    Eye, EyeOff, CheckCircle2, Circle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -647,23 +647,7 @@ export default function Profile() {
                             )}
                         </div>
 
-                        {/* Notifications Settings Link */}
-                        <div className="pt-6 border-t border-divider-theme">
-                            <Link
-                                to="/settings/notifications"
-                                className="flex items-center justify-between w-full text-left group hover:bg-bg-sub/50 p-3 -mx-3 rounded-2xl transition-all"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="bg-bg-sub p-2 rounded-xl text-text-muted group-hover:text-brand-primary transition-colors">
-                                        <Bell size={20} />
-                                    </div>
-                                    <h3 className="font-bold text-text-main group-hover:text-brand-primary transition-colors">
-                                        {t('settings.notifications', 'Notificaciones')}
-                                    </h3>
-                                </div>
-                                <ChevronRight size={20} className="text-text-muted group-hover:text-brand-primary transition-colors" />
-                            </Link>
-                        </div>
+
 
                     </div>
 

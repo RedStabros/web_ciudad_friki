@@ -17,7 +17,7 @@ interface EventCardProps {
     onClick?: () => void;
 }
 
-export function EventCard({ event, onInterested, onSave, onClick }: EventCardProps) {
+export function EventCard({ event, onInterested, onSave, onLike, onClick }: EventCardProps) {
     const { t, i18n } = useTranslation();
     const defaultImage = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop";
 
@@ -186,10 +186,17 @@ export function EventCard({ event, onInterested, onSave, onClick }: EventCardPro
                         >
                             <Bookmark size={28} fill={event.isSaved ? "currentColor" : "none"} />
                         </button>
-                        <div className="ticket-likes flex items-center font-medium gap-1 transition text-accent-red">
-                            <Heart size={20} fill="currentColor" />
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onLike?.();
+                            }}
+                            className={`ticket-likes flex items-center font-medium gap-1 transition px-2 py-1 rounded-lg ${event.isLiked ? 'text-accent-red bg-accent-red/10' : 'text-text-muted hover:text-accent-red hover:bg-accent-red/5'}`}
+                            aria-label="Dar me gusta"
+                        >
+                            <Heart size={20} fill={event.isLiked ? "currentColor" : "none"} />
                             <span className="text-sm font-black">{event.likes_count || 0}</span>
-                        </div>
+                        </button>
                         <button
                             onClick={shareEventTicket}
                             disabled={isSharing}
@@ -213,10 +220,23 @@ export function EventCard({ event, onInterested, onSave, onClick }: EventCardPro
                         </span>
                     </div>
                     <button
-                        onClick={onInterested}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-xl shadow-sm text-text-inv bg-brand-primary hover:bg-brand-primary-light focus:outline-none transition shadow-lg shadow-brand-primary/20"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (onInterested) onInterested();
+                        }}
+                        className={
+                            event.isSaved
+                                ? "inline-flex items-center gap-1.5 px-4 py-2 border-2 border-brand-primary/30 text-sm font-bold rounded-xl text-brand-primary bg-brand-primary/5 hover:bg-brand-primary/10 transition"
+                                : "inline-flex items-center px-4 py-2 border shadow-lg border-transparent text-sm font-bold rounded-xl text-text-inv bg-brand-primary hover:bg-brand-primary-light transition shadow-brand-primary/20"
+                        }
                     >
-                        {t('common.interested')}
+                        {event.isSaved ? (
+                            <>
+                                <Bookmark size={16} fill="currentColor" /> {t('common.saved', 'Guardado')}
+                            </>
+                        ) : (
+                            t('common.interested')
+                        )}
                     </button>
                 </div>
             </div>

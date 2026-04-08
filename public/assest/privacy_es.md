@@ -8,7 +8,7 @@ El tratamiento de los datos es realizado por Mauricio Saldarriaga García (el De
 Recolectamos la siguiente información para mejorar tu experiencia:
 
 Información Básica: Nombre, correo electrónico, ciudad y foto de perfil.
-Uso de la App: Eventos guardados, reseñas, respuestas a encuestas y preferencias.
+Uso de la Plataforma (App y Web): Eventos guardados, reseñas, respuestas a encuestas y preferencias.
 Actividades y Juegos: Puntuaciones, niveles del modo historia, logros y uso de Frikicoins (puntos de lealtad sin valor monetario real).
 Información Técnica: Modelo de dispositivo y sistema operativo para soporte técnico.
 
@@ -34,7 +34,7 @@ Protocolos de acceso restringido a la base de datos de Supabase.
 Auditorías internas de seguridad.
 
 6. Derechos del Usuario
-Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos. Puedes solicitar la eliminación de tu cuenta enviando un correo a udcarkangel@gmail.com o usando la opción dentro de la App. Procesaremos la eliminación en un plazo máximo de 30 días.
+Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos. Puedes solicitar la eliminación de tu cuenta enviando un correo a udcarkangel@gmail.com o usando la opción dentro de la plataforma. Procesaremos la eliminación en un plazo máximo de 30 días.
 
 7. Autenticación con Google
 Al iniciar sesión con Google, recibimos tu nombre, email y foto. No almacenamos tu contraseña. Puedes revocar este acceso desde tu cuenta de Google en cualquier momento.
@@ -43,7 +43,7 @@ Al iniciar sesión con Google, recibimos tu nombre, email y foto. No almacenamos
 Solicitamos permiso para enviarte alertas sobre eventos, encuestas o actualizaciones del sistema. Puedes desactivarlas desde la configuración de tu dispositivo.
 
 9. Cookies y Almacenamiento Local
-Utilizamos el almacenamiento local del dispositivo para mantener tu sesión activa y guardar preferencias de idioma o tema, optimizando el rendimiento offline.
+Utilizamos cookies y el almacenamiento local del dispositivo o navegador para mantener tu sesión activa y guardar preferencias de idioma o tema, optimizando el rendimiento general.
 
 10. Menores de Edad
 La aplicación requiere una edad mínima de 13 años. Los menores de 18 años deben contar con la autorización de sus padres o tutores legales.
@@ -51,6 +51,6 @@ La aplicación requiere una edad mínima de 13 años. Los menores de 18 años de
 11. Transferencias Internacionales y Cambios
 Tus datos pueden ser procesados en servidores fuera de Colombia (infraestructura global). Nos reservamos el derecho de actualizar esta política; te notificaremos cualquier cambio importante a través de la aplicación.
 
-Última actualización: Febrero 2026
+Última actualización: Abril 2026
 Contacto: udcarkangel@gmail.com
 Ciudad Friki © 2026

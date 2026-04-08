@@ -9,8 +9,8 @@ export function useEvents(userId?: string, filterType: EventFeedType = 'upcoming
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
-    const fetchEvents = async () => {
-        setIsLoading(true);
+    const fetchEvents = async (showLoader = true) => {
+        if (showLoader) setIsLoading(true);
         try {
             const result = await EventService.getFeedEvents(userId, 0, 20, filterType, userInterests);
             if (result.error) throw result.error;
@@ -18,13 +18,13 @@ export function useEvents(userId?: string, filterType: EventFeedType = 'upcoming
         } catch (err: any) {
             setError(err);
         } finally {
-            setIsLoading(false);
+            if (showLoader) setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchEvents();
+        fetchEvents(true);
     }, [userId, filterType, userInterests.length]);
 
-    return { events, isLoading, error, refetch: fetchEvents };
+    return { events, setEvents, isLoading, error, refetch: fetchEvents };
 }
