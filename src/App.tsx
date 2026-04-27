@@ -29,6 +29,7 @@ import AdminTavern from './pages/admin/AdminTavern';
 import AdminGM from './pages/admin/AdminGM';
 import AdminFrikiMartPage from './pages/admin/AdminFrikiMartPage';
 import AdminToolsPage from './pages/admin/AdminToolsPage';
+import AdminBans from './pages/admin/AdminBans';
 
 function OnboardingGate() {
   const { user, isLoading: authLoading } = useAuth();
@@ -129,6 +130,7 @@ function App() {
             <Route path="tavern" element={<AdminTavern />} />
             <Route path="tools" element={<AdminToolsPage />} />
             <Route path="gm" element={<AdminGM />} />
+            <Route path="bans" element={<AdminBans />} />
           </Route>
 
           <Route path="*" element={<div className="p-8 text-center text-2xl font-bold text-red-500">404 - Not Found</div>} />

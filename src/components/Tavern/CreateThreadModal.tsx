@@ -97,7 +97,6 @@ export function CreateThreadModal({ isOpen, onClose, onSuccess }: CreateThreadMo
                                 else if (cat === 'Cultura/Arte') displayLabel = t('tavern.categories.culture');
                                 else if (cat === 'Eventos') displayLabel = t('tavern.categories.events');
                                 else if (cat === 'Off-topic') displayLabel = t('tavern.categories.offTopic');
-                                else if (cat === 'Picantes') displayLabel = t('tavern.categories.nsfw');
 
                                 return (
                                     <button

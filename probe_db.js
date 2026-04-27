@@ -8,7 +8,7 @@ async function probe() {
     const key = env.match(/VITE_SUPABASE_ANON_KEY=(.*)/)[1].trim();
     const supabase = createClient(url, key);
 
-    const { data, error } = await supabase.from('survey_responses').select('*').limit(1);
+    const { data, error } = await supabase.from('tavern_replies').select('*').limit(1);
     if (error) {
         console.log('Error:', error);
     } else {

@@ -1,4 +1,4 @@
-export type ThreadCategory = 'Todas' | 'Anime/Manga' | 'Gaming/Tech' | 'Cultura/Arte' | 'Eventos' | 'Off-topic' | 'Picantes';
+export type ThreadCategory = 'Todas' | 'Anime/Manga' | 'Gaming/Tech' | 'Cultura/Arte' | 'Eventos' | 'Off-topic';
 
 export interface TavernThread {
     id: string;

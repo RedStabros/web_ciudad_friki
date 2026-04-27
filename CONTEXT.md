@@ -284,11 +284,15 @@ opt.is_correct  // para detectar respuesta correcta
 ### ✅ Mantenimiento
 - `MaintenanceGuard.tsx` consulta `system_config` y bloquea la app si `maintenance_mode = true`
 
-### ✅ Herramientas Admin (`AdminToolsPage.tsx`)
+### ✅ Herramientas Admin (`AdminToolsPage.tsx`, `AdminBans.tsx`, `AdminTavern.tsx`)
 - Dashboard con estadísticas: Cuentas totales, Supply (Circulation/Admin), Encuestas (Activas/Drafts), Transacciones.
 - Lista de Whales: Top 5 usuarios con mayor balance (fetching optimizado de emails y avatares).
 - Presencia: Monitorización de admins online vía Presence Channels.
-- Moderación: Integración con `EventDetailsModal` para ver métricas de tráfico (likes/saves).
+- Moderación de Eventos: Integración con `EventDetailsModal` para ver métricas de tráfico (likes/saves).
+- **Suite de Moderación de Taberna y Usuarios:**
+  - `AdminBans.tsx`: Búsqueda de usuarios para aplicar sanciones totales o "Shadow Bans". Visualiza roles para evitar baneos a administradores.
+  - `UserHistoryModal.tsx`: Visualiza el historial completo de infracciones (reportes y posts ocultos) de un usuario específico.
+  - Solucionados errores de sintaxis y discrepancias de nombres de columnas (`reports_count` en Supabase).
 
 ### ✅ Iconos de categorías VS
 - `utils/triviaIcons.ts` mapea el campo `icon` de `triviaduels_categories` a imágenes locales

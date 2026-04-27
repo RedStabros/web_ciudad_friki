@@ -22,6 +22,10 @@ export interface ProfileData {
     avatar_url: string | null;
     website: string;
     role: 'user' | 'worker' | 'tecnico' | 'admin';
+    is_banned?: boolean;
+    ban_until?: string | null;
+    ban_reason?: string | null;
+    is_shadow_banned?: boolean;
     notification_preferences?: NotificationPreferences;
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard } from 'lucide-react';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel } from 'lucide-react';
 import { SuperAdminService } from '../services/SuperAdminService';
 import { useTranslation } from 'react-i18next';
 
@@ -44,6 +44,7 @@ export default function AdminLayout() {
         { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: t('admin.sidebar.trivias') },
         { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
         { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
+        { path: '/admin/bans', icon: <Gavel size={20} />, label: t('admin.sidebar.bans') },
         { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
         ...(isSuperuser || storeAdminVisible ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
         ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),

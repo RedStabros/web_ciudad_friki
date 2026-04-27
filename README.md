@@ -34,11 +34,16 @@ Bienvenido al repositorio de la versión Web de **Ciudad Friki**. Este proyecto 
 - **Reseñas de Eventos:** Sistema de calificación y comentarios para eventos finalizados (con validación de tiempo y contenido).
 - **Traducciones:** Sincronización completa de todos los campos de eventos en ES/EN.
 
-### 🛠️ Administración (NUEVO)
+### 🛠️ Administración
 - **Herramientas Admin:** Dashboard con métricas clave (usuarios, supply de Frikicoins, encuestas).
 - **Control de Ballenas (Whales):** Ranking de los 5 usuarios con mayor balance, incluyendo emails y avatares.
 - **Presencia en Tiempo Real:** Monitor de administradores online con reporte de actividad vía Supabase Presence.
-- **Moderación de Eventos:** Panel avanzado para aprobar/rechazar eventos con visualización de likes y conteo de guardados (específico para admins).
+- **Moderación de Eventos:** Panel avanzado para aprobar/rechazar eventos con visualización de likes y conteo de guardados.
+- **Suite de Moderación de Taberna y Usuarios:**
+  - Panel completo de **Sanciones (Bans y Shadow Bans)** con registro de tiempos (temporal/permanente) y motivos.
+  - Modal dinámico de **Historial de Usuario** que permite a los admins ver todas las infracciones y reportes de una cuenta.
+  - Visibilidad de roles de usuario en la búsqueda de moderación para evitar sancionar accidentalmente a miembros del staff.
+  - Correcciones precisas de asignación de columnas en base de datos (`reports_count`).
 
 ### 🧩 Otros
 - **Trivias & Encuestas:** Integración funcional con el backend.

@@ -18,6 +18,30 @@ export interface BringRepliesResult {
 
 export class TavernService {
 
+    private static async checkUserStatus(userId: string): Promise<{ isBanned: boolean; isShadowBanned: boolean; banUntil: string | null; error?: string }> {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('is_banned, is_shadow_banned, ban_until')
+                .eq('id', userId)
+                .single();
+
+            if (error) return { isBanned: false, isShadowBanned: false, banUntil: null };
+
+            const now = new Date();
+            const banUntil = data.ban_until ? new Date(data.ban_until) : null;
+            const isBanActive = banUntil ? banUntil > now : data.is_banned;
+
+            return {
+                isBanned: isBanActive && !data.is_shadow_banned,
+                isShadowBanned: isBanActive && data.is_shadow_banned,
+                banUntil: data.ban_until
+            };
+        } catch {
+            return { isBanned: false, isShadowBanned: false, banUntil: null };
+        }
+    }
+
     /**
      * Get current user's votes for a set of target IDs
      */
@@ -145,6 +169,10 @@ export class TavernService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
+            const status = await TavernService.checkUserStatus(user.id);
+            if (status.isBanned) throw new Error('Tu cuenta ha sido suspendida permanentemente o temporalmente.');
+            if (status.isShadowBanned) throw new Error('No tienes permisos para crear contenido en este momento.');
+
             const { data, error } = await supabase
                 .from('tavern_threads')
                 .insert({
@@ -213,6 +241,10 @@ export class TavernService {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
+
+            const status = await TavernService.checkUserStatus(user.id);
+            if (status.isBanned) throw new Error('Tu cuenta ha sido suspendida.');
+            if (status.isShadowBanned) throw new Error('No tienes permisos para comentar en este momento.');
 
             const { data, error } = await supabase
                 .from('tavern_replies')
@@ -300,6 +332,12 @@ export class TavernService {
      */
     static async editPost(targetId: string, targetType: 'thread' | 'reply', content: string, title?: string) {
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            const status = await TavernService.checkUserStatus(user.id);
+            if (status.isBanned || status.isShadowBanned) throw new Error('No tienes permisos para editar contenido.');
+
             const { data, error } = await supabase.rpc('edit_tavern_post', {
                 p_target_id: targetId,
                 p_target_type: targetType,
