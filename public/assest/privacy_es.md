@@ -1,4 +1,6 @@
 # Política de Privacidad - Ciudad Friki
+*Última actualización: Abril 2026*
+
 En Ciudad Friki, valoramos tu privacidad y cumplimos con la Ley 1581 de 2012 de Colombia.
 
 ## 1. Responsable del Tratamiento

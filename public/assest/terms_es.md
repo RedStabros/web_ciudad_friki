@@ -1,4 +1,6 @@
 # Términos y Condiciones - Ciudad Friki
+*Última actualización: Abril 2026*
+
 Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil, aceptas estar sujeto a estos términos y condiciones.
 
 ## 1. Relación Contractual y Propiedad Intelectual
