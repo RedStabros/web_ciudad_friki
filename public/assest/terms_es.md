@@ -1,40 +1,42 @@
-Términos y Condiciones - Ciudad Friki
-Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil y plataforma web, aceptas estar sujeto a estos términos y condiciones.
+# Términos y Condiciones - Ciudad Friki
+Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil, aceptas estar sujeto a estos términos y condiciones.
 
-1. Relación Contractual y Propiedad Intelectual
-El tratamiento y desarrollo técnico del software pertenece a Mauricio Saldarriaga García. Los términos son los siguientes:
+## 1. Relación Contractual y Propiedad Intelectual
+El tratamiento y desarrollo técnico del software pertenece a Mauricio Saldarriaga García. 
+• Propiedad del Software: Todo el código fuente, arquitectura de base de datos, lógica de servidor, desarrollo y minijuegos son propiedad exclusiva del Desarrollador.
+• Propiedad de Marca: Los nombres, logotipos y la marca "Ciudad Friki" son propiedad de la Corporación Ciudad Friki (NIT: 901.597.939-0).
+• Restricciones: No puedes realizar ingeniería inversa.
 
-Propiedad del Software: Todo el código fuente, arquitectura de base de datos (Supabase), lógica de servidor (Express), desarrollo en React Native, entorno Web (React/Vite) y minijuegos son propiedad exclusiva del Desarrollador.
-Propiedad de Marca: Los nombres, logotipos y la marca "Ciudad Friki" son propiedad de la Corporación Ciudad Friki (NIT: 901.597.939-0).
-Restricciones: No puedes realizar ingeniería inversa o intentar extraer el código fuente sin permiso expreso.
+## 2. Edad Mínima y Cuenta de Usuario
+Debes tener al menos 13 años para usar esta aplicación. Si eres menor de 18 años, declaras contar con el consentimiento de tus padres o tutores legales.
 
-2. Edad Mínima y Cuenta de Usuario
-Debes tener al menos 13 años para usar esta aplicación. Si eres menor de 18 años, declaras contar con el consentimiento de tus padres o tutores legales. Eres responsable de la seguridad de tu cuenta.
-
-3. Frikicoins (Sistema de Recompensas Virtuales)
+## 3. Frikicoins (Sistema de Recompensas Virtuales)
 Las Frikicoins son puntos de fidelidad digitales sin valor monetario real. No son canjeables por dinero en efectivo, moneda de curso legal o criptomonedas. El Desarrollador se reserva el derecho de ajustar balances en caso de fraude.
 
-4. Dinámicas de Juego y Modo Historia
-Al participar en los minijuegos y el Modo Historia, aceptas que tu progreso y puntuaciones se almacenarán para fines de clasificación. El uso de hacks o bots resultará en la terminación inmediata de la cuenta.
+## 4. Dinámicas de Juego y Encuestas
+Al participar en los minijuegos, aceptas que tu progreso se almacenará para clasificación. El uso de hacks resultará en la terminación de la cuenta. La participación en encuestas es voluntaria y autorizas el análisis de tus respuestas de forma agregada.
 
-5. Encuestas y Gestión de Datos
-La participación en encuestas es voluntaria. Autorizas el análisis de tus respuestas de forma agregada y anónima para investigación cultural y censos comunitarios. Tus datos personales nunca se compartirán de forma identificable sin consentimiento.
+## 5. La Taberna — Foro Comunitario
+Al publicar contenido en La Taberna, aceptas que:
+• Eres el único responsable del contenido.
+• El contenido debe ser respetuoso, legal y "Family-Friendly".
+• Está prohibido publicar: contenido discriminatorio, acoso, spam, contenido sexual explícito, desinformación.
 
-6. Gestión de Eventos y Roles de Usuario
-Los usuarios que publican eventos son responsables de la exactitud de la información. Ciudad Friki se reserva el derecho de moderar o eliminar contenido inapropiado o falso. Los roles administrativos pueden ser revocados por mal uso.
+## 6. Sistema de Moderación y Sanciones
+• Los administradores pueden aplicar: Shadow Ban, Suspensión Temporal o Permanente.
+• Todas las sanciones son revisables apelando a udcarkangel@gmail.com en un plazo máximo de 7 días hábiles.
+• Ciudad Friki no se hace responsable por el contenido publicado por terceros.
 
-7. Código de Conducta
-Los usuarios aceptan no crear múltiples cuentas para abusar del sistema, no publicar contenido discriminatorio y no manipular las calificaciones de la plataforma.
+## 7. Código de Conducta
+Los usuarios aceptan no abusar del sistema, no acosar, y no manipular calificaciones.
 
-8. Limitación de Responsabilidad
-Ciudad Friki no se hace responsable por la seguridad de eventos organizados por terceros, interrupciones temporales del servicio o interacciones entre usuarios fuera de la aplicación.
+## 8. Compras y Pagos (Próximamente)
+[PENDIENTE] Esta sección describirá los términos aplicables a compras in-app y el uso de Google Play Billing.
 
-9. Modificaciones de los Términos
-Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado de la plataforma (app o web) constituye la aceptación de las nuevas condiciones.
+## 9. Limitación de Responsabilidad y Modificaciones
+Ciudad Friki no se hace responsable por la seguridad de eventos organizados por terceros o interrupciones. Nos reservamos el derecho de modificar estos términos. El uso continuado constituye la aceptación de las nuevas condiciones.
 
-10. Ley Aplicable y Contacto
+## 10. Ley Aplicable y Contacto
 Estos términos se rigen por las leyes de la República de Colombia.
-
-Última actualización: Abril 2026
-Contacto: udcarkangel@gmail.com
-Ciudad Friki © 2026
+Email: udcarkangel@gmail.com
+Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.

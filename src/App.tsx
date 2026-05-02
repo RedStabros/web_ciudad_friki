@@ -8,12 +8,15 @@ import Tavern from './pages/Tavern';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
+import AuthCallback from './pages/AuthCallback';
 import { MaintenancePage } from './pages/Maintenance';
 import { MaintenanceGuard } from './components/MaintenanceGuard';
 import Surveys from './pages/Surveys';
 import Trivias from './pages/Trivias';
 import FrikiVS from './pages/FrikiVS';
 import Legal from './pages/Legal';
+import Support from './pages/Support';
+import AccountDeletion from './pages/AccountDeletion';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import FrikiMart from './pages/FrikiMart';
@@ -114,9 +117,12 @@ function App() {
           <Route path="/events" element={<Home />} />
 
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/legal/:type" element={<Legal />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/account-deletion" element={<AccountDeletion />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
