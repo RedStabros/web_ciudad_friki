@@ -51,8 +51,9 @@ Bienvenido al repositorio de la versión Web de **Ciudad Friki**. Este proyecto 
 
 ---
 
-## 🎨 Guía de Diseño (Para la IA)
+## 🎨 Guía de Diseño y Desarrollo (Para la IA)
 
+- **Reglas de Git (MUY IMPORTANTE):** NUNCA realices `git commit` ni `git push` a menos que el usuario lo solicite explícitamente.
 - **Estética:** "Rich Aesthetics". Uso intensivo de glassmorphism, gradientes sutiles y micro-animaciones. No usar placeholders; generar imágenes reales si es necesario.
 - **Tokens de Color:** No usar colores hardcodeados. Utilizar las variables definidas en el sistema de temas (ej: `text-brand-primary`, `bg-bg-side`).
 - **Responsividad:** Diseñado para Desktop, pero funcional en móviles. Las tarjetas en Web suelen organizarse en Grid.

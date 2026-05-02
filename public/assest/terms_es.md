@@ -26,14 +26,16 @@ Al publicar contenido en La Taberna, aceptas que:
 
 ## 6. Sistema de Moderación y Sanciones
 • Los administradores pueden aplicar: Shadow Ban, Suspensión Temporal o Permanente.
+• Los usuarios cuentan con herramientas dentro de la aplicación para reportar o bloquear contenido y perfiles que infrinjan estas normas. El equipo de moderación actuará sobre estos reportes en un plazo no mayor a 24/48 horas.
+• Las denuncias por comportamiento abusivo serán revisadas conforme a las políticas de seguridad de la plataforma.
 • Todas las sanciones son revisables apelando a udcarkangel@gmail.com en un plazo máximo de 7 días hábiles.
 • Ciudad Friki no se hace responsable por el contenido publicado por terceros.
 
 ## 7. Código de Conducta
 Los usuarios aceptan no abusar del sistema, no acosar, y no manipular calificaciones.
 
-## 8. Compras y Pagos (Próximamente)
-[PENDIENTE] Esta sección describirá los términos aplicables a compras in-app y el uso de Google Play Billing.
+## 8. Compras y Pagos
+En su versión actual, la plataforma no procesa transacciones monetarias reales ni incluye compras in-app habilitadas. Cualquier función transaccional o pasarela de pago que se encuentre en desarrollo está deshabilitada a nivel de servidor. Las políticas completas de facturación y uso de Google Play Billing se actualizarán y notificarán a los usuarios cuando dichas funciones sean habilitadas oficialmente.
 
 ## 9. Limitación de Responsabilidad y Modificaciones
 Ciudad Friki no se hace responsable por la seguridad de eventos organizados por terceros o interrupciones. Nos reservamos el derecho de modificar estos términos. El uso continuado constituye la aceptación de las nuevas condiciones.

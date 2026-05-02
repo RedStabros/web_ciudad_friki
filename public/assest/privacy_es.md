@@ -11,7 +11,7 @@ Recolectamos la siguiente información para mejorar tu experiencia:
 • Información Básica: Nombre, correo electrónico, ciudad y foto de perfil.
 • Uso de la App: Eventos guardados, reseñas, respuestas a encuestas y preferencias.
 • Actividades y Juegos: Puntuaciones, niveles del modo historia, logros y uso de Frikicoins (puntos de lealtad sin valor monetario real).
-• Información Técnica: Modelo de dispositivo y sistema operativo para soporte técnico.
+• Información Técnica: Modelo de dispositivo, sistema operativo, direcciones IP e identificadores únicos del dispositivo para fines de soporte técnico, análisis de rendimiento y prevención de fraude o abusos.
 • Contenido de Comunidad (La Taberna): Publicaciones, respuestas, reportes realizados y recibidos en el foro comunitario.
 
 ## 3. Uso de la Información

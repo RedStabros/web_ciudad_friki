@@ -387,8 +387,9 @@ npm run preview  # Preview del build
 
 ---
 
-## 16. Convenciones de Código
+## 16. Convenciones de Código y Reglas de IA
 
+- **Git:** NUNCA realices `git commit` ni `git push` a menos que se te solicite explícitamente.
 - **Componentes**: `PascalCase.tsx`
 - **Services**: `PascalCase.ts` con métodos `static async`
 - **Clases CSS**: Tailwind custom con variables CSS (ver `index.css`)
