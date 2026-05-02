@@ -1,40 +1,46 @@
-Terms and Conditions - Ciudad Friki
-Welcome to Ciudad Friki. By accessing or using our mobile application or web platform, you agree to be bound by these terms and conditions.
+# Terms and Conditions - Ciudad Friki
+*Last updated: April 2026*
 
-1. Contractual Relationship and Intellectual Property
-Technical processing and software development belong to Mauricio Saldarriaga García. The terms are as follows:
+Welcome to Ciudad Friki. By accessing or using our mobile application, you agree to be bound by these terms and conditions.
 
-Software Ownership: All source code, database architecture (Supabase), server logic (Express), React Native and Web (React/Vite) development, and minigames are the exclusive property of the Developer.
-Branding Ownership: Names, logos, and the "Ciudad Friki" trademark are the property of Corporación Ciudad Friki (NIT: 901.597.939-0).
-Restrictions: You may not reverse engineer or attempt to extract the source code without express permission.
+## 1. Contractual Relationship and Intellectual Property
+Technical processing and software development belong to Mauricio Saldarriaga García.
+• Software Ownership: All source code, database architecture, server logic, development, and minigames are the exclusive property of the Developer.
+• Branding Ownership: Names, logos, and the "Ciudad Friki" trademark are the property of Corporación Ciudad Friki (NIT: 901.597.939-0).
+• Restrictions: You may not reverse engineer or attempt to extract the source code.
 
-2. Minimum Age and User Account
-You must be at least 13 years old to use this application. If you are under 18, you declare that you have the consent of your parents or legal guardians. You are responsible for your account security.
+## 2. Minimum Age and User Account
+You must be at least 13 years old to use this application. If you are under 18, you declare that you have the consent of your parents or legal guardians.
 
-3. Frikicoins (Virtual Rewards System)
+## 3. Frikicoins (Virtual Rewards System)
 Frikicoins are digital loyalty points with no real monetary value. They are not exchangeable for cash, legal tender, or cryptocurrencies. The Developer reserves the right to adjust balances in case of fraud.
 
-4. Gaming Dynamics and Story Mode
-By participating in minigames and the Story Mode, you agree that your progress and scores will be stored for ranking purposes. The use of hacks or bots will result in immediate account termination.
+## 4. Gaming Dynamics and Surveys
+By participating in minigames, you agree that your progress will be stored for ranking purposes. The use of hacks will result in account termination. Participation in surveys is voluntary and you authorize the analysis of your responses in an aggregated format.
 
-5. Surveys and Data Management
-Participation in surveys is voluntary. You authorize the analysis of your responses in an aggregated and anonymous format for cultural research and community census. Your personal data will never be shared in an identifiable manner without consent.
+## 5. La Taberna — Community Forum
+By posting content in La Taberna, you agree that:
+• You are solely responsible for the content.
+• Content must be respectful, lawful, and "Family-Friendly".
+• It is forbidden to post: discriminatory content, harassment, spam, explicit sexual content, or misinformation.
 
-6. Event Management and User Roles
-Users who publish events are responsible for the accuracy of the information. Ciudad Friki reserves the right to moderate or remove inappropriate or false content. Administrative roles may be revoked for misuse.
+## 6. Moderation System and Sanctions
+• Administrators may apply: Shadow Ban, Temporary or Permanent Suspension.
+• Users have tools within the application to report or block content and profiles that violate these rules. The moderation team will act on these reports within no more than 24/48 hours.
+• Reports of abusive behavior will be reviewed in accordance with the platform's safety policies.
+• All sanctions are subject to review by appealing to udcarkangel@gmail.com within a maximum of 7 business days.
+• Ciudad Friki is not responsible for content posted by third parties.
 
-7. Code of Conduct
-Users agree not to create multiple accounts to abuse the system, not to post discriminatory content, and not to manipulate platform ratings.
+## 7. Code of Conduct
+Users agree not to abuse the system, not to harass others, and not to manipulate ratings.
 
-8. Limitation of Liability
-Ciudad Friki is not responsible for the safety of events organized by third parties, temporary service interruptions, or user interactions occurring outside the application.
+## 8. Purchases and Payments
+In its current version, the platform does not process real monetary transactions or include enabled in-app purchases. Any transactional feature or payment gateway currently in development is disabled at the server level. Full billing policies and Google Play Billing terms will be updated and communicated to users when such features are officially enabled.
 
-9. Modifications to Terms
-We reserve the right to modify these terms at any time. Continued use of the platform (app or web) constitutes acceptance of the new conditions.
+## 9. Limitation of Liability and Modifications
+Ciudad Friki is not responsible for the safety of events organized by third parties or service interruptions. We reserve the right to modify these terms. Continued use constitutes acceptance of the new conditions.
 
-10. Governing Law and Contact
+## 10. Governing Law and Contact
 These terms are governed by the laws of the Republic of Colombia.
-
-Last updated: April 2026
-Contact: udcarkangel@gmail.com
-Ciudad Friki © 2026
+Email: udcarkangel@gmail.com
+Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.
