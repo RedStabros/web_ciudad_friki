@@ -1878,9 +1878,9 @@
     "anonymous": "Anonymous"
   },
   "maintenance": {
-    "title": "Maintenance in progress",
-    "message": "We are working on improvements for Ciudad Friki. We will be back soon with more news.",
-    "scheduled": "Scheduled Maintenance",
+    "title": "Coming Soon!",
+    "message": "We are preparing the final details for the big official launch of Ciudad Friki Web. The opening is just around the corner!",
+    "scheduled": "Launch in preparation",
     "adminLogin": "Staff Access"
   }
 }

@@ -18,13 +18,19 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
         );
     }
 
-    // Explicitly allow access to the maintenance page even if maintenance mode is ON
-    if (location.pathname === '/maintenance') {
-        return <>{children}</>;
-    }
+    // Explicitly allow access to critical pages even if maintenance mode is ON
+    const allowedPaths = [
+        '/maintenance',
+        '/login',
+        '/support',
+        '/account-deletion',
+        '/auth/callback',
+        '/reset-password'
+    ];
 
-    // Allow access to login page during maintenance (so superuser can log in)
-    if (location.pathname === '/login') {
+    const isAllowed = allowedPaths.includes(location.pathname) || location.pathname.startsWith('/legal/');
+
+    if (isAllowed) {
         return <>{children}</>;
     }
 
