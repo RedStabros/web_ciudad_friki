@@ -40,10 +40,10 @@ export default function Footer() {
                     </div>
 
                     {/* Credit + Copyright */}
-                    <div className="flex items-center gap-3 flex-wrap justify-center">
-                        <p className="flex items-center gap-1.5 text-[10px] font-bold text-text-muted opacity-60">
+                    <div className="flex items-center gap-2 flex-wrap justify-center text-[10px] font-bold text-text-muted opacity-60">
+                        <div className="flex items-center gap-1.5">
                             <Heart size={10} className="fill-brand-secondary text-brand-secondary animate-pulse flex-shrink-0" />
-                            {t('settings.madeWith')}
+                            <span>{t('settings.madeWith')}</span>
                             <a 
                                 href="https://github.com/RedStabros" 
                                 target="_blank" 
@@ -52,9 +52,9 @@ export default function Footer() {
                             >
                                 RedStabros
                             </a>
-                        </p>
-                        <span className="w-1 h-1 rounded-full bg-divider-theme opacity-40" />
-                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted opacity-60">
+                        </div>
+                        <span className="opacity-40">&bull;</span>
+                        <p className="uppercase tracking-[0.18em]">
                             &copy; {currentYear} Ciudad Friki &bull; v2.0-web
                         </p>
                     </div>

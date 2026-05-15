@@ -48,9 +48,6 @@ export function MaintenancePage() {
                     </div>
                 </div>
 
-                <p className="mt-16 text-text-muted text-[10px] font-black uppercase tracking-widest opacity-30">
-                    &copy; {new Date().getFullYear()} Ciudad Friki &bull; v2.0-web
-                </p>
             </div>
         </div>
     );

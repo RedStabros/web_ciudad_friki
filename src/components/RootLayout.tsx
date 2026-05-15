@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
@@ -16,10 +16,8 @@ import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
     const { session, signOut, user } = useAuth();
-    const location = useLocation();
     const { profile, wallet } = useProfile(user?.id);
 
-    const isMaintenance = location.pathname === '/maintenance';
     const isAdmin = profile?.role === 'admin' || user?.id === import.meta.env.VITE_SUPERUSER_ID;
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -210,7 +208,7 @@ export default function RootLayout() {
                 <Outlet context={{ setIsWalletOpen, frikiMartVisible }} />
             </main>
 
-            {!isMaintenance && <Footer />}
+            <Footer />
 
             {/* Mobile Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg-side border-t border-border-theme flex items-center justify-around h-16 safe-padding">
