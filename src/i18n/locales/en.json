@@ -1876,5 +1876,11 @@
     "reviewedByAdmin": "Reviewed by Admin",
     "close": "Close Dossier",
     "anonymous": "Anonymous"
+  },
+  "maintenance": {
+    "title": "Maintenance in progress",
+    "message": "We are working on improvements for Ciudad Friki. We will be back soon with more news.",
+    "scheduled": "Scheduled Maintenance",
+    "adminLogin": "Staff Access"
   }
 }

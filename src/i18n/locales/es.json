@@ -1875,5 +1875,11 @@
     "reviewedByAdmin": "Revisado por Admin",
     "close": "Cerrar Expediente",
     "anonymous": "Anónimo"
+  },
+  "maintenance": {
+    "title": "Mantenimiento en curso",
+    "message": "Estamos trabajando en mejoras para Ciudad Friki. Volveremos pronto con más novedades.",
+    "scheduled": "Mantenimiento Programado",
+    "adminLogin": "Acceso Staff"
   }
 }
