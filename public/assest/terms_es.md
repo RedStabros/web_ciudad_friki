@@ -11,6 +11,7 @@ El tratamiento y desarrollo técnico del software pertenece a Mauricio Saldarria
 
 ## 2. Edad Mínima y Cuenta de Usuario
 Debes tener al menos 13 años para usar esta aplicación. Si eres menor de 18 años, declaras contar con el consentimiento de tus padres o tutores legales.
+• Eliminación de cuenta y datos: Conforme a la Ley 1581 de 2012 (Protección de Datos Personales) y normativas internacionales (RGPD), tienes el derecho en todo momento de solicitar la eliminación permanente de tu cuenta y todos tus datos asociados. Puedes hacerlo directamente desde las opciones de tu perfil en la aplicación o enviando una solicitud a udcarkangel@gmail.com.
 
 ## 3. Frikicoins (Sistema de Recompensas Virtuales)
 Las Frikicoins son puntos de fidelidad digitales sin valor monetario real. No son canjeables por dinero en efectivo, moneda de curso legal o criptomonedas. El Desarrollador se reserva el derecho de ajustar balances en caso de fraude.
@@ -23,6 +24,7 @@ Al publicar contenido en La Taberna, aceptas que:
 • Eres el único responsable del contenido.
 • El contenido debe ser respetuoso, legal y "Family-Friendly".
 • Está prohibido publicar: contenido discriminatorio, acoso, spam, contenido sexual explícito, desinformación.
+• Cero tolerancia a la explotación y abuso infantil: Está estrictamente prohibido publicar, compartir, solicitar o promover cualquier tipo de contenido que involucre la explotación, el abuso o la sexualización de menores de edad. Cualquier cuenta que infrinja esta norma será eliminada de forma permanente e inmediata, y los datos serán reportados a las autoridades competentes.
 
 ## 6. Sistema de Moderación y Sanciones
 • Los administradores pueden aplicar: Shadow Ban, Suspensión Temporal o Permanente.

@@ -11,6 +11,7 @@ Technical processing and software development belong to Mauricio Saldarriaga Gar
 
 ## 2. Minimum Age and User Account
 You must be at least 13 years old to use this application. If you are under 18, you declare that you have the consent of your parents or legal guardians.
+• Account and data deletion: In accordance with Law 1581 of 2012 (Personal Data Protection) and international regulations (GDPR), you have the right at any time to request the permanent deletion of your account and all associated data. You can do this directly from the options in your profile within the application or by sending a request to udcarkangel@gmail.com.
 
 ## 3. Frikicoins (Virtual Rewards System)
 Frikicoins are digital loyalty points with no real monetary value. They are not exchangeable for cash, legal tender, or cryptocurrencies. The Developer reserves the right to adjust balances in case of fraud.
@@ -23,6 +24,7 @@ By posting content in La Taberna, you agree that:
 • You are solely responsible for the content.
 • Content must be respectful, lawful, and "Family-Friendly".
 • It is forbidden to post: discriminatory content, harassment, spam, explicit sexual content, or misinformation.
+• Zero tolerance for child exploitation and abuse: It is strictly prohibited to publish, share, solicit, or promote any type of content that involves the exploitation, abuse, or sexualization of minors. Any account that violates this rule will be permanently and immediately deleted, and the data will be reported to the competent authorities.
 
 ## 6. Moderation System and Sanctions
 • Administrators may apply: Shadow Ban, Temporary or Permanent Suspension.
