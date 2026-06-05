@@ -156,7 +156,8 @@
       "tools": "Herramientas Admin",
       "frikimart": "Panel FrikiMart",
       "gm": "Panel GM",
-      "bans": "Sanciones"
+      "bans": "Sanciones",
+      "frikivs": "Aportes VS"
     }
   },
   "dashboard": {
@@ -701,7 +702,7 @@
       "new": "Lo Último"
     },
     "sort": {
-      "hot": "Picantes",
+      "hot": "Activos",
       "new": "Nuevos"
     },
     "createThread": "¿Qué estás pensando, {{name}}? Iniciar un hilo...",
@@ -1031,7 +1032,7 @@
     "pastSurveysTitle": "Encuestas Pasadas",
     "transactionsTotal": "Transacciones (Total)",
     "transactionsMonth": "Transacciones (30d)",
-    "topUsers": "Top 5 Usuarios",
+    "topUsers": "Top 10 Usuarios",
     "topUsersDesc": "Los usuarios con mayor balance de Frikicoins en la plataforma.",
     "analyzingSystem": "Analizando sistemas centrales...",
     "healthMetrics": "Métricas de salud de Ciudad Friki",
@@ -1049,8 +1050,8 @@
     "connectedAt": "Conectado a las {{time}}",
     "growingActively": "Creciendo activamente",
     "shareImage": "Compartir Imagen",
-    "whalesTitle": "Whales Top 5 | Ciudad Friki",
-    "whalesText": "🏆 ¡Estas son las 5 mayores fortunas de Ciudad Friki en este momento!",
+    "whalesTitle": "Whales Top 10 | Ciudad Friki",
+    "whalesText": "🏆 ¡Estas son las 10 mayores fortunas de Ciudad Friki en este momento!",
     "whalesFilename": "top-fortunas-ciudad-friki.png",
     "pastSurveysHistory": "Historial de Encuestas Pasadas",
     "versionHistory": "Historial de Versiones",
@@ -1881,5 +1882,8 @@
     "message": "Estamos preparando los últimos detalles para el gran lanzamiento oficial de Ciudad Friki Web. ¡Falta muy poco para la apertura!",
     "scheduled": "Lanzamiento en preparación",
     "adminLogin": "Acceso Staff"
+  },
+  "categories": {
+    "princesas": "Princesas"
   }
 }

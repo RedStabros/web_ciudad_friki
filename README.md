@@ -73,6 +73,13 @@ npm run build
 npm run preview
 ```
 
+## 🔮 Funcionalidades Futuras (Requieren Análisis Profundo)
+
+- **Mesa de Rol Virtual (Sincronización por Salas en Tiempo Real - GM Screen):**
+  - Se prototipó una pantalla de Director de Juego (`/gm-screen`) que se conecta y suscribe en tiempo real a las tiradas de dados y hojas de personaje de los jugadores.
+  - Para asegurar una excelente experiencia de usuario y alineación con las reglas del juego, esta vista ha sido ocultada del menú de navegación principal.
+  - **Próximos Pasos:** Requiere un análisis de interacción multiusuario y reglas de juego detallado, así como evaluar la adición de emisiones de tiempo real (Supabase Broadcast) en la app móvil antes de su habilitación final.
+
 ## 📝 Notas de Contexto Reciente (Marzo 2026)
 
 - **Integración de Admin Tools:** Se replicó la sección de herramientas administrativas de la app móvil a la web, optimizando la carga de datos (emails y avatares) sin aumentar el costo de base de datos.

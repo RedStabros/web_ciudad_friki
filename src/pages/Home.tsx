@@ -1,6 +1,6 @@
 import { Link, useOutletContext } from 'react-router-dom';
 import { SEO } from '../components/SEO';
-import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock } from 'lucide-react';
+import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock, Dices, List, LayoutGrid } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import { EventCard } from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
@@ -12,12 +12,11 @@ import type { FrikiEvent } from '../services/EventService';
 import { TriviaService } from '../services/TriviaService';
 import { SurveyService } from '../services/SurveyService';
 import { useTranslation } from 'react-i18next';
-import { useProfile } from '../hooks/useProfile';
+import { useApp } from '../context/AppContext';
 import type { EventFeedType } from '../hooks/useEvents';
 import { supabase } from '../lib/supabase';
 import { getAvatarSource } from '../config/avatars';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
-import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 interface VSWinner {
     user_id: string;
@@ -38,15 +37,24 @@ interface RecentActivity {
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function Home() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
-    const { profile, wallet } = useProfile(user?.id);
+    const { profile, wallet, tavern, frikiVs, ttrpg } = useApp();
     const { setIsWalletOpen, frikiMartVisible } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void, frikiMartVisible?: boolean }>();
-    const { tavern, frikiVs } = useGlobalFeatures(user?.id);
 
     // Dashboard filter state
     const [feedType, setFeedType] = useState<EventFeedType>('upcoming');
     const { events, setEvents, isLoading, error, refetch } = useEvents(user?.id, feedType, profile?.interests || []);
+
+    const [isCompactView, setIsCompactView] = useState(() => {
+        return localStorage.getItem('events_compact_view') === 'true';
+    });
+
+    const handleToggleCompactView = () => {
+        const nextVal = !isCompactView;
+        setIsCompactView(nextVal);
+        localStorage.setItem('events_compact_view', String(nextVal));
+    };
 
     const [trendingTopics, setTrendingTopics] = useState<string[]>([]);
 
@@ -222,6 +230,12 @@ export default function Home() {
                             {t('frikimart.title')}
                         </Link>
                     )}
+                    {(ttrpg || profile?.role === 'admin') && (
+                        <Link to="/ttrpg" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                            <Dices className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
+                            Rol / TTRPG
+                        </Link>
+                    )}
                 </nav>
 
                 <div className="border-t border-divider-theme my-4"></div>
@@ -266,24 +280,34 @@ export default function Home() {
                                 ? t('profile.interests')
                                 : t('events.pastTitle')}
                     </h2>
-                    <div className="flex bg-bg-side p-1 rounded-xl border border-border-theme">
+                    <div className="flex items-center gap-2">
+                        <div className="flex bg-bg-side p-1 rounded-xl border border-border-theme">
+                            <button
+                                onClick={() => setFeedType('upcoming')}
+                                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'upcoming' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
+                            >
+                                {t('dashboard.filter.all')}
+                            </button>
+                            <button
+                                onClick={() => setFeedType('interests')}
+                                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'interests' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
+                            >
+                                {t('dashboard.filter.interests')}
+                            </button>
+                            <button
+                                onClick={() => setFeedType('past')}
+                                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'past' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
+                            >
+                                {t('common.past')}
+                            </button>
+                        </div>
+
                         <button
-                            onClick={() => setFeedType('upcoming')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'upcoming' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
+                            onClick={handleToggleCompactView}
+                            className="p-2 bg-bg-side rounded-xl border border-border-theme text-text-muted hover:text-text-main hover:bg-bg-sub transition-all cursor-pointer flex items-center justify-center"
+                            title={isCompactView ? t('dashboard.view.grid', 'Vista normal') : t('dashboard.view.list', 'Vista compacta')}
                         >
-                            {t('dashboard.filter.all')}
-                        </button>
-                        <button
-                            onClick={() => setFeedType('interests')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'interests' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
-                        >
-                            {t('dashboard.filter.interests')}
-                        </button>
-                        <button
-                            onClick={() => setFeedType('past')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${feedType === 'past' ? 'bg-brand-primary text-text-inv shadow-md' : 'text-text-muted hover:text-text-main'}`}
-                        >
-                            {t('common.past')}
+                            {isCompactView ? <LayoutGrid size={18} /> : <List size={18} />}
                         </button>
                     </div>
                 </div>
@@ -307,17 +331,38 @@ export default function Home() {
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {events.map((event) => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                onClick={() => handleEventClick(event)}
-                                onLike={() => handleLikeToggle(event)}
-                                onSave={() => handleSaveToggle(event)}
-                                onInterested={() => handleSaveToggle(event)}
-                            />
-                        ))}
+                    <div className={isCompactView ? "space-y-3" : "space-y-6"}>
+                        {(() => {
+                            let lastMonthYear = '';
+                            return events.map((event) => {
+                                let divider = null;
+                                if (event.date) {
+                                    const dateObj = new Date(event.date + 'T00:00:00');
+                                    const monthYear = dateObj.toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US', { month: 'long', year: 'numeric' });
+                                    if (monthYear !== lastMonthYear) {
+                                        lastMonthYear = monthYear;
+                                        divider = (
+                                            <div key={`month-divider-${monthYear}`} className="timeline-month-divider">
+                                                {monthYear}
+                                            </div>
+                                        );
+                                    }
+                                }
+                                return (
+                                    <div key={event.id} className={isCompactView ? "space-y-3" : "space-y-6"}>
+                                        {divider}
+                                        <EventCard
+                                            event={event}
+                                            isCompact={isCompactView}
+                                            onClick={() => handleEventClick(event)}
+                                            onLike={() => handleLikeToggle(event)}
+                                            onSave={() => handleSaveToggle(event)}
+                                            onInterested={() => handleSaveToggle(event)}
+                                        />
+                                    </div>
+                                );
+                            });
+                        })()}
                     </div>
                 )}
             </main>

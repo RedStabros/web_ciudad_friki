@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/SEO';
 import {
     BrainCircuit, Trophy, Star, Clock, ChevronRight, AlertTriangle,
-    Loader2, Gamepad2, ShieldCheck, X, CheckCircle2, XCircle, ArrowLeft, ArrowRight, Gift
+    Loader2, Gamepad2, ShieldCheck, X, CheckCircle2, XCircle, ArrowLeft, Gift
 } from 'lucide-react';
 import { TriviaService } from '../services/TriviaService';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ interface TriviaOption { id: string; text: string; is_correct: boolean; }
 interface TriviaQuestion { id: string; question: string; points: number; id_trivia: string; options: TriviaOption[]; }
 interface TriviaWithStatus {
     id: string; title: string; description: string; time_limit_seconds: number;
-    expire_date: string | null; user_completed: boolean; user_score?: number;
+    expire_date: string | null; created_at?: string; user_completed: boolean; user_score?: number;
 }
 interface TriviaResult { score: number; correctCount: number; total: number; totalPoints: number; reward: number; }
 
@@ -36,9 +36,11 @@ export default function Trivias() {
     // Timer
     const [timeLeft, setTimeLeft] = useState(0);
     const timerRef = useRef<any>(null);
+    const handleSubmitRef = useRef<any>(null);
 
     // Result
     const [result, setResult] = useState<TriviaResult | null>(null);
+    const [showReview, setShowReview] = useState(false);
 
     const loadList = useCallback(async () => {
         setIsLoading(true);
@@ -65,7 +67,7 @@ export default function Trivias() {
             setTimeLeft(prev => {
                 if (prev <= 1) {
                     clearInterval(timerRef.current);
-                    handleSubmit(true);
+                    handleSubmitRef.current?.(true);
                     return 0;
                 }
                 return prev - 1;
@@ -87,6 +89,7 @@ export default function Trivias() {
             setCurrentIdx(0);
             setAnswers({});
             setResult(null);
+            setShowReview(false);
             setTimeLeft(trivia.time_limit_seconds || 120);
         } finally {
             setLoadingGame(false);
@@ -94,21 +97,31 @@ export default function Trivias() {
     };
 
     const handleSelect = (questionId: string, optionId: string) => {
-        setAnswers(prev => ({ ...prev, [questionId]: optionId }));
+        const newAnswers = { ...answers, [questionId]: optionId };
+        setAnswers(newAnswers);
+
+        const isLastQ = currentIdx === questions.length - 1;
+        if (isLastQ) {
+            setTimeout(() => {
+                handleSubmit(false, newAnswers);
+            }, 250);
+        } else {
+            setTimeout(() => {
+                setCurrentIdx(idx => idx + 1);
+            }, 250);
+        }
     };
 
-    const handleSubmit = async (isTimeout = false) => {
+    const handleSubmit = async (_isTimeout = false, currentAnswers = answers) => {
         if (!activeTrivia || !user || submitting) return;
         clearInterval(timerRef.current);
         setSubmitting(true);
-        if (!isTimeout && questions[currentIdx] && !answers[questions[currentIdx].id]) {
-            // Warn unfinished, but in web we let them submit with gaps like the app does
-        }
         try {
             // submitAttempt mirrors mobile app: calculates score locally + calls deliver_trivia_reward RPC
-            const res = await TriviaService.submitAttempt(user.id, activeTrivia.id, answers);
+            const res = await TriviaService.submitAttempt(user.id, activeTrivia.id, currentAnswers);
             setResult(res);
             setActiveTrivia(null);
+            setShowReview(false);
             // Refresh list to show completed state
             loadList();
         } catch (e: any) {
@@ -118,55 +131,133 @@ export default function Trivias() {
         }
     };
 
+    // Keep ref to avoid stale closure in timer interval
+    useEffect(() => {
+        handleSubmitRef.current = handleSubmit;
+    });
+
     // ── Result Screen ──────────────────────────────────────────────────────────
     if (result) {
         const pct = result.total > 0 ? Math.round((result.correctCount / result.total) * 100) : 0;
         const isPerfect = result.correctCount === result.total;
         return (
             <div className="fixed inset-0 z-[200] bg-ui-overlay backdrop-blur-xl flex items-center justify-center p-4">
-                <div className="bg-bg-side w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl border border-divider-theme animate-in zoom-in-95 duration-300">
-                    {/* Header */}
-                    <div className={`p-10 text-center ${isPerfect ? 'bg-gradient-to-b from-amber-500/10 to-transparent' : 'bg-gradient-to-b from-brand-primary/5 to-transparent'}`}>
-                        <div className="text-6xl mb-4">{isPerfect ? '🏆' : pct >= 60 ? '⭐' : '🎮'}</div>
-                        <h2 className="text-3xl font-black text-text-main uppercase italic tracking-tighter">
-                            {t('trivia.results.title')}
-                        </h2>
-                        <p className="text-text-muted text-sm mt-2">
-                            {result.correctCount} / {result.total} {t('trivia.results.correct')}
-                        </p>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 divide-x divide-divider-theme border-y border-divider-theme">
-                        <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.score')}</p>
-                            <p className="text-3xl font-black text-brand-primary italic">{result.score}</p>
-                            <p className="text-[10px] text-text-muted">pts</p>
-                        </div>
-                        <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.correct')}</p>
-                            <p className="text-3xl font-black text-accent-green italic">{result.correctCount}</p>
-                            <p className="text-[10px] text-text-muted">/ {result.total}</p>
-                        </div>
-                        <div className="p-6 text-center">
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.reward')}</p>
-                            <p className="text-3xl font-black text-amber-400 italic">+{result.reward}</p>
-                            <p className="text-[10px] text-text-muted">FC</p>
-                        </div>
-                    </div>
-
-                    {result.reward > 0 && (
-                        <div className="mx-8 my-4 flex items-center gap-3 bg-amber-500/5 border border-amber-500/20 rounded-2xl px-4 py-3">
-                            <Gift size={20} className="text-amber-400 flex-shrink-0" />
-                            <p className="text-sm font-bold text-amber-400">
-                                {t('trivia.results.correctAlert', { reward: result.reward })}
+                <div className="bg-bg-side w-full max-w-xl rounded-[3rem] overflow-hidden shadow-2xl border border-divider-theme flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+                    <div className="flex-1 overflow-y-auto scrollbar-thin">
+                        {/* Header */}
+                        <div className={`p-10 text-center ${isPerfect ? 'bg-gradient-to-b from-amber-500/10 to-transparent' : 'bg-gradient-to-b from-brand-primary/5 to-transparent'}`}>
+                            <div className="text-6xl mb-4">{isPerfect ? '🏆' : pct >= 60 ? '⭐' : '🎮'}</div>
+                            <h2 className="text-3xl font-black text-text-main uppercase italic tracking-tighter">
+                                {t('trivia.results.title')}
+                            </h2>
+                            <p className="text-text-muted text-sm mt-2">
+                                {result.correctCount} / {result.total} {t('trivia.results.correct')}
                             </p>
                         </div>
-                    )}
 
-                    <div className="p-8">
+                        {/* Stats */}
+                        <div className="grid grid-cols-3 divide-x divide-divider-theme border-y border-divider-theme">
+                            <div className="p-6 text-center">
+                                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.score')}</p>
+                                <p className="text-3xl font-black text-brand-primary italic">{result.score}</p>
+                                <p className="text-[10px] text-text-muted">pts</p>
+                            </div>
+                            <div className="p-6 text-center">
+                                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.correct')}</p>
+                                <p className="text-3xl font-black text-accent-green italic">{result.correctCount}</p>
+                                <p className="text-[10px] text-text-muted">/ {result.total}</p>
+                            </div>
+                            <div className="p-6 text-center">
+                                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{t('trivia.results.reward')}</p>
+                                <p className="text-3xl font-black text-amber-400 italic">+{result.reward}</p>
+                                <p className="text-[10px] text-text-muted">FC</p>
+                            </div>
+                        </div>
+
+                        {result.reward > 0 && (
+                            <div className="mx-8 my-4 flex items-center gap-3 bg-amber-500/5 border border-amber-500/20 rounded-2xl px-4 py-3">
+                                <Gift size={20} className="text-amber-400 flex-shrink-0" />
+                                <p className="text-sm font-bold text-amber-400">
+                                    {t('trivia.results.correctAlert', { reward: result.reward })}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Question Review Accordion */}
+                        <div className="p-8">
+                            <button
+                                onClick={() => setShowReview(prev => !prev)}
+                                className="w-full py-4 px-6 bg-bg-sub border border-divider-theme hover:bg-bg-sub/80 rounded-2xl font-black uppercase text-xs tracking-widest text-text-main flex items-center justify-between transition-all"
+                            >
+                                <span>{showReview ? t('trivia.review.hide', 'Ocultar revisión') : t('trivia.review.show', 'Revisar respuestas')}</span>
+                                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showReview ? 'rotate-90 text-brand-primary' : 'text-text-muted'}`} />
+                            </button>
+
+                            {showReview && (
+                                <div className="mt-6 space-y-4 animate-in fade-in duration-300">
+                                    {questions.map((q, idx) => {
+                                        const selectedOptId = answers[q.id];
+                                        const correctOpt = q.options.find(o => o.is_correct);
+                                        const isUserCorrect = selectedOptId === correctOpt?.id;
+
+                                        return (
+                                            <div key={q.id} className="p-4 rounded-2xl bg-bg-sub/40 border border-divider-theme space-y-3">
+                                                <div className="flex items-start gap-2">
+                                                    <span className={`flex-shrink-0 w-5 h-5 mt-0.5 flex items-center justify-center rounded-full text-[10px] font-black
+                                                        ${isUserCorrect ? 'bg-accent-green/20 text-accent-green' : 'bg-accent-red/20 text-accent-red'}`}
+                                                    >
+                                                        {isUserCorrect ? '✓' : '✗'}
+                                                    </span>
+                                                    <p className="font-bold text-text-main text-sm leading-tight">
+                                                        {idx + 1}. {q.question}
+                                                    </p>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2 pl-7">
+                                                    {q.options.map(opt => {
+                                                        const isSelected = selectedOptId === opt.id;
+                                                        const isCorrect = opt.is_correct;
+
+                                                        let optClass = 'bg-bg-sub/30 border-divider-theme text-text-muted';
+                                                        let icon = null;
+
+                                                        if (isSelected) {
+                                                            if (isCorrect) {
+                                                                optClass = 'bg-accent-green/10 text-accent-green border-accent-green/30 font-bold';
+                                                                icon = <CheckCircle2 size={14} className="text-accent-green flex-shrink-0" />;
+                                                            } else {
+                                                                optClass = 'bg-accent-red/10 text-accent-red border-accent-red/30 font-bold';
+                                                                icon = <XCircle size={14} className="text-accent-red flex-shrink-0" />;
+                                                            }
+                                                        } else if (isCorrect) {
+                                                            optClass = 'bg-accent-green/10 text-accent-green border-accent-green/25 border-dashed font-bold';
+                                                            icon = <CheckCircle2 size={14} className="text-accent-green opacity-50 flex-shrink-0" />;
+                                                        }
+
+                                                        return (
+                                                            <div
+                                                                key={opt.id}
+                                                                className={`flex items-center justify-between p-3 rounded-xl border text-xs transition ${optClass}`}
+                                                            >
+                                                                <span>{opt.text}</span>
+                                                                {icon}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="p-8 border-t border-divider-theme bg-bg-sub/30">
                         <button
-                            onClick={() => setResult(null)}
+                            onClick={() => {
+                                setResult(null);
+                                setShowReview(false);
+                            }}
                             className="w-full bg-brand-primary text-text-inv py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-primary-light transition shadow-xl shadow-brand-primary/20"
                         >
                             {t('trivia.results.close')}
@@ -180,7 +271,6 @@ export default function Trivias() {
     // ── Active Trivia Game ─────────────────────────────────────────────────────
     if (activeTrivia && questions.length > 0) {
         const q = questions[currentIdx];
-        const isLastQ = currentIdx === questions.length - 1;
         const progress = ((currentIdx + 1) / questions.length) * 100;
         const selectedOption = answers[q.id];
 
@@ -258,37 +348,16 @@ export default function Trivias() {
                         </div>
                     </div>
 
-                    {/* Footer navigation — same as app: can go back/forward + submit at end */}
-                    <div className="p-6 border-t border-divider-theme bg-bg-sub/30 flex gap-3">
+                    {/* Footer navigation ── only the back button to review previous questions */}
+                    <div className="p-6 border-t border-divider-theme bg-bg-sub/30 flex gap-3 justify-start">
                         <button
                             onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
                             disabled={currentIdx === 0}
-                            className="p-3 rounded-2xl bg-bg-side border border-divider-theme hover:bg-bg-sub transition disabled:opacity-30"
+                            className="px-6 py-3 rounded-2xl bg-bg-side border border-divider-theme hover:bg-bg-sub transition disabled:opacity-30 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-text-muted"
                         >
-                            <ArrowLeft size={20} className="text-text-muted" />
+                            <ArrowLeft size={16} />
+                            {t('common.back', 'Atrás')}
                         </button>
-
-                        {isLastQ ? (
-                            <button
-                                onClick={() => {
-                                    if (window.confirm(t('trivia.confirmSubmit'))) {
-                                        handleSubmit();
-                                    }
-                                }}
-                                disabled={submitting}
-                                className="flex-1 bg-brand-primary text-text-inv py-3 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-primary-light transition shadow-xl shadow-brand-primary/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {submitting ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                                {submitting ? t('surveys.submitting') : t('trivia.submit')}
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => setCurrentIdx(i => Math.min(questions.length - 1, i + 1))}
-                                className="flex-1 bg-bg-side border border-divider-theme text-text-main py-3 rounded-2xl font-black uppercase hover:bg-brand-primary hover:text-text-inv hover:border-brand-primary transition flex items-center justify-center gap-2"
-                            >
-                                {t('trivia.nextQuestion')} <ArrowRight size={18} />
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>
@@ -304,6 +373,12 @@ export default function Trivias() {
             </div>
         );
     }
+
+    // Sort and partition trivias list by created_at DESC
+    // The requirement says "both sorted by created_at DESC". So we sort by created_at DESC.
+    const sortedTriviasByCreated = [...trivias].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    const pendingTrivias = sortedTriviasByCreated.filter(t => !t.user_completed);
+    const completedTrivias = sortedTriviasByCreated.filter(t => t.user_completed);
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
@@ -349,8 +424,8 @@ export default function Trivias() {
                 </div>
             </div>
 
-            {/* TRIVIA LIST */}
-            <section className="space-y-12">
+            {/* PENDING TRIVIAS */}
+            <section className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-2 border-divider-theme pb-8 px-4">
                     <div className="flex items-center gap-5">
                         <div className="bg-brand-primary p-4 rounded-[1.5rem] shadow-2xl text-text-inv rotate-[-5deg] hover:rotate-0 transition-transform">
@@ -363,35 +438,25 @@ export default function Trivias() {
                     </div>
                     <div className="bg-bg-side px-6 py-2 rounded-full border border-divider-theme flex items-center gap-2">
                         <div className="h-2 w-2 bg-brand-primary rounded-full animate-pulse" />
-                        <span className="text-text-main font-black text-sm tracking-tight">{trivias.length} {t('common.active')}</span>
+                        <span className="text-text-main font-black text-sm tracking-tight">{pendingTrivias.length} {t('common.active')}</span>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {trivias.map((trivia) => (
+                    {pendingTrivias.map((trivia) => (
                         <div
                             key={trivia.id}
-                            onClick={() => !trivia.user_completed && startTrivia(trivia)}
-                            className={`group bg-bg-side p-8 rounded-[3rem] shadow-2xl border transition-all duration-500 relative overflow-hidden
-                                ${trivia.user_completed
-                                    ? 'opacity-70 cursor-default border-divider-theme'
-                                    : 'border-divider-theme hover:border-brand-primary/50 cursor-pointer hover:shadow-brand-primary/10'
-                                }`}
+                            onClick={() => startTrivia(trivia)}
+                            className="group bg-bg-side p-8 rounded-[3rem] shadow-2xl border border-divider-theme hover:border-brand-primary/50 cursor-pointer hover:shadow-brand-primary/10 transition-all duration-500 relative overflow-hidden"
                         >
                             <div className="absolute -top-10 -right-10 p-20 opacity-[0.03] group-hover:scale-125 transition-transform duration-1000">
                                 <Trophy size={100} className="text-brand-primary" />
                             </div>
                             <div className="flex justify-between items-start mb-10 relative z-10">
-                                <div>
-                                        {t('trivia.expires')}: {trivia.expire_date ? new Date(trivia.expire_date).toLocaleDateString() : t('common.tbd')}
-                                    {trivia.user_completed && trivia.user_score !== undefined && (
-                                        <p className="text-[10px] text-accent-green font-black mt-0.5">Score: {trivia.user_score} pts</p>
-                                    )}
+                                <div className="text-xs text-text-muted font-mono">
+                                    {t('trivia.expires')}: {trivia.expire_date ? new Date(trivia.expire_date).toLocaleDateString() : t('common.tbd')}
                                 </div>
-                                {trivia.user_completed
-                                    ? <CheckCircle2 size={24} className="text-accent-green" />
-                                    : <XCircle size={20} className="text-text-muted opacity-20" />
-                                }
+                                <XCircle size={20} className="text-text-muted opacity-20" />
                             </div>
                             <h3 className="text-2xl font-black text-text-main mb-4 group-hover:text-brand-primary transition-colors leading-tight relative z-10 uppercase italic tracking-tighter">
                                 {trivia.title}
@@ -402,26 +467,79 @@ export default function Trivias() {
                                     <Clock size={14} />
                                     <span>{trivia.time_limit_seconds > 0 ? `${Math.floor(trivia.time_limit_seconds / 60)} min` : t('common.noLimit')}</span>
                                 </div>
-                                <div className={`px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center gap-2
-                                    ${trivia.user_completed
-                                        ? 'bg-accent-green/10 text-accent-green'
-                                        : 'bg-brand-primary text-text-inv group-hover:scale-105 active:scale-95 shadow-brand-primary/30'
-                                    }`}>
-                                    {trivia.user_completed ? t('surveys.completed') : t('trivia.play')}
-                                    {!trivia.user_completed && <ChevronRight size={14} />}
+                                <div className="px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center gap-2 bg-brand-primary text-text-inv group-hover:scale-105 active:scale-95 shadow-brand-primary/30">
+                                    {t('trivia.play')}
+                                    <ChevronRight size={14} />
                                 </div>
                             </div>
                         </div>
                     ))}
 
-                    {trivias.length === 0 && (
+                    {pendingTrivias.length === 0 && (
                         <div className="col-span-full py-28 flex flex-col items-center justify-center text-center bg-bg-side rounded-[4rem] border-4 border-dashed border-divider-theme">
-                            <AlertTriangle size={80} className="mb-6 text-text-muted opacity-30" />
+                            <AlertTriangle size={80} className="mb-6 text-text-muted opacity-30 animate-bounce" />
                             <p className="text-3xl font-black uppercase italic tracking-widest text-text-muted">{t('trivia.noTriviasNow')}</p>
                         </div>
                     )}
                 </div>
             </section>
+
+            {/* COMPLETED TRIVIAS */}
+            {completedTrivias.length > 0 && (
+                <section className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-2 border-divider-theme pb-8 px-4">
+                        <div className="flex items-center gap-5">
+                            <div className="bg-accent-green p-4 rounded-[1.5rem] shadow-2xl text-text-inv rotate-[5deg] hover:rotate-0 transition-transform">
+                                <Trophy size={32} />
+                            </div>
+                            <div>
+                                <h2 className="text-4xl font-black text-text-main uppercase tracking-tighter italic">{t('trivia.completedChallenges', 'Desafíos Completados')}</h2>
+                                <p className="text-text-muted text-xs font-bold uppercase tracking-widest mt-1">{t('trivia.completedSub', 'Tus hazañas de conocimiento')}</p>
+                            </div>
+                        </div>
+                        <div className="bg-bg-side px-6 py-2 rounded-full border border-divider-theme flex items-center gap-2">
+                            <div className="h-2.5 w-2.5 bg-accent-green rounded-full" />
+                            <span className="text-text-main font-black text-sm tracking-tight">{completedTrivias.length} {t('common.completed', 'Completadas')}</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {completedTrivias.map((trivia) => (
+                            <div
+                                key={trivia.id}
+                                className="group bg-bg-side p-8 rounded-[3rem] shadow-2xl border border-divider-theme opacity-75 hover:opacity-90 transition-all duration-500 relative overflow-hidden"
+                            >
+                                <div className="absolute -top-10 -right-10 p-20 opacity-[0.03] group-hover:scale-125 transition-transform duration-1000">
+                                    <Trophy size={100} className="text-accent-green" />
+                                </div>
+                                <div className="flex justify-between items-start mb-10 relative z-10">
+                                    <div className="text-xs text-text-muted font-mono">
+                                        {trivia.user_score !== undefined && (
+                                            <span className="bg-accent-green/10 text-accent-green border border-accent-green/20 px-3 py-1 rounded-full font-bold">
+                                                Score: {trivia.user_score} pts
+                                            </span>
+                                        )}
+                                    </div>
+                                    <CheckCircle2 size={24} className="text-accent-green" />
+                                </div>
+                                <h3 className="text-2xl font-black text-text-muted mb-4 leading-tight relative z-10 uppercase italic tracking-tighter line-through decoration-text-muted/30">
+                                    {trivia.title}
+                                </h3>
+                                <p className="text-text-muted text-sm mb-10 line-clamp-2">{trivia.description}</p>
+                                <div className="flex items-center justify-between pt-6 border-t border-divider-theme relative z-10">
+                                    <div className="flex items-center gap-2 text-text-muted text-xs">
+                                        <Clock size={14} />
+                                        <span>{trivia.time_limit_seconds > 0 ? `${Math.floor(trivia.time_limit_seconds / 60)} min` : t('common.noLimit')}</span>
+                                    </div>
+                                    <div className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-accent-green/10 text-accent-green border border-accent-green/20">
+                                        {t('surveys.completed')}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }

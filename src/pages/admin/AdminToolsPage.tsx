@@ -4,7 +4,7 @@ import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
     Trophy, ShieldCheck, Clock, Loader2,
-    Eye, Share2
+    Eye, Share2, MessageSquare, Swords
 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { shareContent } from '../../utils/shareContent';
@@ -12,6 +12,7 @@ import { AdminToolsService, type AdminStats } from '../../services/AdminToolsSer
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { getAvatarSource } from '../../config/avatars';
+import UserAuditModal from '../../components/admin/UserAuditModal';
 
 export default function AdminToolsPage() {
     const { t } = useTranslation();
@@ -24,6 +25,8 @@ export default function AdminToolsPage() {
     const [showOnlineModal, setShowOnlineModal] = useState(false);
     const [isSharingWhales, setIsSharingWhales] = useState(false);
     const whalesRef = useRef<HTMLDivElement>(null);
+    const [auditModalVisible, setAuditModalVisible] = useState(false);
+    const [auditUser, setAuditUser] = useState<{ id: string; username: string } | null>(null);
 
     useEffect(() => {
         loadData();
@@ -171,7 +174,7 @@ export default function AdminToolsPage() {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Users Count */}
                 <div className="bg-gradient-to-br from-bg-pop to-bg-side border border-border-theme rounded-2xl p-6 shadow-sm relative overflow-hidden group hover:border-brand-primary/50 transition-colors">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-full -mr-8 -mt-8 group-hover:bg-brand-primary/10 transition-colors"></div>
@@ -203,6 +206,23 @@ export default function AdminToolsPage() {
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-amber-500 uppercase">
                         {t('settings.circulationSupplyDesc')}
+                    </div>
+                </div>
+
+                {/* Economy - Admin Reserve */}
+                <div className="bg-gradient-to-br from-bg-pop to-bg-side border border-border-theme rounded-2xl p-6 shadow-sm relative overflow-hidden group hover:border-brand-primary/50 transition-colors">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-full -mr-8 -mt-8 group-hover:bg-brand-primary/10 transition-colors"></div>
+                    <div className="flex items-start justify-between relative z-10">
+                        <div>
+                            <p className="text-xs font-black text-text-muted uppercase tracking-widest mb-1">{t('settings.adminSupply')}</p>
+                            <h3 className="text-3xl font-black text-text-main">{stats?.admin_supply.toLocaleString() || '0'}</h3>
+                        </div>
+                        <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-xl">
+                            <ShieldCheck size={24} />
+                        </div>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-brand-primary uppercase">
+                        {t('settings.adminSupplyDesc', 'Frikicoins en cuentas de administradores')}
                     </div>
                 </div>
 
@@ -260,6 +280,11 @@ export default function AdminToolsPage() {
                             <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('adminSurveys.statusLabels.finished')}</p>
                             <p className="text-xl font-black text-text-main">{stats?.past_surveys || '0'}</p>
                         </div>
+
+                        <div className="col-span-2 mt-2 pt-3 border-t border-border-theme/50 flex justify-between items-center text-xs text-text-muted font-bold">
+                            <span>{t('adminSurveys.stats.totalCreated', 'Total Creadas')}: <span className="text-text-main font-black">{stats?.surveys_total || '0'}</span></span>
+                            <span>{t('adminSurveys.stats.globalResponses', 'Respuestas Globales')}: <span className="text-brand-secondary font-black">{stats?.survey_responses_total || '0'}</span></span>
+                        </div>
                     </div>
                 </div>
 
@@ -270,14 +295,14 @@ export default function AdminToolsPage() {
                         <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('settings.transactionsLog')}</h3>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-brand-secondary"></div>
                             <div>
                                 <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('common.totalHistorial') || 'Histórico Total'}</p>
                                 <p className="text-2xl font-black text-text-main">{stats?.transactions_total.toLocaleString() || '0'}</p>
                             </div>
-                            <Clock className="text-text-muted opacity-20" size={32} />
+                            <Clock className="text-text-muted opacity-25" size={32} />
                         </div>
                         <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-accent-red"></div>
@@ -285,7 +310,78 @@ export default function AdminToolsPage() {
                                 <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.transactionsMonth')}</p>
                                 <p className="text-2xl font-black text-text-main">{stats?.transactions_last_month.toLocaleString() || '0'}</p>
                             </div>
-                            <TrendingUp className="text-accent-red opacity-20" size={32} />
+                            <TrendingUp className="text-accent-red opacity-25" size={32} />
+                        </div>
+                        <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary"></div>
+                            <div>
+                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.transactionsP2PTotal', 'P2P Envíos (Total)')}</p>
+                                <p className="text-2xl font-black text-text-main">{stats?.transactions_p2p_total.toLocaleString() || '0'}</p>
+                            </div>
+                            <ArrowRightLeft className="text-brand-primary opacity-25" size={32} />
+                        </div>
+                        <div className="flex items-center justify-between p-4 bg-bg-side rounded-xl border border-border-theme/50 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-accent-green"></div>
+                            <div>
+                                <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.transactionsP2PMonth', 'P2P Envíos (30d)')}</p>
+                                <p className="text-2xl font-black text-text-main">{stats?.transactions_p2p_last_month.toLocaleString() || '0'}</p>
+                            </div>
+                            <TrendingUp className="text-accent-green opacity-25" size={32} />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Community & Gaming Stats Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* La Taberna Stats */}
+                <div className="bg-bg-pop border border-border-theme rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6 border-b border-border-theme pb-4">
+                        <MessageSquare className="text-amber-500" size={20} />
+                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('adminTavern.title', 'La Taberna (Métricas)')}</h3>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.stats.tavernThreads', 'Hilos Totales')}</p>
+                            <p className="text-2xl font-black text-text-main">{stats?.tavern_threads_total || '0'}</p>
+                        </div>
+                        <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.stats.tavernReplies', 'Respuestas')}</p>
+                            <p className="text-2xl font-black text-text-main">{stats?.tavern_replies_total || '0'}</p>
+                        </div>
+                        <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.stats.tavernLikes', 'Likes Totales')}</p>
+                            <p className="text-2xl font-black text-accent-red">{stats?.tavern_likes_total || '0'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Gaming & TTRPG Stats */}
+                <div className="bg-bg-pop border border-border-theme rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6 border-b border-border-theme pb-4">
+                        <Swords className="text-brand-primary" size={20} />
+                        <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('settings.stats.gamingSection', 'Actividad de Juegos')}</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-bg-side p-3 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[9px] font-black text-text-muted uppercase mb-1">{t('settings.stats.duels', 'Duelos VS')}</p>
+                            <p className="text-xl font-black text-[#f472b6]">{stats?.trivia_duels_completed || '0'}</p>
+                        </div>
+                        <div className="bg-bg-side p-3 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[9px] font-black text-text-muted uppercase mb-1">{t('settings.stats.sheets', 'Fichas Rol')}</p>
+                            <p className="text-xl font-black text-purple-500">{stats?.ttrpg_sheets_total || '0'}</p>
+                        </div>
+                        <div className="bg-bg-side p-3 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[9px] font-black text-text-muted uppercase mb-1">{t('settings.stats.rolls', 'Tiradas')}</p>
+                            <p className="text-xl font-black text-brand-secondary">{stats?.ttrpg_rolls_total || '0'}</p>
+                        </div>
+                        <div className="bg-bg-side p-3 rounded-xl border border-border-theme/50 text-center">
+                            <p className="text-[9px] font-black text-text-muted uppercase mb-1">{t('settings.stats.tcg', 'TCG Arena')}</p>
+                            <p className="text-xl font-black text-brand-primary">{stats?.tcg_matches_total || '0'}</p>
                         </div>
                     </div>
                 </div>
@@ -325,7 +421,16 @@ export default function AdminToolsPage() {
                         </thead>
                         <tbody className="divide-y divide-border-theme">
                             {stats?.top_users.map((u, i) => (
-                                <tr key={i} className="hover:bg-bg-side/30 transition-colors group">
+                                <tr 
+                                    key={i} 
+                                    onClick={() => {
+                                        if (u.id) {
+                                            setAuditUser({ id: u.id, username: u.username });
+                                            setAuditModalVisible(true);
+                                        }
+                                    }}
+                                    className="hover:bg-bg-side/50 hover:scale-[1.005] active:scale-[0.998] cursor-pointer transition-all group"
+                                >
                                     <td className="px-6 py-4 font-black">
                                         <div className={`w-7 h-7 flex items-center justify-center rounded-full text-xs ${i === 0 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30' :
                                             i === 1 ? 'bg-slate-300 text-slate-700' :
@@ -439,6 +544,15 @@ export default function AdminToolsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Audit Modal */}
+            <UserAuditModal
+                visible={auditModalVisible}
+                onClose={() => setAuditModalVisible(false)}
+                userId={auditUser?.id || null}
+                username={auditUser?.username || ''}
+                isSuperAdmin={false}
+            />
         </div>
     );
 }

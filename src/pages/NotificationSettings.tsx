@@ -14,7 +14,7 @@ import {
     ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useProfile } from '../hooks/useProfile';
+import { useApp } from '../context/AppContext';
 import { UserService } from '../services/UserService';
 import type { NotificationPreferences } from '../types/profile';
 
@@ -33,7 +33,7 @@ export default function NotificationSettings() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { profile, refetch, isLoading: profileLoading } = useProfile(user?.id);
+    const { profile, refetchProfile: refetch, profileLoading } = useApp();
 
     const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFS);
     const [isSaving, setIsSaving] = useState(false);

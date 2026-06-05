@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Settings, ShieldAlert, Store, AlertTriangle,
-    Zap, Activity, Loader2, BarChart
+    Zap, Activity, Loader2, BarChart, Dices,
+    Wrench, Globe, HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SuperAdminService } from '../../services/SuperAdminService';
 import { isSuperuser } from '../../utils/superuser';
+import { getAvatarSource } from '../../config/avatars';
+import { TavernAdminService } from '../../services/TavernAdminService';
+import UserAuditModal from '../../components/admin/UserAuditModal';
+import AutoTriviaGeneratorModal from '../../components/admin/AutoTriviaGeneratorModal';
 
 export default function AdminGM() {
     const { t } = useTranslation();
@@ -20,6 +25,10 @@ export default function AdminGM() {
     const [vsEnabled, setVsEnabled] = useState(true);
     const [storeEnabled, setStoreEnabled] = useState(true);
     const [storeAdminVisible, setStoreAdminVisible] = useState(true);
+    const [ttrpgEnabled, setTtrpgEnabled] = useState(true);
+    const [userTriviasEnabled, setUserTriviasEnabled] = useState(true);
+    const [storeWebEnabled, setStoreWebEnabled] = useState(true);
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
 
     // State metrics
     const [metrics, setMetrics] = useState<any>(null);
@@ -28,6 +37,15 @@ export default function AdminGM() {
     // Saving states
     const [savingSettings, setSavingSettings] = useState<Record<string, boolean>>({});
 
+    // Search and Audit States
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showAuditModal, setShowAuditModal] = useState(false);
+    const [auditUserId, setAuditUserId] = useState<string | null>(null);
+    const [auditUsername, setAuditUsername] = useState('');
+    const [showAutoModal, setShowAutoModal] = useState(false);
+
     useEffect(() => {
         if (isSpecialAdmin) {
             loadAllSettings();
@@ -35,11 +53,37 @@ export default function AdminGM() {
         }
     }, [isSpecialAdmin]);
 
+    const handleSearch = async (query: string) => {
+        setSearchQuery(query);
+        if (query.trim().length > 1) {
+            setIsSearching(true);
+            const results = await TavernAdminService.searchUsers(query);
+            setSearchResults(results);
+            setIsSearching(false);
+        } else {
+            setSearchResults([]);
+        }
+    };
+
     const loadAllSettings = async () => {
-        setTavernEnabled(await SuperAdminService.getGlobalSetting('tavern_enabled'));
-        setVsEnabled(await SuperAdminService.getGlobalSetting('trivia_vs_enabled'));
-        setStoreEnabled(await SuperAdminService.getGlobalSetting('store_enabled'));
-        setStoreAdminVisible(await SuperAdminService.getGlobalSetting('store_admin_visible'));
+        try {
+            const keys = [
+                'tavern_enabled', 'trivia_vs_enabled', 'store_enabled',
+                'store_admin_visible', 'ttrpg_enabled', 'user_trivias_enabled',
+                'store_web_enabled', 'maintenance_mode'
+            ];
+            const settings = await SuperAdminService.getGlobalSettings(keys);
+            setTavernEnabled(settings['tavern_enabled']);
+            setVsEnabled(settings['trivia_vs_enabled']);
+            setStoreEnabled(settings['store_enabled']);
+            setStoreAdminVisible(settings['store_admin_visible']);
+            setTtrpgEnabled(settings['ttrpg_enabled']);
+            setUserTriviasEnabled(settings['user_trivias_enabled']);
+            setStoreWebEnabled(settings['store_web_enabled']);
+            setMaintenanceMode(settings['maintenance_mode']);
+        } catch (e) {
+            console.error('Error loading global settings batch:', e);
+        }
     };
 
     const loadMetrics = async () => {
@@ -130,6 +174,107 @@ export default function AdminGM() {
                     {savingSettings['trivia_vs_enabled'] && <p className="text-[10px] text-[#f472b6] animate-pulse font-bold">{t('adminGM.saving')}</p>}
                 </div>
 
+                {/* Mesa de Rol / TTRPG Toggle */}
+                <div className="bg-bg-pop border border-purple-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10">
+                        <div>
+                            <h3 className="font-bold text-text-main flex items-center gap-2">
+                                <Dices size={18} className="text-purple-500" /> {t('adminGM.controls.ttrpg.title', 'Mesa de Rol (TTRPG)')}
+                            </h3>
+                            <p className="text-xs text-text-muted mt-1 max-w-[200px]">{t('adminGM.controls.ttrpg.description', 'Habilitar o deshabilitar las hojas de rol y pantalla de GM.')}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" className="sr-only peer" checked={ttrpgEnabled} disabled={savingSettings['ttrpg_enabled']}
+                                onChange={() => handleToggle('ttrpg_enabled', ttrpgEnabled, setTtrpgEnabled, t('adminGM.controls.ttrpg.confirmMsg', 'Mesa de Rol (TTRPG)'))}
+                            />
+                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                        </label>
+                    </div>
+                    {savingSettings['ttrpg_enabled'] && <p className="text-[10px] text-purple-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
+                {/* Propuestas de Trivias Toggle */}
+                <div className="bg-bg-pop border border-blue-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10">
+                        <div>
+                            <h3 className="font-bold text-text-main flex items-center gap-2">
+                                <HelpCircle size={18} className="text-blue-500" /> {t('adminGM.controls.userTrivias.title', 'Propuestas de Trivias')}
+                            </h3>
+                            <p className="text-xs text-text-muted mt-1 max-w-[200px]">{t('adminGM.controls.userTrivias.description', 'Permite a los usuarios enviar propuestas de trivias completas.')}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" className="sr-only peer" checked={userTriviasEnabled} disabled={savingSettings['user_trivias_enabled']}
+                                onChange={() => handleToggle('user_trivias_enabled', userTriviasEnabled, setUserTriviasEnabled, t('adminGM.controls.userTrivias.confirmMsg', '¿Desactivar propuestas de trivias completas?'))}
+                            />
+                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                        </label>
+                    </div>
+                    {savingSettings['user_trivias_enabled'] && <p className="text-[10px] text-blue-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
+                {/* FrikiMart en Web Toggle */}
+                <div className="bg-bg-pop border border-emerald-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10">
+                        <div>
+                            <h3 className="font-bold text-text-main flex items-center gap-2">
+                                <Globe size={18} className="text-emerald-500" /> {t('settings.admin.storeWeb', 'FrikiMart en Web')}
+                            </h3>
+                            <p className="text-xs text-text-muted mt-1 max-w-[200px]">{t('adminGM.controls.storeWeb.description', 'Habilitar o deshabilitar la tienda FrikiMart en la plataforma web.')}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" className="sr-only peer" checked={storeWebEnabled} disabled={savingSettings['store_web_enabled']}
+                                onChange={() => handleToggle('store_web_enabled', storeWebEnabled, setStoreWebEnabled, t('adminGM.controls.storeWeb.confirmMsg', '¿Ocultar FrikiMart en la web?'))}
+                            />
+                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                    {savingSettings['store_web_enabled'] && <p className="text-[10px] text-emerald-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
+                {/* Generador Automático de Trivias */}
+                <div className="bg-bg-pop border border-brand-primary/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10 h-full">
+                        <div className="flex flex-col h-full justify-between gap-3">
+                            <div>
+                                <h3 className="font-bold text-text-main flex items-center gap-2">
+                                    <Zap size={18} className="text-brand-primary animate-pulse" /> Generador de Trivias
+                                </h3>
+                                <p className="text-xs text-text-muted mt-1 max-w-[220px]">Genera trivias oficiales usando el pool aleatorio de Trivia VS.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowAutoModal(true)}
+                                className="w-fit px-4 py-2 bg-brand-primary hover:bg-brand-primary-light text-text-inv font-black text-xs rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center gap-1.5"
+                            >
+                                <Zap size={12} /> Generar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modo Mantenimiento Toggle */}
+                <div className="bg-bg-pop border border-red-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden col-span-1 md:col-span-2">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10">
+                        <div>
+                            <h3 className="font-bold text-text-main flex items-center gap-2">
+                                <Wrench size={18} className="text-red-500" /> {t('settings.admin.maintenanceMode', 'Modo Mantenimiento')}
+                            </h3>
+                            <p className="text-xs text-text-muted mt-1 max-w-[400px]">{t('adminGM.controls.maintenance.description', 'Poner la plataforma entera en modo de mantenimiento.')}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" className="sr-only peer" checked={maintenanceMode} disabled={savingSettings['maintenance_mode']}
+                                onChange={() => handleToggle('maintenance_mode', maintenanceMode, setMaintenanceMode, t('adminGM.controls.maintenance.confirmMsg', '¿Cambiar el estado del Modo Mantenimiento global?'))}
+                            />
+                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        </label>
+                    </div>
+                    {savingSettings['maintenance_mode'] && <p className="text-[10px] text-red-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
                 {/* FrikiMart Controls */}
                 <div className="bg-bg-pop border border-brand-primary/30 rounded-2xl p-5 flex flex-col gap-5 shadow-sm md:col-span-2 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/5 rounded-full -mr-24 -mt-24 pointer-events-none"></div>
@@ -208,7 +353,90 @@ export default function AdminGM() {
                     </div>
                 </div>
 
+                {/* User Audit Section */}
+                <div className="bg-bg-pop border border-brand-secondary/30 rounded-2xl p-5 flex flex-col gap-5 shadow-sm md:col-span-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-brand-secondary/5 rounded-full -mr-24 -mt-24 pointer-events-none"></div>
+                    <div className="flex items-center gap-2 mb-2 z-10">
+                        <ShieldAlert size={22} className="text-brand-secondary" />
+                        <h3 className="font-bold text-lg text-text-main">Auditoría de Usuarios (GM)</h3>
+                    </div>
+                    <div className="flex flex-col gap-3.5 z-10">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Buscar usuario por @username o correo..."
+                                value={searchQuery}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className="w-full bg-bg-side border border-border-theme text-text-main px-4 py-3 pl-10 rounded-xl focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary outline-none transition-all placeholder:text-text-muted text-sm"
+                            />
+                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted">
+                                {isSearching ? <Loader2 size={16} className="animate-spin text-brand-secondary" /> : <Globe size={16} />}
+                            </div>
+                        </div>
+
+                        {searchResults.length > 0 && (
+                            <div className="border border-border-theme rounded-xl overflow-hidden divide-y divide-border-theme bg-bg-side max-h-60 overflow-y-auto custom-scrollbar">
+                                {searchResults.map((u) => (
+                                    <div 
+                                        key={u.id}
+                                        onClick={() => {
+                                            setAuditUserId(u.id);
+                                            setAuditUsername(u.username);
+                                            setShowAuditModal(true);
+                                        }}
+                                        className="flex items-center justify-between p-3.5 hover:bg-bg-pop/50 cursor-pointer transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <img
+                                                src={getAvatarSource(u.avatar_url)}
+                                                alt={u.username}
+                                                className="w-10 h-10 rounded-full border border-border-theme object-cover shadow-sm bg-bg-pop"
+                                            />
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-text-main text-sm">@{u.username}</span>
+                                                    {u.role && u.role !== 'user' && (
+                                                        <span className="bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest">{u.role}</span>
+                                                    )}
+                                                    {u.is_banned && (
+                                                        <span className="bg-accent-red text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Baneado</span>
+                                                    )}
+                                                </div>
+                                                <span className="text-[10px] text-text-muted block mt-0.5">{u.email}</span>
+                                            </div>
+                                        </div>
+                                        <Globe size={16} className="text-text-muted" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {searchQuery.trim().length > 1 && searchResults.length === 0 && !isSearching && (
+                            <p className="text-xs text-text-muted italic text-center py-2">No se encontraron usuarios.</p>
+                        )}
+                    </div>
+                </div>
+
             </div>
+
+            {/* Audit Modal */}
+            <UserAuditModal
+                visible={showAuditModal}
+                onClose={() => setShowAuditModal(false)}
+                userId={auditUserId}
+                username={auditUsername}
+                isSuperAdmin={true}
+            />
+
+            {/* Auto Trivia Modal */}
+            <AutoTriviaGeneratorModal
+                visible={showAutoModal}
+                onClose={() => setShowAutoModal(false)}
+                userId={user?.id || ''}
+                onCreated={() => {
+                    loadMetrics();
+                }}
+            />
         </div>
     );
 }

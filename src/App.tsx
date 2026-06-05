@@ -14,6 +14,8 @@ import { MaintenanceGuard } from './components/MaintenanceGuard';
 import Surveys from './pages/Surveys';
 import Trivias from './pages/Trivias';
 import FrikiVS from './pages/FrikiVS';
+import TTRPGPage from './pages/TTRPGPage';
+import GMScreen from './pages/GMScreen';
 import Legal from './pages/Legal';
 import Support from './pages/Support';
 import AccountDeletion from './pages/AccountDeletion';
@@ -33,6 +35,7 @@ import AdminGM from './pages/admin/AdminGM';
 import AdminFrikiMartPage from './pages/admin/AdminFrikiMartPage';
 import AdminToolsPage from './pages/admin/AdminToolsPage';
 import AdminBans from './pages/admin/AdminBans';
+import AdminFrikiVS from './pages/admin/AdminFrikiVS';
 
 function OnboardingGate() {
   const { user, isLoading: authLoading } = useAuth();
@@ -112,6 +115,8 @@ function App() {
           <Route path="/surveys" element={<Surveys />} />
           <Route path="/trivias" element={<Trivias />} />
           <Route path="/friki-vs" element={<FrikiVS />} />
+          <Route path="/ttrpg" element={<TTRPGPage />} />
+          <Route path="/gm-screen" element={<GMScreen />} />
 
           {/* Events Feed (Now unified with Home) */}
           <Route path="/events" element={<Home />} />
@@ -131,6 +136,7 @@ function App() {
             <Route path="events" element={<AdminEvents />} />
             <Route path="surveys" element={<AdminSurveys />} />
             <Route path="trivias" element={<AdminTrivias />} />
+            <Route path="frikivs" element={<AdminFrikiVS />} />
             <Route path="frikimart" element={<AdminFrikiMartPage />} />
             <Route path="qrs" element={<AdminQRs />} />
             <Route path="tavern" element={<AdminTavern />} />

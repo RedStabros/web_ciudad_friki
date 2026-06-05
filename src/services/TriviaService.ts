@@ -380,6 +380,21 @@ export class TriviaService {
     }
 
     /**
+     * Join an existing VS duel via join_trivia_duel RPC
+     */
+    static async joinVSDuel(duelId: string): Promise<void> {
+        try {
+            const { error } = await supabase.rpc('join_trivia_duel', {
+                p_duel_id: duelId
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error joining VS duel:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Submit VS result — uses submit_trivia_vs_result RPC (winner resolved server-side)
      */
     static async submitVSResult(duelId: string, score: number, timeMs: number): Promise<any> {
@@ -406,7 +421,7 @@ export class TriviaService {
             // My pending duels
             const { data: myPendingDuels, error: myError } = await supabase
                 .from('trivia_duels')
-                .select('*, triviaduels_categories(name, icon)')
+                .select('*, triviaduels_categories(id, name, icon)')
                 .eq('status', 'open')
                 .eq('creator_id', userId)
                 .order('created_at', { ascending: false });
@@ -416,7 +431,7 @@ export class TriviaService {
             // Public open duels
             const { data: publicOpenDuels, error: pubError } = await supabase
                 .from('trivia_duels')
-                .select('*, triviaduels_categories(name, icon), profiles!trivia_duels_creator_id_fkey(username, avatar_url)')
+                .select('*, triviaduels_categories(id, name, icon), profiles!trivia_duels_creator_id_fkey(username, avatar_url)')
                 .eq('status', 'open')
                 .neq('creator_id', userId)
                 .order('created_at', { ascending: false });
@@ -438,6 +453,16 @@ export class TriviaService {
      */
     static async getVSWinnersRanking(limit = 5): Promise<Array<{ user_id: string; username: string; duels_won: number; avatar_url?: string }>> {
         try {
+            // Check cache
+            const cacheKey = `cf_vs_winners_ranking_${limit}`;
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.timestamp < 120000) {
+                    return parsed.data;
+                }
+            }
+
             const { data, error } = await supabase
                 .from('trivia_duels')
                 .select(`
@@ -445,7 +470,9 @@ export class TriviaService {
                     profiles!trivia_duels_winner_id_fkey(username, avatar_url)
                 `)
                 .not('winner_id', 'is', null)
-                .eq('status', 'completed');
+                .eq('status', 'completed')
+                .order('created_at', { ascending: false })
+                .limit(200); // Optimize: limit to last 200 completed duels for aggregation
 
             if (error) throw error;
 
@@ -463,10 +490,18 @@ export class TriviaService {
                 winsMap[id].count++;
             });
 
-            return Object.entries(winsMap)
+            const result = Object.entries(winsMap)
                 .map(([user_id, v]) => ({ user_id, username: v.username, avatar_url: v.avatar_url, duels_won: v.count }))
                 .sort((a, b) => b.duels_won - a.duels_won)
                 .slice(0, limit);
+
+            // Save cache
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+                data: result,
+                timestamp: Date.now()
+            }));
+
+            return result;
         } catch (error) {
             console.error('Error fetching VS winners ranking:', error);
             return [];
@@ -493,4 +528,80 @@ export class TriviaService {
             throw error;
         }
     }
+
+    /**
+     * Submit a full trivia pack (5, 10 or 15 questions) from a user.
+     * Rate-limited to 1 pack per 7 days by a DB trigger.
+     */
+    static async submitTriviaPack(params: {
+        userId: string;
+        categoryId: string;
+        title: string;
+        description: string;
+        questions: { question_text: string; options: { text: string; is_correct: boolean }[]; order: number }[];
+    }): Promise<void> {
+        try {
+            const questionCount = params.questions.length;
+            if (![5, 10, 15].includes(questionCount)) {
+                throw new Error('Los paquetes deben contener exactamente 5, 10 o 15 preguntas.');
+            }
+
+            // 1. Create the pack header (trigger validates rate-limit + global toggle)
+            const { data: pack, error: packError } = await supabase
+                .from('trivia_packs_submissions')
+                .insert({
+                    user_id:        params.userId,
+                    category_id:    params.categoryId,
+                    title:          params.title,
+                    description:    params.description,
+                    question_count: questionCount,
+                    status:         'pending',
+                })
+                .select()
+                .single();
+
+            if (packError) throw packError;
+
+            // 2. Bulk insert the questions
+            const questionsToInsert = params.questions.map((q) => ({
+                pack_submission_id: pack.id,
+                question_text:      q.question_text,
+                options:            q.options,
+                order:              q.order,
+            }));
+
+            const { error: questionsError } = await supabase
+                .from('trivia_packs_questions')
+                .insert(questionsToInsert);
+
+            if (questionsError) {
+                // Rollback the pack header if questions fail
+                await supabase.from('trivia_packs_submissions').delete().eq('id', pack.id);
+                throw questionsError;
+            }
+        } catch (error) {
+            console.error('Error submitting trivia pack:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Check if user trivia pack submissions are globally enabled.
+     */
+    static async getUserTriviasEnabled(): Promise<boolean> {
+        try {
+            const { data, error } = await supabase
+                .from('global_settings')
+                .select('value')
+                .eq('key', 'user_trivias_enabled')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.value ?? false;
+        } catch (error) {
+            console.error('Error fetching user_trivias_enabled:', error);
+            return false;
+        }
+    }
 }
+

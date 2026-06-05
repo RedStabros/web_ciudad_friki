@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronUp, ChevronDown, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2, Flag, MoreHorizontal, Pencil } from 'lucide-react';
+import { X, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2, Flag, MoreHorizontal, Pencil, Heart, Pin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TavernService } from '../../services/TavernService';
 import type { TavernThread, TavernReply } from '../../types/tavern';
@@ -13,9 +13,10 @@ interface ThreadDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
     threadId: string | null;
+    userRole?: string;
 }
 
-export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsModalProps) {
+export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: ThreadDetailsModalProps) {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
 
@@ -239,7 +240,10 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
     };
 
     const canEditReply = (reply: TavernReply) => {
-        if (!user || user.id !== reply.author_id) return false;
+        if (!user) return false;
+        const isCurrentUserAdmin = userRole === 'admin' || userRole === 'moderator';
+        if (isCurrentUserAdmin) return true;
+        if (user.id !== reply.author_id) return false;
         const created = new Date(reply.created_at).getTime();
         const now = currentTime.getTime();
         const diff = now - created;
@@ -331,9 +335,16 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                         </div>
                                         <span className="text-xs text-text-muted">{new Date(thread.created_at).toLocaleString()}</span>
                                     </div>
-                                    <span className="ml-auto px-3 py-1 rounded-full bg-bg-sub text-text-muted text-[10px] font-bold uppercase">
-                                        {thread.tag}
-                                    </span>
+                                    <div className="ml-auto flex items-center gap-2">
+                                        {thread.is_pinned && (
+                                            <span className="w-[22px] h-[22px] flex items-center justify-center rounded-full bg-accent-yellow/20 border border-accent-yellow/40 text-accent-yellow" title="Fijado">
+                                                <Pin size={12} className="rotate-45 fill-current" />
+                                            </span>
+                                        )}
+                                        <span className="px-3 py-1 rounded-full bg-bg-sub text-text-muted text-[10px] font-bold uppercase">
+                                            {thread.tag}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Thread Content */}
@@ -356,14 +367,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
 
                                 {/* Stats & Actions */}
                                 <div className="flex items-center gap-4 py-4 border-y border-divider-theme mb-8">
-                                    <div className="flex items-center bg-bg-sub rounded-full px-2 py-1">
+                                    <div className="flex items-center bg-bg-sub rounded-full px-2.5 py-1">
                                         <button onClick={() => handleVote(thread.id, 'thread', 'like')} className={`share-hide-el p-1.5 transition ${thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
-                                            <ChevronUp size={20} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
+                                            <Heart size={18} fill={thread.user_vote === 'like' ? 'var(--accent-red)' : 'none'} className={thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted'} />
                                         </button>
-                                        <span className="font-bold text-sm px-2 text-text-main">{thread.likes_count - thread.dislikes_count}</span>
-                                        <button onClick={() => handleVote(thread.id, 'thread', 'dislike')} className={`share-hide-el p-1.5 transition ${thread.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
-                                            <ChevronDown size={20} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
-                                        </button>
+                                        <span className="font-bold text-sm px-2 text-text-main">{thread.likes_count}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-text-muted text-sm font-medium">
                                         <MessageSquare size={18} /> {replies.length} {t('tavern.modals.details.replies')}
@@ -462,12 +470,9 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId }: ThreadDetailsM
                                                     )}
                                                     <div className="flex items-center gap-4">
                                                         <div className="flex items-center gap-4 mr-auto">
-                                                            <button onClick={() => handleVote(reply.id, 'reply', 'like')} className={`share-hide-el flex items-center gap-1 transition text-xs ${reply.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted hover:text-accent-red'}`}>
-                                                                <ChevronUp size={14} fill={reply.user_vote === 'like' ? 'currentColor' : 'none'} /> {reply.likes_count}
-                                                            </button>
-                                                            <button onClick={() => handleVote(reply.id, 'reply', 'dislike')} className={`share-hide-el flex items-center gap-1 transition text-xs ${reply.user_vote === 'dislike' ? 'text-blue-400' : 'text-text-muted hover:text-brand-secondary'}`}>
-                                                                <ChevronDown size={14} fill={reply.user_vote === 'dislike' ? 'currentColor' : 'none'} /> {reply.dislikes_count}
-                                                            </button>
+                                                             <button onClick={() => handleVote(reply.id, 'reply', 'like')} className={`share-hide-el flex items-center gap-1.5 transition text-xs ${reply.user_vote === 'like' ? 'text-accent-red font-bold' : 'text-text-muted hover:text-accent-red'}`}>
+                                                                 <Heart size={14} fill={reply.user_vote === 'like' ? 'var(--accent-red)' : 'none'} className={reply.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted'} /> {reply.likes_count}
+                                                             </button>
                                                               <button
                                                                 onClick={() => handleShare('reply', reply.id, reply.author_username, reply.content)}
                                                                 disabled={isSharing}

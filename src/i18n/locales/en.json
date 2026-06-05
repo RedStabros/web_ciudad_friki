@@ -156,7 +156,8 @@
       "tools": "Admin Tools",
       "frikimart": "FrikiMart Panel",
       "gm": "GM Panel",
-      "bans": "Sanctions"
+      "bans": "Sanctions",
+      "frikivs": "VS Contributions"
     }
   },
   "dashboard": {
@@ -1019,7 +1020,7 @@
     "pastSurveysTitle": "Past Surveys",
     "transactionsTotal": "Transactions (Total)",
     "transactionsMonth": "Transactions (30d)",
-    "topUsers": "Top 5 Wealthiest (Whales)",
+    "topUsers": "Top 10 Wealthiest (Whales)",
     "topUsersDesc": "Users with the highest Frikicoins balance on the platform.",
     "analyzingSystem": "Analyzing core systems...",
     "healthMetrics": "Ciudad Friki health metrics",
@@ -1037,8 +1038,8 @@
     "connectedAt": "Connected at {{time}}",
     "growingActively": "Growing actively",
     "shareImage": "Share Image",
-    "whalesTitle": "Whales Top 5 | Ciudad Friki",
-    "whalesText": "🏆 These are the 5 largest fortunes of Ciudad Friki right now!",
+    "whalesTitle": "Whales Top 10 | Ciudad Friki",
+    "whalesText": "🏆 These are the 10 largest fortunes of Ciudad Friki right now!",
     "whalesFilename": "top-wealth-ciudad-friki.png",
     "pastSurveysHistory": "Past Surveys History",
     "versionHistory": "Version History",
@@ -1882,5 +1883,8 @@
     "message": "We are preparing the final details for the big official launch of Ciudad Friki Web. The opening is just around the corner!",
     "scheduled": "Launch in preparation",
     "adminLogin": "Staff Access"
+  },
+  "categories": {
+    "princesas": "Princesses"
   }
 }

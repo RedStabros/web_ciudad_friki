@@ -11,18 +11,15 @@ import { ThreadDetailsModal } from '../components/Tavern/ThreadDetailsModal';
 import { CreateThreadModal } from '../components/Tavern/CreateThreadModal';
 import { EditThreadModal } from '../components/Tavern/EditThreadModal';
 import { getAvatarSource } from '../config/avatars';
-import { useProfile } from '../hooks/useProfile';
+import { useApp } from '../context/AppContext';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
-import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 export default function Tavern() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const { tavern, loading: featuresLoading } = useGlobalFeatures(user?.id);
+    const { tavern, featuresLoading, profile } = useApp();
     const [category, setCategory] = useState<ThreadCategory>('Todas');
     const [sortBy, setSortBy] = useState<'HOT' | 'NEW'>('NEW');
-
-    const { profile } = useProfile(user?.id);
     const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -146,13 +143,13 @@ export default function Tavern() {
                             onClick={() => setSortBy('NEW')}
                             className={`px-5 py-2 rounded-full text-sm font-medium transition whitespace-nowrap flex items-center gap-2 ${sortBy === 'NEW' ? 'bg-brand-primary text-text-inv shadow-lg shadow-brand-primary/30' : 'bg-bg-sub text-text-sub hover:bg-bg-sub/80 hover:text-text-main'}`}
                         >
-                            <Clock size={16} /> {t('tavern.filters.new')}
+                            <Clock size={16} /> {t('tavern.sort.new')}
                         </button>
                         <button
                             onClick={() => setSortBy('HOT')}
                             className={`px-5 py-2 rounded-full text-sm font-medium transition whitespace-nowrap flex items-center gap-2 ${sortBy === 'HOT' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'bg-bg-sub text-text-sub hover:bg-bg-sub/80 hover:text-text-main'}`}
                         >
-                            <Flame size={16} /> {t('tavern.filters.hot')}
+                            <Flame size={16} /> {t('tavern.sort.hot')}
                         </button>
                     </div>
                 </div>
@@ -202,6 +199,7 @@ export default function Tavern() {
                                     onClick={() => handleThreadClick(thread.id)}
                                     onEdit={() => handleEdit(thread)}
                                     onDelete={() => handleDelete(thread.id)}
+                                    userRole={profile?.role}
                                 />
                             ))}
 
@@ -272,6 +270,7 @@ export default function Tavern() {
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 threadId={selectedThreadId}
+                userRole={profile?.role}
             />
 
             <CreateThreadModal

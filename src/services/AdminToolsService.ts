@@ -8,9 +8,20 @@ export interface AdminStats {
     draft_surveys: number;
     paused_surveys: number;
     past_surveys: number;
+    surveys_total: number;
+    survey_responses_total: number;
     transactions_total: number;
     transactions_last_month: number;
-    top_users: { username: string; balance: number; email?: string; avatar_url?: string }[];
+    transactions_p2p_total: number;
+    transactions_p2p_last_month: number;
+    tavern_threads_total: number;
+    tavern_replies_total: number;
+    tavern_likes_total: number;
+    trivia_duels_completed: number;
+    ttrpg_sheets_total: number;
+    ttrpg_rolls_total: number;
+    tcg_matches_total: number;
+    top_users: { id: string; username: string; balance: number; email?: string; avatar_url?: string }[];
 }
 
 export const AdminToolsService = {
@@ -21,7 +32,7 @@ export const AdminToolsService = {
 
             // Define a type for the RPC response to avoid 'as any'
             interface RPCAdminStats extends Omit<AdminStats, 'top_users'> {
-                top_users: { username: string; balance: number }[];
+                top_users: { id: string; username: string; balance: number }[];
             }
 
             const statsData = data as RPCAdminStats;

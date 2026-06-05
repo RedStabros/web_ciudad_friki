@@ -5,12 +5,14 @@ import { Loader2, Trophy, Zap, ChevronRight, X, Clock, CheckCircle2, XCircle, Sw
 import { TriviaService } from '../services/TriviaService';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
+import { useApp } from '../context/AppContext';
 import { getAvatarSource } from '../config/avatars';
 import { getTriviaIcon } from '../utils/triviaIcons';
 import { toPng } from 'html-to-image';
 import { shareContent } from '../utils/shareContent';
 import TriviaSubmissionModal from '../components/TriviaSubmissionModal';
+import TriviaPackCreatorModal from '../components/TriviaPackCreatorModal';
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface VSCategory { id: string; name: string; icon: string; description?: string; }
@@ -18,7 +20,7 @@ interface VSCategory { id: string; name: string; icon: string; description?: str
 interface VSOption { text: string; is_correct: boolean; }
 interface VSQuestion { id: string; question_text: string; options: VSOption[]; }
 interface VSWinner { user_id: string; username: string; duels_won: number; avatar_url?: string; }
-interface Duel { id: string; wager_amount: number; question_ids: string[]; creator_id: string; triviaduels_categories?: { name: string; icon: string }; profiles?: { username: string; avatar_url?: string }; }
+interface Duel { id: string; wager_amount: number; question_ids: string[]; creator_id: string; triviaduels_categories?: { id: string; name: string; icon: string }; profiles?: { username: string; avatar_url?: string }; }
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -116,16 +118,18 @@ function Leaderboard({ winners, loading }: { winners: VSWinner[]; loading: boole
 function DuelCard({ duel, isMine, onJoin }: { duel: Duel; isMine: boolean; onJoin: (d: Duel) => void }) {
     const { t } = useTranslation();
     const catIcon = duel.triviaduels_categories?.icon;
-    const catId = undefined; // we don't have category id directly on duel join, fallback is fine
+    const catId = duel.triviaduels_categories?.id;
     const iconSrc = getTriviaIcon(catIcon, catId);
     return (
         <div
             className={`bg-bg-side border border-border-theme rounded-2xl p-4 flex items-center gap-3 transition-all ${!isMine ? 'cursor-pointer hover:border-brand-primary/50 hover:shadow-lg hover:shadow-brand-primary/5' : ''}`}
             onClick={() => !isMine && onJoin(duel)}
         >
-            <img src={iconSrc} alt={duel.triviaduels_categories?.name || 'VS'} className="w-10 h-10 object-contain flex-shrink-0" />
+            <img src={iconSrc} alt={duel.triviaduels_categories ? t('categories.' + duel.triviaduels_categories.id, duel.triviaduels_categories.name) : 'VS'} className="w-10 h-10 object-contain flex-shrink-0" />
             <div className="flex-1 min-w-0">
-                <p className="font-bold text-text-main text-sm truncate">{duel.triviaduels_categories?.name || t('triviaVS.unknownCategory')}</p>
+                <p className="font-bold text-text-main text-sm truncate">
+                    {duel.triviaduels_categories ? t('categories.' + duel.triviaduels_categories.id, duel.triviaduels_categories.name) : t('triviaVS.unknownCategory')}
+                </p>
                 <p className="text-xs text-text-muted">{duel.question_ids?.length || 10} {t('common.questions', 'preguntas')}</p>
                 {!isMine && duel.profiles && (
                     <p className="text-xs text-text-sub mt-0.5">vs <span className="font-bold">@{duel.profiles.username}</span></p>
@@ -474,16 +478,17 @@ export default function FrikiVS() {
     const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
     // VS kill switch
-    const { frikiVs: vsEnabled, loading: featuresLoading } = useGlobalFeatures(user?.id);
+    const { frikiVs: vsEnabled, featuresLoading, wallet, refetchProfile } = useApp();
 
     // Duel creation
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+    const [showPackCreatorModal, setShowPackCreatorModal] = useState(false);
+
     const [selectedCategory, setSelectedCategory] = useState<VSCategory | null>(null);
     const [wagerAmount, setWagerAmount] = useState(50);
     const [creating, setCreating] = useState(false);
     const [questionCount, setQuestionCount] = useState(10);  // mirrors app: default 10
-    const [walletBalance, setWalletBalance] = useState<number | null>(null);  // for validation
 
     // Gameplay
     const [activeDuel, setActiveDuel] = useState<{ id: string; questionIds: string[] } | null>(null);
@@ -504,12 +509,6 @@ export default function FrikiVS() {
             setPublicDuels(duelsData.publicOpenDuels || []);
             setMyDuels(duelsData.myPendingDuels || []);
             setCategories(catsData);
-
-            // Load wallet balance for wager validation
-            if (user) {
-                const { data: wData } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
-                if (wData) setWalletBalance(Number(wData.balance) || 0);
-            }
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, [user]);
@@ -525,7 +524,8 @@ export default function FrikiVS() {
 
     const handleCreateDuel = async () => {
         if (!selectedCategory || !user) return;
-        if (walletBalance !== null && wagerAmount > walletBalance) {
+        const balance = wallet?.balance ?? 0;
+        if (wagerAmount > balance) {
             alert(t('triviaVS.wager.insufficient'));
             return;
         }
@@ -536,15 +536,22 @@ export default function FrikiVS() {
             setActiveDuel({ id: duelId, questionIds: data?.question_ids || [] });
             setShowCreateModal(false);
             setShowGameplay(true);
+            refetchProfile();
         } catch (e: any) {
             alert(e.message || t('triviaVS.wager.insufficient'));
         } finally { setCreating(false); }
     };
 
     const handleJoinDuel = async (duel: Duel) => {
-        setActiveDuel({ id: duel.id, questionIds: duel.question_ids });
-        setConfirmDuel(null);
-        setShowGameplay(true);
+        try {
+            await TriviaService.joinVSDuel(duel.id);
+            setActiveDuel({ id: duel.id, questionIds: duel.question_ids });
+            setConfirmDuel(null);
+            setShowGameplay(true);
+            refetchProfile();
+        } catch (e: any) {
+            alert(e.message || t('triviaVS.joinError', 'Error al unirse al duelo'));
+        }
     };
 
     const handleGameFinish = async (score: number, timeMs: number) => {
@@ -555,6 +562,8 @@ export default function FrikiVS() {
             setGameResult({ ...result, your_score: score });
         } catch (e) {
             setGameResult({ your_score: score, message: 'waiting' });
+        } finally {
+            refetchProfile();
         }
         setShowResult(true);
     };
@@ -605,12 +614,18 @@ export default function FrikiVS() {
                     <p className="text-text-muted text-sm">{t('triviaVS.subtitle')}</p>
                 </div>
                 {user && (
-                    <div className="ml-auto flex flex-col md:flex-row items-end md:items-center gap-2">
+                    <div className="ml-auto flex flex-col sm:flex-row items-end sm:items-center gap-2">
                         <button
                             onClick={() => setShowSubmissionModal(true)}
                             className="flex items-center gap-2 bg-bg-sub text-brand-primary border-2 border-brand-primary px-4 py-3 rounded-2xl font-black hover:bg-brand-primary/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
                         >
-                            {t('crowdsourcing.title')}
+                            {t('triviaVS.lobby.addQuestion', '+ Pregunta')}
+                        </button>
+                        <button
+                            onClick={() => setShowPackCreatorModal(true)}
+                            className="flex items-center gap-2 bg-bg-sub text-accent-green border-2 border-accent-green px-4 py-3 rounded-2xl font-black hover:bg-accent-green/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                        >
+                            {t('triviaVS.lobby.addTrivia', '+ Trivia')}
                         </button>
                         <button
                             onClick={() => setShowCreateModal(true)}
@@ -665,11 +680,13 @@ export default function FrikiVS() {
                     <div className="bg-bg-side border border-border-theme rounded-3xl p-8 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="text-center mb-6">
                             <img
-                                src={getTriviaIcon(confirmDuel.triviaduels_categories?.icon)}
-                                alt={confirmDuel.triviaduels_categories?.name || 'VS'}
+                                src={getTriviaIcon(confirmDuel.triviaduels_categories?.icon, confirmDuel.triviaduels_categories?.id)}
+                                alt={confirmDuel.triviaduels_categories ? t('categories.' + confirmDuel.triviaduels_categories.id, confirmDuel.triviaduels_categories.name) : 'VS'}
                                 className="w-16 h-16 object-contain mx-auto mb-3"
                             />
-                            <h3 className="font-black text-text-main text-xl">{confirmDuel.triviaduels_categories?.name}</h3>
+                            <h3 className="font-black text-text-main text-xl">
+                                {confirmDuel.triviaduels_categories ? t('categories.' + confirmDuel.triviaduels_categories.id, confirmDuel.triviaduels_categories.name) : t('triviaVS.unknownCategory')}
+                            </h3>
                             <p className="text-text-muted text-sm mt-1">{t('triviaVS.joinDuelMessage', { amount: confirmDuel.wager_amount })}</p>
                         </div>
                         <div className="flex gap-3">
@@ -705,10 +722,10 @@ export default function FrikiVS() {
                                 >
                                     <img
                                         src={getTriviaIcon(cat.icon, cat.id)}
-                                        alt={cat.name}
+                                        alt={t('categories.' + cat.id, cat.name)}
                                         className="w-10 h-10 object-contain"
                                     />
-                                    <span className="text-[11px] font-bold text-text-sub text-center leading-tight">{cat.name}</span>
+                                    <span className="text-[11px] font-bold text-text-sub text-center leading-tight">{t('categories.' + cat.id, cat.name)}</span>
                                 </button>
                             ))}
                         </div>
@@ -749,13 +766,13 @@ export default function FrikiVS() {
                         </div>
 
                         {/* Balance warning */}
-                        {walletBalance !== null && (
-                            <div className={`flex items-center justify-between text-xs mb-4 px-3 py-2 rounded-xl border ${wagerAmount > walletBalance
+                        {wallet && (
+                            <div className={`flex items-center justify-between text-xs mb-4 px-3 py-2 rounded-xl border ${wagerAmount > wallet.balance
                                 ? 'border-accent-red/30 bg-accent-red/5 text-accent-red'
                                 : 'border-divider-theme bg-bg-sub text-text-muted'
                                 }`}>
                                 <span className="font-bold">Saldo disponible</span>
-                                <span className="font-black">{walletBalance.toLocaleString()} FC</span>
+                                <span className="font-black">{wallet.balance.toLocaleString()} FC</span>
                             </div>
                         )}
 
@@ -763,13 +780,13 @@ export default function FrikiVS() {
                             <button onClick={() => setShowCreateModal(false)} className="flex-1 py-3 rounded-2xl border border-border-theme text-text-muted font-bold hover:bg-bg-sub transition">{t('common.cancel')}</button>
                             <button
                                 onClick={handleCreateDuel}
-                                disabled={!selectedCategory || creating || (walletBalance !== null && wagerAmount > walletBalance)}
+                                disabled={!selectedCategory || creating || (wallet && wagerAmount > wallet.balance)}
                                 className="flex-[2] py-3 rounded-2xl bg-brand-primary text-text-inv font-black hover:bg-brand-primary-light transition shadow-lg shadow-brand-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {creating ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
                                 {creating
                                     ? t('common.loading')
-                                    : walletBalance !== null && wagerAmount > walletBalance
+                                    : wallet && wagerAmount > wallet.balance
                                         ? 'Saldo insuficiente'
                                         : t('triviaVS.wager.confirm')}
                             </button>
@@ -783,6 +800,14 @@ export default function FrikiVS() {
                 <TriviaSubmissionModal
                     userId={user.id}
                     onClose={() => setShowSubmissionModal(false)}
+                />
+            )}
+
+            {/* Trivia Pack Creator Modal */}
+            {showPackCreatorModal && user && (
+                <TriviaPackCreatorModal
+                    userId={user.id}
+                    onClose={() => setShowPackCreatorModal(false)}
                 />
             )}
         </div>

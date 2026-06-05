@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { AppContextProvider } from './context/AppContext';
 import './i18n'; // Configuración de i18next
 
 import { HelmetProvider } from 'react-helmet-async';
@@ -15,9 +16,11 @@ createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <AuthProvider>
         <ThemeProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <AppContextProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AppContextProvider>
         </ThemeProvider>
       </AuthProvider>
     </HelmetProvider>

@@ -12,6 +12,22 @@ export const SuperAdminService = {
         return data?.value ?? true;
     },
 
+    async getGlobalSettings(keys: string[]): Promise<Record<string, boolean>> {
+        const { data, error } = await supabase
+            .from('global_settings')
+            .select('key, value')
+            .in('key', keys);
+
+        if (error) throw error;
+
+        const settings: Record<string, boolean> = {};
+        keys.forEach(k => {
+            const found = data?.find(d => d.key === k);
+            settings[k] = found ? found.value : true;
+        });
+        return settings;
+    },
+
     async toggleGlobalSetting(key: string, enabled: boolean): Promise<{ error?: any }> {
         try {
             const { error } = await supabase

@@ -235,7 +235,18 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                 <div className="w-48 h-48 flex items-center justify-center bg-bg-sub text-text-muted">{t('common.loading')}</div>
                                             )}
                                         </div>
-                                        <p className="mt-8 font-mono text-xs font-black text-brand-primary opacity-60 break-all max-w-[80%] uppercase tracking-tighter">{wallet?.deposit_qr}</p>
+                                        <div className="mt-8 flex flex-col items-center gap-2 w-full max-w-xs">
+                                            <span className="font-mono text-xs font-black text-brand-primary bg-bg-side px-4 py-2 rounded-xl border border-border-theme select-all break-all w-full text-center uppercase tracking-tighter">
+                                                {wallet?.deposit_qr}
+                                            </span>
+                                            <button 
+                                                onClick={copyQR}
+                                                className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 rounded-xl transition"
+                                            >
+                                                <Copy size={14} />
+                                                {t('wallet.copyQrCode', 'Copiar Código')}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -296,6 +307,24 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                     <div className="space-y-4">
                                         {transactions.length > 0 ? transactions.slice(0, visibleCount).map((tx) => {
                                             const isReceived = tx.to_user === userId;
+                                            const isP2P = tx.type === 'transfer' || tx.type === 'p2p' || (!tx.type && tx.from_user && tx.to_user);
+                                            let descriptionText = tx.description;
+                                            if (isP2P) {
+                                                if (isReceived) {
+                                                    descriptionText = t('wallet.receivedFrom', { username: tx.from_profile?.username ? `@${tx.from_profile.username}` : '@Usuario' });
+                                                    if (!descriptionText || descriptionText.includes('wallet.receivedFrom')) {
+                                                        descriptionText = `Recibido de ${tx.from_profile?.username ? `@${tx.from_profile.username}` : '@Usuario'}`;
+                                                    }
+                                                } else {
+                                                    descriptionText = t('wallet.sentTo', { username: tx.to_profile?.username ? `@${tx.to_profile.username}` : '@Usuario' });
+                                                    if (!descriptionText || descriptionText.includes('wallet.sentTo')) {
+                                                        descriptionText = `Enviado a ${tx.to_profile?.username ? `@${tx.to_profile.username}` : '@Usuario'}`;
+                                                    }
+                                                }
+                                            } else if (!descriptionText) {
+                                                descriptionText = isReceived ? t('wallet.received') : t('wallet.sent');
+                                            }
+
                                             return (
                                                 <div key={tx.id} className="group relative flex items-center justify-between p-5 rounded-2xl bg-bg-side border border-border-theme hover:border-brand-primary/30 transition-all cursor-pointer">
                                                     <div className="flex items-center gap-4">
@@ -305,7 +334,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <h4 className="font-black text-text-main text-base leading-tight break-words">
-                                                                {tx.description || (isReceived ? t('wallet.received') : t('wallet.sent'))}
+                                                                {descriptionText}
                                                             </h4>
                                                             <div className="flex items-start gap-2 mt-2 flex-wrap sm:flex-nowrap">
                                                                 <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shrink-0 ${isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>

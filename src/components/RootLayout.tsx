@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { useProfile } from '../hooks/useProfile';
+import { useApp } from '../context/AppContext';
 import { getAvatarSource } from '../config/avatars';
 import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
@@ -11,12 +11,11 @@ import Footer from './Footer';
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
-import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
     const { session, signOut, user } = useAuth();
-    const { profile, wallet } = useProfile(user?.id);
+    const { profile, wallet, tavern, frikiVs, frikiMartGlobal, frikiMartWeb } = useApp();
 
     const isAdmin = profile?.role === 'admin' || user?.id === import.meta.env.VITE_SUPERUSER_ID;
 
@@ -27,46 +26,36 @@ export default function RootLayout() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [surveyBadge, setSurveyBadge] = useState(0);
     const [triviaBadge, setTriviaBadge] = useState(0);
-    const { tavern, frikiVs, frikiMartGlobal, frikiMartWeb } = useGlobalFeatures(user?.id);
     const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
 
     useEffect(() => {
         if (!user?.id) return;
 
-        // Load all badge counts
-        const loadBadges = async () => {
+        const loadAllBadgesAndUnread = async () => {
             try {
-                const [surveys, trivias] = await Promise.all([
+                const [surveys, trivias, { data: profileData }] = await Promise.all([
                     SurveyService.getActiveCount(user.id),
                     TriviaService.getActiveCount(user.id),
+                    supabase.from('profiles').select('unread_count').eq('id', user.id).single()
                 ]);
                 setSurveyBadge(surveys);
                 setTriviaBadge(trivias);
+                setUnreadCount(profileData?.unread_count || 0);
             } catch (e) {
-                console.error('Error loading nav badges:', e);
+                console.error('Error loading badges and unread notifications:', e);
             }
         };
 
-        // Load unread notifications count from profiles
-        const loadUnread = async () => {
-            const { data } = await supabase
-                .from('profiles')
-                .select('unread_count')
-                .eq('id', user.id)
-                .single();
-            setUnreadCount(data?.unread_count || 0);
-        };
-
-        loadBadges();
-        loadUnread();
-
-        // Listener for notifications
+        loadAllBadgesAndUnread();
 
         // Realtime subscription for notifications
         const notifSub = supabase
             .channel(`notif_badge_${user.id}`)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-                () => loadUnread())
+                () => {
+                    supabase.from('profiles').select('unread_count').eq('id', user.id).single()
+                        .then(({ data }) => setUnreadCount(data?.unread_count || 0));
+                })
             .subscribe();
 
         return () => { supabase.removeChannel(notifSub); };

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronUp, ChevronDown, MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil, Loader2 } from 'lucide-react';
+import { MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil, Loader2, Heart, Pin } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { TavernThread } from '../../types/tavern';
 import { getAvatarSource } from '../../config/avatars';
@@ -15,9 +15,10 @@ interface ThreadCardProps {
     onClick?: () => void;
     onEdit?: () => void;
     onDelete?: () => void;
+    userRole?: string;
 }
 
-export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: ThreadCardProps) {
+export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete, userRole }: ThreadCardProps) {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -67,7 +68,8 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
     const isAuthor = user?.id === thread.author_id;
     const isWithin5Min = timeLeft !== null && timeLeft > 0;
     const hasNoReplies = (thread.reply_count || 0) === 0;
-    const canEdit = isAuthor && isWithin5Min && hasNoReplies;
+    const isCurrentUserAdmin = userRole === 'admin' || userRole === 'moderator';
+    const canEdit = isCurrentUserAdmin || (isAuthor && isWithin5Min && hasNoReplies);
     const canReport = !!user && !isAuthor;
     const isAdmin = thread.author_role === 'admin' || thread.author_role === 'moderator';
     const showMenu = canEdit || canReport;
@@ -192,7 +194,14 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
 
     return (
         <>
-            <article ref={cardRef} className="bg-bg-side rounded-xl shadow-sm border border-border-theme overflow-hidden hover:border-brand-primary/30 transition duration-200">
+            <article 
+                ref={cardRef} 
+                className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden transition duration-200 ${
+                    thread.is_pinned 
+                        ? 'border-accent-yellow border-[1.5px]' 
+                        : 'border-border-theme hover:border-brand-primary/30'
+                }`}
+            >
                 <div className="p-5">
                     {/* Author header */}
                     <div className="flex items-start justify-between mb-3">
@@ -222,10 +231,17 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                         </div>
                     </div>
 
-                    {/* Tag badge */}
-                    <span className="px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] uppercase font-bold">
-                        {thread.tag}
-                    </span>
+                    {/* Tag badge with optional Pin icon */}
+                    <div className="flex items-center gap-2">
+                        {thread.is_pinned && (
+                            <span className="w-[22px] h-[22px] flex items-center justify-center rounded-full bg-accent-yellow/20 border border-accent-yellow/40 text-accent-yellow" title="Fijado">
+                                <Pin size={12} className="rotate-45 fill-current" />
+                            </span>
+                        )}
+                        <span className="px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] uppercase font-bold">
+                            {thread.tag}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Content */}
@@ -252,23 +268,21 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete }: Thread
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-2 border-t border-divider-theme px-5 pb-3">
                     <div className="flex items-center gap-4">
-                        {/* Karma buttons */}
-                        <div className="flex items-center bg-bg-sub/50 rounded-full px-2 py-1">
+                        {/* Likes (Corazón) */}
+                        <div className="flex items-center bg-bg-sub/50 rounded-full px-2.5 py-1">
                             <button
-                                onClick={() => onVote?.('like')}
+                                onClick={(e) => { e.stopPropagation(); onVote?.('like'); }}
                                 className="share-hide-el p-1 rounded-full text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition"
                             >
-                                <ChevronUp size={18} fill={thread.user_vote === 'like' ? 'currentColor' : 'none'} />
+                                <Heart 
+                                    size={18} 
+                                    fill={thread.user_vote === 'like' ? 'var(--accent-red)' : 'none'} 
+                                    className={thread.user_vote === 'like' ? 'text-accent-red' : 'text-text-muted'} 
+                                />
                             </button>
-                            <span className={`font-bold text-sm px-2 ${thread.likes_count - thread.dislikes_count >= 0 ? 'text-brand-primary' : 'text-accent-red'}`}>
-                                {thread.likes_count - thread.dislikes_count}
+                            <span className="font-bold text-sm px-2 text-text-main">
+                                {thread.likes_count}
                             </span>
-                            <button
-                                onClick={() => onVote?.('dislike')}
-                                className="share-hide-el p-1 rounded-full text-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition"
-                            >
-                                <ChevronDown size={18} fill={thread.user_vote === 'dislike' ? 'currentColor' : 'none'} />
-                            </button>
                         </div>
 
                         {/* Reply count */}

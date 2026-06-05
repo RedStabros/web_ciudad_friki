@@ -93,11 +93,10 @@ export class TavernService {
                     .order('is_pinned', { ascending: false })
                     .order('created_at', { ascending: false });
             } else {
-                // Hot fallback: likes_count DESC
+                // HOT: Order by is_pinned, then updated_at (thread bumping)
                 query = query
                     .order('is_pinned', { ascending: false })
-                    .order('likes_count', { ascending: false })
-                    .order('created_at', { ascending: false });
+                    .order('updated_at', { ascending: false });
             }
 
             const from = page * THREADS_PAGE_SIZE;

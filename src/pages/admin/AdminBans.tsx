@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { TavernAdminService, type BanData } from '../../services/TavernAdminService';
 import { getAvatarSource } from '../../config/avatars';
-import { useProfile } from '../../hooks/useProfile';
+import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import UserHistoryModal from '../../components/admin/UserHistoryModal';
@@ -28,7 +28,7 @@ interface SearchedUser {
 export default function AdminBans() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const { profile, isLoading: profileLoading } = useProfile(user?.id);
+    const { profile, profileLoading } = useApp();
     
     const isSuperuser = user?.id === import.meta.env.VITE_SUPERUSER_ID;
     const isAdmin = profile?.role === 'admin' || isSuperuser;

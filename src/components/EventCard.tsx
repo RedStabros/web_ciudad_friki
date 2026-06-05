@@ -1,12 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Calendar, Bookmark, Heart, Share2 } from 'lucide-react';
+import { Calendar, Bookmark, Heart, Share2, MapPin, Loader2 } from 'lucide-react';
 import type { FrikiEvent } from '../services/EventService';
 import { getAvatarSource } from '../config/avatars';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { shareContent } from '../utils/shareContent';
 import { toPng } from 'html-to-image';
-import { Loader2 } from 'lucide-react';
 import { useRef } from 'react';
 
 interface EventCardProps {
@@ -15,14 +14,34 @@ interface EventCardProps {
     onLike?: () => void;
     onSave?: () => void;
     onClick?: () => void;
+    isCompact?: boolean;
 }
 
-export function EventCard({ event, onInterested, onSave, onLike, onClick }: EventCardProps) {
+export function EventCard({ event, onInterested, onSave, onLike, onClick, isCompact = false }: EventCardProps) {
     const { t, i18n } = useTranslation();
     const defaultImage = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop";
 
-    // Fallback simple parsing for display
-    const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US') : t('events.noDate');
+    // Format dates to remove years (if current year) and format time without seconds
+    const locale = i18n.language === 'es' ? 'es-CO' : 'en-US';
+    let formattedDate = t('events.noDate');
+    if (event.date) {
+        const d = new Date(event.date + 'T00:00:00');
+        const curYear = new Date().getFullYear();
+        if (d.getFullYear() === curYear) {
+            formattedDate = d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+        } else {
+            formattedDate = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    }
+
+    const formatTimeWithoutSeconds = (timeStr: string | null | undefined) => {
+        if (!timeStr) return '';
+        const parts = timeStr.split(':');
+        if (parts.length >= 2) {
+            return `${parts[0]}:${parts[1]}`;
+        }
+        return timeStr;
+    };
 
     const [isSharing, setIsSharing] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -145,6 +164,116 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick }: Even
         }
     };
 
+    if (isCompact) {
+        return (
+            <div 
+                ref={cardRef} 
+                className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition duration-300 flex items-center p-3 gap-4 cursor-pointer relative ${event.is_sponsored ? 'border-brand-secondary ring-1 ring-brand-secondary/20' : 'border-border-theme'}`}
+                onClick={onClick}
+            >
+                {/* Left side: Small Image */}
+                <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 rounded-lg overflow-hidden bg-bg-sub">
+                    <img
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                        src={event.image_url || event.banner_url || defaultImage}
+                    />
+                    {event.is_sponsored && (
+                        <div className="absolute top-1 left-1 bg-brand-secondary text-text-inv text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest shadow-sm">
+                            ★
+                        </div>
+                    )}
+                </div>
+
+                {/* Right side: Content */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                    {/* Header: Date & Actions */}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-text-muted">
+                            <span className="flex items-center font-semibold">
+                                <Calendar className="mr-1 flex-shrink-0" size={12} />
+                                {formattedDate} {event.start_time && `• ${formatTimeWithoutSeconds(event.start_time)}`}
+                            </span>
+
+                            {event.is_sponsored && (
+                                <span className="bg-brand-secondary/15 text-brand-secondary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    {t('events.sponsored')}
+                                </span>
+                            )}
+                            
+                            {event.status && event.status !== 'approved' && (
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                    event.status === 'cancelled' 
+                                        ? 'bg-accent-red/10 text-accent-red' 
+                                        : 'bg-brand-secondary/10 text-brand-secondary'
+                                }`}>
+                                    {t(`events.status.${event.status}`)}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Top right actions */}
+                        <div className="flex items-center gap-2.5 share-hide-el">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSave?.();
+                                }}
+                                className={`transition ${event.isSaved ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
+                                aria-label="Guardar evento"
+                            >
+                                <Bookmark size={18} fill={event.isSaved ? "currentColor" : "none"} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onLike?.();
+                                }}
+                                className={`ticket-likes flex items-center font-medium gap-1 transition px-1.5 py-0.5 rounded-md ${event.isLiked ? 'text-accent-red bg-accent-red/10' : 'text-text-muted hover:text-accent-red hover:bg-accent-red/5'}`}
+                                aria-label="Dar me gusta"
+                            >
+                                <Heart size={14} fill={event.isLiked ? "currentColor" : "none"} />
+                                <span className="text-[11px] font-black">{event.likes_count || 0}</span>
+                            </button>
+                            <button
+                                onClick={shareEventTicket}
+                                disabled={isSharing}
+                                className={`transition ${isSharing ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`}
+                                aria-label="Compartir evento"
+                                title={t('common.share')}
+                            >
+                                {isSharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Middle: Title */}
+                    <h3 className="text-sm sm:text-base font-bold text-text-main leading-tight mb-2 line-clamp-1 hover:text-brand-primary transition-colors duration-200">
+                        {event.title}
+                    </h3>
+
+                    {/* Bottom: Location & Price */}
+                    <div className="flex items-center justify-between text-xs text-text-muted gap-2 mt-auto">
+                        <div className="flex items-center min-w-0">
+                            <MapPin className="text-brand-primary mr-1 flex-shrink-0" size={14} />
+                            <span className="truncate">{event.location}</span>
+                        </div>
+                        
+                        <div className="flex-shrink-0 font-bold">
+                            {event.price_min && event.price_min > 0 ? (
+                                <span className="text-brand-secondary">
+                                    Desde ${event.price_min.toLocaleString()}
+                                </span>
+                            ) : (
+                                <span className="text-accent-green">{t('common.free', 'Gratis')}</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div ref={cardRef} className={`bg-bg-side rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition duration-300 ${event.is_sponsored ? 'border-brand-secondary ring-1 ring-brand-secondary/20' : 'border-border-theme'}`}>
             <div className="relative h-64 w-full">
@@ -165,7 +294,7 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick }: Even
                     <div className="cursor-pointer flex-1 pr-4" onClick={onClick}>
                         <div className="ticket-date flex items-center text-text-muted text-sm mb-1">
                             <Calendar className="text-base mr-1.5" size={16} />
-                            {formattedDate} • {event.start_time || 'TBD'}
+                            {formattedDate} • {formatTimeWithoutSeconds(event.start_time) || 'TBD'}
                         </div>
                         <h3 className="text-2xl font-bold text-text-main mb-2">{event.title}</h3>
                         <div className="flex items-center text-text-muted text-xs mb-2">

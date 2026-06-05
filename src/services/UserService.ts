@@ -18,6 +18,8 @@ export interface Transaction {
     description: string;
     created_at: string;
     type: string;
+    from_profile?: { username: string } | null;
+    to_profile?: { username: string } | null;
 }
 
 export const UserService = {
@@ -171,12 +173,18 @@ export const UserService = {
         try {
             const { data, error } = await supabase
                 .from('wallet_transactions')
-                .select('*')
+                .select(`
+                    *,
+                    from_profile:profiles!from_user(username),
+                    to_profile:profiles!to_user(username),
+                    survey:surveys(title),
+                    event_code:event_codes(code)
+                `)
                 .or(`from_user.eq.${userId},to_user.eq.${userId}`)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            return { transactions: data as Transaction[], error: null };
+            return { transactions: data as any[], error: null };
         } catch (error) {
             console.error('UserService.getTransactions error:', error);
             return { transactions: [], error };

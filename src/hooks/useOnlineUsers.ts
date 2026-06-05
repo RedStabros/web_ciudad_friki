@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { useProfile } from './useProfile';
+import { useApp } from '../context/AppContext';
 
 export function useOnlineUsers() {
     const { user } = useAuth();
-    const { profile } = useProfile(user?.id);
+    const { profile } = useApp();
     const [onlineUsersCount, setOnlineUsersCount] = useState<number>(1);
     const [onlineUsersList, setOnlineUsersList] = useState<any[]>([]);
     const [totalInteractions, setTotalInteractions] = useState<number>(0);
@@ -14,6 +14,18 @@ export function useOnlineUsers() {
     useEffect(() => {
         const fetchInteractions = async () => {
             try {
+                // Check cache
+                const cacheKey = 'cf_online_stats_cache';
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.timestamp < 120000) {
+                        setTotalInteractions(parsed.totalInteractions);
+                        setTavernInteractions(parsed.tavernInteractions);
+                        return;
+                    }
+                }
+
                 const [users, events, duels, threads, replies] = await Promise.all([
                     supabase.from('profiles').select('*', { count: 'exact', head: true }),
                     supabase.from('events').select('*', { count: 'exact', head: true }),
@@ -25,8 +37,18 @@ export function useOnlineUsers() {
                 const sum = (users.count || 0) + (events.count || 0) + (duels.count || 0) + (threads.count || 0);
                 const tSum = (threads.count || 0) + (replies.count || 0);
 
-                setTotalInteractions(sum > 0 ? sum : 0);
-                setTavernInteractions(tSum > 0 ? tSum : 0);
+                const finalSum = sum > 0 ? sum : 0;
+                const finalTSum = tSum > 0 ? tSum : 0;
+
+                setTotalInteractions(finalSum);
+                setTavernInteractions(finalTSum);
+
+                // Save cache
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    totalInteractions: finalSum,
+                    tavernInteractions: finalTSum,
+                    timestamp: Date.now()
+                }));
             } catch (error) {
                 console.error('Error fetching interactions:', error);
             }

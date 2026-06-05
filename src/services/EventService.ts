@@ -259,6 +259,15 @@ export const EventService = {
 
     async getTrendingTopics() {
         try {
+            const cacheKey = 'cf_trending_topics';
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.timestamp < 120000) {
+                    return parsed.data;
+                }
+            }
+
             // Fetch some recent thread tags
             const { data: threadTags } = await supabase
                 .from('tavern_threads')
@@ -284,10 +293,18 @@ export const EventService = {
                 });
             });
 
-            return Object.entries(counts)
+            const result = Object.entries(counts)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 8)
                 .map(e => e[0]);
+
+            // Save cache
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+                data: result,
+                timestamp: Date.now()
+            }));
+
+            return result;
         } catch (error) {
             console.error('getTrendingTopics error:', error);
             return ['Cosplay', 'RPG', 'Marvel', 'Gaming', 'Anime', 'Retro'];

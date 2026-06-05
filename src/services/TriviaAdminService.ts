@@ -264,5 +264,200 @@ export const TriviaAdminService = {
                 error
             };
         }
+    },
+
+    async createAutoTrivia(params: {
+        categoryId: string;
+        title: string;
+        description: string;
+        publishDate: string;
+        expireDate: string;
+        questionCount: number;
+        adminId: string;
+    }): Promise<{ success: boolean; trivia_id?: string; questions_copied?: number; time_limit_seconds?: number; reward_pool?: number; message?: string }> {
+        try {
+            const { data, error } = await supabase.rpc('create_auto_trivia', {
+                p_category_id:    params.categoryId,
+                p_title:          params.title,
+                p_description:    params.description,
+                p_publish_date:   params.publishDate,
+                p_expire_date:    params.expireDate,
+                p_question_count: params.questionCount,
+                p_admin_id:       params.adminId,
+            });
+
+            if (error) throw error;
+            if (data && !data.success) throw new Error(data.message || 'Error al crear la trivia automática.');
+            return data;
+        } catch (error: any) {
+            console.error('Error creating auto trivia:', error);
+            throw error;
+        }
+    },
+
+    async getPendingSubmissions(): Promise<any[]> {
+        try {
+            const { data, error } = await supabase
+                .from('triviaduels_submissions')
+                .select('*, profiles!triviaduels_submissions_user_id_fkey(username), triviaduels_categories(name)')
+                .eq('status', 'pending')
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching pending submissions:', error);
+            return [];
+        }
+    },
+
+    async getContributorsRanking(): Promise<any[]> {
+        try {
+            const { data, error } = await supabase.rpc('get_trivia_contributors_ranking');
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching contributors ranking:', error);
+            return [];
+        }
+    },
+
+    async getTriviaPackContributorsRanking(): Promise<any[]> {
+        try {
+            const { data, error } = await supabase.rpc('get_trivia_pack_contributors_ranking');
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching trivia pack contributors ranking:', error);
+            return [];
+        }
+    },
+
+    async approveSubmission(submissionId: string): Promise<void> {
+        try {
+            const { error } = await supabase.rpc('approve_trivia_submission', {
+                p_submission_id: submissionId
+            });
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error approving submission:', error);
+            throw error;
+        }
+    },
+
+    async updateSubmission(submissionId: string, questionText: string, options: { text: string, is_correct: boolean }[]): Promise<void> {
+        try {
+            const { error } = await supabase.rpc('update_trivia_submission', {
+                p_submission_id: submissionId,
+                p_question_text: questionText,
+                p_options: options
+            });
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating submission:', error);
+            throw error;
+        }
+    },
+
+    async rejectSubmission(submissionId: string, notes: string): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('triviaduels_submissions')
+                .update({
+                    status: 'rejected',
+                    admin_notes: notes,
+                    reviewed_at: new Date().toISOString(),
+                    reviewed_by: (await supabase.auth.getUser()).data.user?.id
+                })
+                .eq('id', submissionId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error rejecting submission:', error);
+            throw error;
+        }
+    },
+
+    async getPendingTriviaPacks(): Promise<any[]> {
+        try {
+            const { data, error } = await supabase
+                .from('trivia_packs_submissions')
+                .select(`
+                    *,
+                    profiles!trivia_packs_submissions_user_id_fkey(username, avatar_url),
+                    triviaduels_categories(name, icon)
+                `)
+                .eq('status', 'pending')
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching pending trivia packs:', error);
+            return [];
+        }
+    },
+
+    async getTriviaPack(submissionId: string): Promise<{ pack: any; questions: any[] } | null> {
+        try {
+            const { data, error } = await supabase.rpc('get_trivia_pack_with_questions', {
+                p_submission_id: submissionId,
+            });
+
+            if (error) throw error;
+            if (data && !data.success) throw new Error(data.message);
+
+            return { pack: data.pack, questions: data.questions };
+        } catch (error) {
+            console.error('Error fetching trivia pack:', error);
+            return null;
+        }
+    },
+
+    async approveTriviaPack(params: {
+        submissionId: string;
+        publishDate: string;
+        expireDate: string;
+        timeLimitSeconds: number;
+        adminId: string;
+    }): Promise<{ success: boolean; trivia_id?: string; rewarded_coins?: number; message?: string }> {
+        try {
+            const { data, error } = await supabase.rpc('approve_trivia_pack_submission', {
+                p_submission_id:      params.submissionId,
+                p_publish_date:       params.publishDate,
+                p_expire_date:        params.expireDate,
+                p_time_limit_seconds: params.timeLimitSeconds,
+                p_admin_id:           params.adminId,
+            });
+
+            if (error) throw error;
+            if (data && !data.success) throw new Error(data.message || 'Error al aprobar el paquete.');
+            return data;
+        } catch (error) {
+            console.error('Error approving trivia pack:', error);
+            throw error;
+        }
+    },
+
+    async rejectTriviaPack(params: {
+        submissionId: string;
+        adminNotes: string;
+        adminId: string;
+    }): Promise<void> {
+        try {
+            const { data, error } = await supabase.rpc('reject_trivia_pack_submission', {
+                p_submission_id: params.submissionId,
+                p_admin_notes:   params.adminNotes,
+                p_admin_id:      params.adminId,
+            });
+
+            if (error) throw error;
+            if (data && !data.success) throw new Error(data.message || 'Error al rechazar el paquete.');
+        } catch (error) {
+            console.error('Error rejecting trivia pack:', error);
+            throw error;
+        }
     }
 };

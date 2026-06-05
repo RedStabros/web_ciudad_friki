@@ -1,28 +1,17 @@
-import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useProfile } from '../hooks/useProfile';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel } from 'lucide-react';
-import { SuperAdminService } from '../services/SuperAdminService';
+import { useApp } from '../context/AppContext';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminLayout() {
     const { user, isLoading: authLoading } = useAuth();
-    const { profile, isLoading: profileLoading } = useProfile(user?.id);
+    const { profile, profileLoading, frikiMartAdmin } = useApp();
     const location = useLocation();
     const { t } = useTranslation();
 
     const isSuperuser = user?.id === import.meta.env.VITE_SUPERUSER_ID;
     const isAdmin = profile?.role === 'admin' || isSuperuser;
-    const [storeAdminVisible, setStoreAdminVisible] = useState(false);
-
-    useEffect(() => {
-        if (isAdmin) {
-            SuperAdminService.getGlobalSetting('store_admin_visible').then(val => {
-                setStoreAdminVisible(!!val);
-            });
-        }
-    }, [isAdmin]);
 
     if (authLoading || profileLoading) {
         return (
@@ -42,11 +31,12 @@ export default function AdminLayout() {
         { path: '/admin/events', icon: <CalendarCheck size={20} />, label: t('admin.sidebar.events') },
         { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: t('admin.sidebar.surveys') },
         { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: t('admin.sidebar.trivias') },
+        { path: '/admin/frikivs', icon: <Zap size={20} />, label: t('admin.sidebar.frikivs', 'Aportes VS') },
         { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
         { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
         { path: '/admin/bans', icon: <Gavel size={20} />, label: t('admin.sidebar.bans') },
         { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
-        ...(isSuperuser || storeAdminVisible ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
+        ...(isSuperuser || frikiMartAdmin ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
         ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),
     ];
 

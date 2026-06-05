@@ -4,7 +4,7 @@ import { SEO } from '../components/SEO';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useGlobalFeatures } from '../hooks/useGlobalFeatures';
+import { useApp } from '../context/AppContext';
 import {
     ArrowLeft, ShoppingBag, PackageCheck, Gift,
     RefreshCw, Loader2, MessageCircle,
@@ -166,21 +166,13 @@ export default function FrikiMart() {
     const [donations, setDonations] = useState<DonationPackage[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [balance, setBalance] = useState(0);
     const [buying, setBuying] = useState<string | null>(null);
     const [chatOrderId, setChatOrderId] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-    const { frikiMartGlobal, frikiMartWeb, loading: featuresLoading } = useGlobalFeatures(user?.id);
+    const { frikiMartGlobal, frikiMartWeb, featuresLoading, wallet, refetchProfile } = useApp();
     const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
-
-
-
-    const fetchBalance = useCallback(async () => {
-        if (!user?.id) return;
-        const { data } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
-        if (data) setBalance(data.balance ?? 0);
-    }, [user?.id]);
+    const balance = wallet?.balance ?? 0;
 
     const fetchItems = useCallback(async () => {
         const { data } = await supabase.from('store_items').select('*').eq('status', 'available').order('created_at', { ascending: false });
@@ -204,10 +196,11 @@ export default function FrikiMart() {
 
     const fetchAll = useCallback(async (isRefresh = false) => {
         if (isRefresh) setRefreshing(true); else setLoading(true);
-        await Promise.all([fetchBalance(), fetchItems(), fetchOrders(), fetchDonations()]);
+        refetchProfile();
+        await Promise.all([fetchItems(), fetchOrders(), fetchDonations()]);
         setLoading(false);
         setRefreshing(false);
-    }, [fetchBalance, fetchItems, fetchOrders, fetchDonations]);
+    }, [refetchProfile, fetchItems, fetchOrders, fetchDonations]);
 
     useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -223,7 +216,8 @@ export default function FrikiMart() {
             const { data, error } = await supabase.rpc('purchase_store_item', { p_item_id: item.id });
             if (error) throw error;
             setSuccessMsg(item.title);
-            await Promise.all([fetchBalance(), fetchItems(), fetchOrders()]);
+            refetchProfile();
+            await Promise.all([fetchItems(), fetchOrders()]);
             setChatOrderId(data as string);
         } catch (err: any) {
             const msg = err.message?.includes('INSUFFICIENT_FC') ? t('frikimart.errors.noFC')
