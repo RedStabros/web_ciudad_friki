@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2, Flag, MoreHorizontal, Pencil, Heart, Pin } from 'lucide-react';
+import { X, MessageSquare, Loader2, Send, Edit2, Trash2, Clock, Check, Share2, Flag, MoreHorizontal, Pencil, Heart, Pin, Lock, Unlock, Archive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TavernService } from '../../services/TavernService';
+import { TavernAdminService } from '../../services/TavernAdminService';
 import type { TavernThread, TavernReply } from '../../types/tavern';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
@@ -293,10 +294,43 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
 
     if (!isOpen) return null;
 
+    const handleToggleLock = async () => {
+        if (!thread) return;
+        setOpenMenuId(null);
+        setIsLoading(true);
+        const { error } = thread.is_locked 
+            ? await TavernAdminService.unlockThread(thread.id)
+            : await TavernAdminService.lockThread(thread.id);
+        
+        if (error) {
+            alert('Error al cambiar el estado del hilo');
+        } else {
+            setThread(prev => prev ? { ...prev, is_locked: !prev.is_locked } : prev);
+        }
+        setIsLoading(false);
+    };
+
+    const handleToggleArchive = async () => {
+        if (!thread) return;
+        if (!confirm('¿Seguro que deseas archivar este hilo? No se podrá desarchivar desde aquí.')) return;
+        setOpenMenuId(null);
+        setIsLoading(true);
+        const { error } = await TavernAdminService.archiveThread(thread.id);
+        
+        if (error) {
+            alert('Error al archivar el hilo');
+        } else {
+            setThread(prev => prev ? { ...prev, is_archived: true, is_locked: true } : prev);
+            alert('Hilo archivado correctamente.');
+            onClose(); // Cerrar modal porque ya no debería verse normalmente
+        }
+        setIsLoading(false);
+    };
+
     return (
         <>
             <div
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm"
                 onClick={onClose}
             >
                 <div
@@ -350,6 +384,18 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
                                 {/* Thread Content */}
                                 <div className="mb-6">
                                     <h1 className="text-2xl font-bold text-text-main mb-4 leading-tight">{thread.title}</h1>
+                                    <div className="flex gap-2 mb-3">
+                                        {thread.is_locked && (
+                                            <span className="flex items-center gap-1 text-[10px] bg-accent-red/10 text-accent-red border border-accent-red/20 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                                                <Lock size={10} /> {t('tavern.status.locked', 'Cerrado')}
+                                            </span>
+                                        )}
+                                        {thread.is_archived && (
+                                            <span className="flex items-center gap-1 text-[10px] bg-orange-500/10 text-orange-500 border border-orange-500/20 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                                                <Archive size={10} /> {t('tavern.status.archived', 'Archivado')}
+                                            </span>
+                                        )}
+                                    </div>
                                     <ContentRenderer
                                         content={thread.content}
                                         className="text-text-main leading-relaxed"
@@ -384,8 +430,8 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
                                         {isSharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
                                         {isSharing ? t('common.sharing') : t('tavern.modals.details.share')}
                                     </button>
-                                    {/* Report thread — only for non-authors (Hidden during capture) */}
-                                    {user && user.id !== thread.author_id && (
+                                    {/* Report thread / Admin actions */}
+                                    {(user && user.id !== thread.author_id) || userRole === 'admin' ? (
                                         <div className="share-hide-el relative ml-auto" ref={openMenuId === thread.id ? menuRef : undefined}>
                                             <button
                                                 onClick={() => setOpenMenuId(id => id === thread.id ? null : thread.id)}
@@ -394,18 +440,39 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
                                                 <MoreHorizontal size={16} />
                                             </button>
                                             {openMenuId === thread.id && (
-                                                <div className="absolute right-0 bottom-full mb-1 w-40 bg-bg-pop border border-border-theme rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                                                    <button
-                                                        onClick={() => { setOpenMenuId(null); setReportingId(thread.id); }}
-                                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
-                                                    >
-                                                        <Flag size={14} />
-                                                        {t('tavern.thread.report')}
-                                                    </button>
+                                                <div className="absolute right-0 bottom-full mb-1 w-48 bg-bg-pop border border-border-theme rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                                                    {user && user.id !== thread.author_id && (
+                                                        <button
+                                                            onClick={() => { setOpenMenuId(null); setReportingId(thread.id); }}
+                                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-accent-red hover:bg-accent-red/5 transition"
+                                                        >
+                                                            <Flag size={14} />
+                                                            {t('tavern.thread.report')}
+                                                        </button>
+                                                    )}
+                                                    {userRole === 'admin' && (
+                                                        <>
+                                                            <div className="h-px bg-divider-theme w-full" />
+                                                            <button
+                                                                onClick={handleToggleLock}
+                                                                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-muted hover:text-brand-primary hover:bg-brand-primary/5 transition"
+                                                            >
+                                                                {thread.is_locked ? <><Unlock size={14} /> Abrir Hilo</> : <><Lock size={14} /> Cerrar Hilo</>}
+                                                            </button>
+                                                            {!thread.is_archived && (
+                                                                <button
+                                                                    onClick={handleToggleArchive}
+                                                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-orange-500 hover:bg-orange-500/5 transition"
+                                                                >
+                                                                    <Archive size={14} /> Archivar Hilo
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
 
                                 {/* Replies List */}
@@ -540,7 +607,12 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
 
                     {/* Reply Input */}
                     <div className="p-4 border-t border-divider-theme bg-bg-sub/50">
-                        {user ? (
+                        {thread?.is_locked ? (
+                            <div className="text-center text-sm font-bold text-accent-red/80 py-3 bg-accent-red/10 rounded-xl border border-accent-red/20">
+                                <Lock size={16} className="inline-block mr-2" />
+                                {t('tavern.status.lockedMessage', 'Este hilo ha sido cerrado y no admite nuevas respuestas.')}
+                            </div>
+                        ) : user ? (
                             <form onSubmit={handleReplySubmit} className="flex gap-3">
                                 <input
                                     value={replyContent}

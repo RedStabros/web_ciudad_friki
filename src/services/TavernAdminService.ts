@@ -317,5 +317,35 @@ export const TavernAdminService = {
             console.error('Error fetching moderation logs:', error);
             return [];
         }
+    },
+
+    async lockThread(threadId: string): Promise<{ error?: any }> {
+        try {
+            const { error } = await supabase.from('tavern_threads').update({ is_locked: true }).eq('id', threadId);
+            if (error) throw error;
+            return { error: null };
+        } catch (error) {
+            return { error };
+        }
+    },
+
+    async unlockThread(threadId: string): Promise<{ error?: any }> {
+        try {
+            const { error } = await supabase.from('tavern_threads').update({ is_locked: false }).eq('id', threadId);
+            if (error) throw error;
+            return { error: null };
+        } catch (error) {
+            return { error };
+        }
+    },
+
+    async archiveThread(threadId: string): Promise<{ error?: any }> {
+        try {
+            const { error } = await supabase.from('tavern_threads').update({ is_archived: true }).eq('id', threadId);
+            if (error) throw error;
+            return { error: null };
+        } catch (error) {
+            return { error };
+        }
     }
 };

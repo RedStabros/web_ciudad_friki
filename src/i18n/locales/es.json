@@ -254,7 +254,14 @@
     "free": "Gratis",
     "paid": "De Pago",
     "noDescription": "Sin descripción.",
-    "date": "Fecha"
+    "date": "Fecha",
+    "qrRequest": "¿Solicitar Código QR de recompensa para asistentes?",
+    "qrApproved": "QR Aprobado",
+    "qrReward": "🎁 +{{amount}} FC por asistencia",
+    "qrBanner": "🎁 ¡Este evento entrega {{amount}} Frikicoins por asistencia presencial!",
+    "viewQr": "Ver / Imprimir Código QR",
+    "launchEdition": "🔄 Lanzar Nueva Edición",
+    "edition": "Edición {{number}}"
   },
   "adminRoles": {
     "title": "Gestión de Roles",
@@ -1772,7 +1779,10 @@
       "noFC": "No tienes suficientes Frikicoins.",
       "outOfStock": "Artículo agotado.",
       "generic": "Ocurrió un error. Intenta de nuevo."
-    }
+    },
+    "emptyItems": "No hay artículos disponibles en este momento.",
+    "emptyOrders": "Aún no has realizado pedidos.",
+    "shippingNotice": "Los envíos corren por cuenta del comprador (por cobrar). También puedes coordinar la entrega en nuestra sede o en eventos con un administrador."
   },
   "adminEvents": {
     "title": "Moderación de Eventos",
@@ -1885,5 +1895,99 @@
   },
   "categories": {
     "princesas": "Princesas"
+  },
+  "achievements": {
+    "title": "Vitrina de Logros",
+    "showcase": "Vitrina de Logros",
+    "search": "Buscar logros...",
+    "sortByReward": "Por Recompensa",
+    "sortByTier": "Por Nivel",
+    "progress": "Desbloqueados {{unlocked}}/{{total}}",
+    "locked": "Logro Secreto",
+    "categories": {
+      "all": "Todos",
+      "trivia": "Trivia Clásica",
+      "vs": "Trivia VS",
+      "tavern": "La Taberna",
+      "events": "Eventos",
+      "economy": "Economía",
+      "special": "Especiales"
+    },
+    "tiers": {
+      "bronze": "Bronce",
+      "silver": "Plata",
+      "gold": "Oro",
+      "diamond": "Diamante",
+      "special": "Especial"
+    },
+    "unlocked_toast": "¡Logro Desbloqueado!",
+    "streak": {
+      "label": "Racha de conexión",
+      "days": "{{days}} días"
+    }
+  },
+  "frikimart": {
+    "title": "FrikiMart",
+    "balance": "Saldo Disponible",
+    "loading": "Cargando artículos...",
+    "closed": "FrikiMart Fuera de Servicio",
+    "closedSubtitle": "La tienda oficial se encuentra temporalmente deshabilitada.",
+    "returnHome": "Volver al Inicio",
+    "shippingNotice": "Los envíos corren por cuenta del comprador (por cobrar). También puedes coordinar la entrega en nuestra sede o en eventos con un administrador.",
+    "emptyItems": "No hay artículos disponibles en este momento.",
+    "emptyOrders": "Aún no has realizado pedidos.",
+    "tabs": {
+      "items": "Tienda",
+      "orders": "Mis Pedidos",
+      "donations": "Donaciones"
+    },
+    "items": {
+      "lastUnit": "Última unidad",
+      "fewUnits": "¡Últimas {{count}} unidades!",
+      "available": "{{count}} disponibles",
+      "buy": "Comprar",
+      "noFC": "Frikicoins Insuficientes",
+      "insufficientFC": "No tienes suficientes Frikicoins. Requieres {{required}} FC y tu saldo es {{balance}} FC.",
+      "buyConfirm": "¿Deseas comprar {{title}} por {{price}} FC?",
+      "purchaseSuccess": "¡Compra Realizada con Éxito!",
+      "adminContact": "Se ha abierto un chat de entrega con el administrador."
+    },
+    "errors": {
+      "noFC": "Frikicoins insuficientes para realizar la compra.",
+      "outOfStock": "El producto se ha agotado.",
+      "generic": "Ocurrió un error al procesar tu compra."
+    },
+    "orders": {
+      "status": {
+        "delivered": "Entregado",
+        "cancelled": "Cancelado",
+        "pending": "Pendiente de Entrega"
+      }
+    },
+    "chat": {
+      "title": "Chat de Pedido",
+      "confirmReceived": "¿Confirmas que has recibido tu producto a satisfacción?",
+      "confirmButton": "Confirmar Entrega",
+      "received": "Recibido",
+      "empty": "Aún no hay mensajes en este chat. Escribe un mensaje para coordinar la entrega.",
+      "placeholder": "Escribe un mensaje...",
+      "status": {
+        "delivered": "Entregado",
+        "cancelled": "Cancelado",
+        "pending": "Pendiente"
+      }
+    },
+    "donations": {
+      "comingSoon": "Próximamente Donaciones Web",
+      "availability": "Las donaciones están disponibles en la app móvil.",
+      "onlyInApp": "Solo disponible en App"
+    }
+  },
+  "seo": {
+    "frikimart": {
+      "title": "FrikiMart - Tienda Oficial Ciudad Friki",
+      "description": "Canjea tus Frikicoins por productos exclusivos en FrikiMart.",
+      "keywords": "frikimart, tienda, frikicoins, productos, tienda friki"
+    }
   }
 }

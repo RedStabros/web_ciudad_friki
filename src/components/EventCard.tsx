@@ -196,8 +196,20 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
                             </span>
 
                             {event.is_sponsored && (
-                                <span className="bg-brand-secondary/15 text-brand-secondary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                <span className="bg-brand-secondary/10 text-brand-secondary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                                     {t('events.sponsored')}
+                                </span>
+                            )}
+                            
+                            {event.qr_approved && (
+                                <span className="bg-amber-400/10 text-amber-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    🎫 +{event.qr_reward_amount || 0} FC
+                                </span>
+                            )}
+                            
+                            {event.edition_number && event.edition_number > 1 && (
+                                <span className="bg-blue-500/10 text-blue-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    Ed. {event.edition_number}
                                 </span>
                             )}
                             
@@ -287,14 +299,26 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
                         ★ {t('events.sponsored')}
                     </div>
                 )}
+                {event.qr_approved && (
+                    <div className="absolute bottom-4 left-4 bg-amber-400 text-black text-[10px] font-black px-3 py-1 rounded-full flex items-center uppercase tracking-widest shadow-lg z-10 animate-pulse">
+                        🎁 +{event.qr_reward_amount || 0} FC
+                    </div>
+                )}
             </div>
 
             <div className="p-5">
                 <div className="flex justify-between items-start">
                     <div className="cursor-pointer flex-1 pr-4" onClick={onClick}>
-                        <div className="ticket-date flex items-center text-text-muted text-sm mb-1">
-                            <Calendar className="text-base mr-1.5" size={16} />
-                            {formattedDate} • {formatTimeWithoutSeconds(event.start_time) || 'TBD'}
+                        <div className="ticket-date flex items-center text-text-muted text-sm mb-1 gap-2 flex-wrap">
+                            <span className="flex items-center">
+                                <Calendar className="text-base mr-1.5" size={16} />
+                                {formattedDate} • {formatTimeWithoutSeconds(event.start_time) || 'TBD'}
+                            </span>
+                            {event.edition_number && event.edition_number > 1 && (
+                                <span className="bg-blue-500/10 text-blue-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    Edición {event.edition_number}
+                                </span>
+                            )}
                         </div>
                         <h3 className="text-2xl font-bold text-text-main mb-2">{event.title}</h3>
                         <div className="flex items-center text-text-muted text-xs mb-2">

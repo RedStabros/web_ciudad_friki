@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useApp } from '../context/AppContext';
 import {
-    ArrowLeft, ShoppingBag, PackageCheck, Gift,
+    ArrowLeft, ShoppingBag, PackageCheck,
     RefreshCw, Loader2, MessageCircle,
-    ChevronRight, Send, X, Check
+    ChevronLeft, ChevronRight, Send, X, Check
 } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -33,17 +33,6 @@ interface Order {
     store_items?: { title: string; photos?: string[] };
 }
 
-interface DonationPackage {
-    id: string;
-    name: string;
-    description?: string;
-    frikicoin_reward: number;
-    price_cents: number;
-    bonus_perks?: string[];
-    is_active: boolean;
-    sort_order: number;
-}
-
 // ── Chat Modal ─────────────────────────────────────────────────────────────────
 function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: string; onClose: () => void }) {
     const { t } = useTranslation();
@@ -61,7 +50,12 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
                 filter: `purchase_id=eq.${orderId}`
             }, payload => setMessages(prev => [...prev, payload.new]))
             .subscribe();
-        return () => { supabase.removeChannel(channel); };
+            
+        const interval = setInterval(loadChat, 3000);
+        return () => { 
+            clearInterval(interval);
+            supabase.removeChannel(channel); 
+        };
     }, [orderId]);
 
     const loadChat = async () => {
@@ -75,12 +69,26 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
 
     const sendMsg = async () => {
         if (!text.trim()) return;
+        
+        const optimisticMsg = { 
+            id: Date.now(), 
+            purchase_id: orderId, 
+            sender_id: userId, 
+            sender_role: 'buyer', 
+            content: text.trim(), 
+            created_at: new Date().toISOString() 
+        };
+        
+        setMessages(prev => [...prev, optimisticMsg]);
+        const msgText = text.trim();
+        setText('');
         setSending(true);
+        
         await supabase.from('store_messages').insert({
             purchase_id: orderId, sender_id: userId,
-            sender_role: 'buyer', content: text.trim(),
+            sender_role: 'buyer', content: msgText,
         });
-        setText('');
+        
         setSending(false);
     };
 
@@ -156,6 +164,92 @@ function ChatModal({ orderId, userId, onClose }: { orderId: string; userId: stri
     );
 }
 
+function StoreItemModal({ item, balance, onClose, onBuy, buying }: { item: StoreItem; balance: number; onClose: () => void; onBuy: (item: StoreItem) => void; buying: string | null }) {
+    const { t } = useTranslation();
+    const canAfford = balance >= item.price_fc;
+    const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
+    const photos = item.photos && item.photos.length > 0 ? item.photos : [];
+    
+    return (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="bg-bg-side w-full max-w-md rounded-2xl flex flex-col border border-border-theme shadow-2xl max-h-[90vh] overflow-hidden animate-in zoom-in duration-200">
+                <div className="flex items-center justify-between p-4 border-b border-divider-theme shrink-0">
+                    <h2 className="font-black text-text-main text-lg truncate pr-4">{item.title}</h2>
+                    <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition text-text-muted">
+                        <X size={20} />
+                    </button>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-0">
+                    {photos.length > 0 ? (
+                        <div className="relative w-full h-64 bg-black/40 overflow-hidden group">
+                            <img 
+                                src={photos[currentPhotoIdx]} 
+                                alt={`${item.title} - ${currentPhotoIdx + 1}`} 
+                                className="w-full h-full object-cover transition-all duration-300" 
+                            />
+                            {photos.length > 1 && (
+                                <>
+                                    <button 
+                                        onClick={() => setCurrentPhotoIdx(prev => (prev === 0 ? photos.length - 1 : prev - 1))}
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition"
+                                    >
+                                        <ChevronLeft size={18} />
+                                    </button>
+                                    <button 
+                                        onClick={() => setCurrentPhotoIdx(prev => (prev === photos.length - 1 ? 0 : prev + 1))}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition"
+                                    >
+                                        <ChevronRight size={18} />
+                                    </button>
+                                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/50 px-3 py-1 rounded-full">
+                                        {photos.map((_, idx) => (
+                                            <button 
+                                                key={idx}
+                                                onClick={() => setCurrentPhotoIdx(idx)}
+                                                className={`w-2 h-2 rounded-full transition-all ${idx === currentPhotoIdx ? 'bg-amber-400 w-4' : 'bg-white/50'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="w-full h-48 bg-bg-sub flex items-center justify-center text-6xl">🏷️</div>
+                    )}
+                    
+                    <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-2xl font-black text-amber-400">{item.price_fc.toLocaleString()} FC</p>
+                            <div>
+                                {item.stock === 1 && <p className="text-xs text-red-400 font-bold">🔴 {t('frikimart.items.lastUnit')}</p>}
+                                {item.stock > 1 && item.stock <= 5 && <p className="text-xs text-orange-400 font-bold">⚠️ {t('frikimart.items.fewUnits', { count: item.stock })}</p>}
+                                {item.stock > 5 && <p className="text-xs text-accent-green">✓ {t('frikimart.items.available', { count: item.stock })}</p>}
+                            </div>
+                        </div>
+                        
+                        {item.description && (
+                            <p className="text-text-muted text-sm whitespace-pre-wrap">{item.description}</p>
+                        )}
+                    </div>
+                </div>
+                
+                <div className="p-4 border-t border-divider-theme shrink-0">
+                    <button
+                        onClick={() => onBuy(item)}
+                        disabled={buying === item.id || !!buying || !canAfford}
+                        className={`w-full py-3 rounded-xl font-black text-sm transition-all shadow-lg ${canAfford
+                            ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20 active:scale-95'
+                            : 'bg-bg-sub text-text-muted border border-border-theme cursor-not-allowed'} disabled:opacity-50`}
+                    >
+                        {buying === item.id ? <Loader2 size={16} className="animate-spin mx-auto" /> : canAfford ? t('frikimart.items.buy') : t('frikimart.items.noFC')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function FrikiMart() {
     const { t } = useTranslation();
@@ -163,10 +257,10 @@ export default function FrikiMart() {
     const [tab, setTab] = useState<Tab>('items');
     const [items, setItems] = useState<StoreItem[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
-    const [donations, setDonations] = useState<DonationPackage[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [buying, setBuying] = useState<string | null>(null);
+    const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
     const [chatOrderId, setChatOrderId] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -189,18 +283,13 @@ export default function FrikiMart() {
         setOrders(data ?? []);
     }, [user?.id]);
 
-    const fetchDonations = useCallback(async () => {
-        const { data } = await supabase.from('donation_packages').select('*').eq('is_active', true).order('sort_order');
-        setDonations(data ?? []);
-    }, []);
-
     const fetchAll = useCallback(async (isRefresh = false) => {
         if (isRefresh) setRefreshing(true); else setLoading(true);
         refetchProfile();
-        await Promise.all([fetchItems(), fetchOrders(), fetchDonations()]);
+        await Promise.all([fetchItems(), fetchOrders()]);
         setLoading(false);
         setRefreshing(false);
-    }, [refetchProfile, fetchItems, fetchOrders, fetchDonations]);
+    }, [user?.id]); // Only re-create if user changes
 
     useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -232,7 +321,8 @@ export default function FrikiMart() {
     const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
         { key: 'items', label: t('frikimart.tabs.items'), icon: <ShoppingBag size={15} /> },
         { key: 'orders', label: t('frikimart.tabs.orders'), icon: <PackageCheck size={15} /> },
-        { key: 'donations', label: t('frikimart.tabs.donations'), icon: <Gift size={15} /> },
+        // TODO(Donations-Pending): Comentado temporalmente hasta finalizar la integración completa
+        // { key: 'donations', label: t('frikimart.tabs.donations'), icon: <Gift size={15} /> },
     ];
 
     if (!session) return <Navigate to="/login" replace />;
@@ -307,13 +397,20 @@ export default function FrikiMart() {
                         {/* ── Artículos ── */}
                         {tab === 'items' && (
                             <div className="space-y-4">
+                                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs">
+                                    📦 {t('frikimart.shippingNotice')}
+                                </div>
                                 {items.length === 0 ? (
-                                    <Empty icon="🛍️" text="No hay artículos disponibles ahora mismo." />
+                                    <Empty icon="🛍️" text={t('frikimart.emptyItems')} />
                                 ) : items.map(item => {
                                     const photo = item.photos?.[0];
                                     const canAfford = balance >= item.price_fc;
                                     return (
-                                        <article key={item.id} className="bg-bg-side border border-border-theme rounded-2xl overflow-hidden shadow-sm hover:border-amber-400/30 transition">
+                                        <article 
+                                            key={item.id} 
+                                            onClick={() => setSelectedItem(item)}
+                                            className="bg-bg-side border border-border-theme rounded-2xl overflow-hidden shadow-sm hover:border-amber-400/30 transition cursor-pointer"
+                                        >
                                             {photo && (
                                                 <div className="w-full h-48 overflow-hidden">
                                                     <img src={photo} alt={item.title} className="w-full h-full object-cover" />
@@ -335,7 +432,7 @@ export default function FrikiMart() {
                                                         {item.stock > 5 && <p className="text-[11px] text-accent-green">✓ {t('frikimart.items.available', { count: item.stock })}</p>}
                                                     </div>
                                                     <button
-                                                        onClick={() => handleBuy(item)}
+                                                        onClick={(e) => { e.stopPropagation(); handleBuy(item); }}
                                                         disabled={buying === item.id || !!buying}
                                                         className={`px-5 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg ${canAfford
                                                             ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20 active:scale-95'
@@ -355,7 +452,7 @@ export default function FrikiMart() {
                         {tab === 'orders' && (
                             <div className="space-y-3">
                                 {orders.length === 0 ? (
-                                    <Empty icon="📦" text="No tienes compras aún." />
+                                    <Empty icon="📦" text={t('frikimart.emptyOrders')} />
                                 ) : orders.map(order => {
                                     const photo = order.store_items?.photos?.[0];
                                     const statusColor = order.status === 'delivered' ? 'text-accent-green' : order.status === 'cancelled' ? 'text-accent-red' : 'text-amber-400';
@@ -392,39 +489,15 @@ export default function FrikiMart() {
                         {/* ── Donaciones ── */}
                         {tab === 'donations' && (
                             <div className="space-y-4">
-                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 mb-2">
-                                    <p className="text-amber-400 font-black text-sm mb-1">💳 {t('frikimart.donations.comingSoon')}</p>
-                                    <p className="text-text-muted text-xs leading-relaxed">
+                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 text-center">
+                                    <p className="text-amber-400 font-black text-base mb-2">💳 {t('frikimart.donations.comingSoon')}</p>
+                                    <p className="text-text-muted text-sm leading-relaxed max-w-md mx-auto mb-4">
                                         {t('frikimart.donations.availability')}
                                     </p>
+                                    <span className="inline-block px-4 py-2 rounded-xl border border-amber-500/30 text-amber-400 text-xs font-black bg-amber-500/10">
+                                        {t('frikimart.donations.onlyInApp')}
+                                    </span>
                                 </div>
-                                {donations.length === 0 ? (
-                                    <Empty icon="🎁" text="No hay paquetes de donación activos." />
-                                ) : donations.map(pkg => (
-                                    <div key={pkg.id} className="bg-bg-side border border-border-theme rounded-2xl p-5 shadow-sm">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-2xl">🎁</span>
-                                            <h3 className="font-black text-text-main text-base">{pkg.name}</h3>
-                                        </div>
-                                        {pkg.description && <p className="text-text-muted text-sm mb-3">{pkg.description}</p>}
-                                        {pkg.bonus_perks && pkg.bonus_perks.length > 0 && (
-                                            <div className="mb-3 space-y-1">
-                                                {pkg.bonus_perks.map((perk, i) => (
-                                                    <p key={i} className="text-xs text-amber-400">✦ {perk}</p>
-                                                ))}
-                                            </div>
-                                        )}
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xl font-black text-amber-400">+{pkg.frikicoin_reward.toLocaleString()} FC</p>
-                                                <p className="text-xs text-text-muted">${(pkg.price_cents / 100).toFixed(2)} USD</p>
-                                            </div>
-                                            <div className="px-4 py-2.5 rounded-xl border border-amber-500/30 text-amber-400 text-xs font-black bg-amber-500/10">
-                                                {t('frikimart.donations.onlyInApp')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         )}
                     </>
@@ -451,6 +524,20 @@ export default function FrikiMart() {
             {chatOrderId && user && (
                 <ChatModal orderId={chatOrderId} userId={user.id} onClose={() => setChatOrderId(null)} />
             )}
+
+            {/* Store Item Modal */}
+            {selectedItem && (
+                <StoreItemModal
+                    item={selectedItem}
+                    balance={balance}
+                    buying={buying}
+                    onClose={() => setSelectedItem(null)}
+                    onBuy={(item) => {
+                        setSelectedItem(null);
+                        handleBuy(item);
+                    }}
+                />
+            )}
         </div>
     );
 }
@@ -458,7 +545,7 @@ export default function FrikiMart() {
 // ── Empty State ───────────────────────────────────────────────────────────────
 function Empty({ icon, text }: { icon: string; text: string }) {
     return (
-        <div className="flex flex-col items-center py-20 gap-3 text-center">
+        <div className="flex flex-col items-center py-20 px-5 gap-3 text-center">
             <span className="text-5xl">{icon}</span>
             <p className="text-text-muted text-sm">{text}</p>
         </div>

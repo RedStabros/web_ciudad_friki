@@ -227,7 +227,7 @@ export default function Home() {
                     {frikiMartVisible && (
                         <Link to="/frikimart" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                             <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />
-                            {t('frikimart.title')}
+                            {t('frikimart.title', 'FrikiMart')}
                         </Link>
                     )}
                     {(ttrpg || profile?.role === 'admin') && (

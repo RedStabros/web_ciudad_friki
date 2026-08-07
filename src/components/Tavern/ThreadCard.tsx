@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil, Loader2, Heart, Pin } from 'lucide-react';
+import { MessageSquare, MoreHorizontal, Edit2, Shield, Trash2, Clock, Share2, Check, Flag, Pencil, Loader2, Heart, Pin, Lock, Archive } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { TavernThread } from '../../types/tavern';
 import { getAvatarSource } from '../../config/avatars';
@@ -246,8 +246,18 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete, userRole
 
                 {/* Content */}
                 <div className="mb-4 cursor-pointer px-5" onClick={onClick}>
-                    <h3 className="text-lg font-bold text-text-main mb-2 leading-tight">
-                        {thread.title}
+                    <h3 className="text-lg font-bold text-text-main mb-2 leading-tight flex items-start gap-1.5">
+                        {thread.is_locked && (
+                            <span title={t('tavern.status.locked', 'Cerrado')} className="mt-1">
+                                <Lock size={14} className="text-accent-red" />
+                            </span>
+                        )}
+                        {thread.is_archived && (
+                            <span title={t('tavern.status.archived', 'Archivado')} className="mt-1">
+                                <Archive size={14} className="text-orange-500" />
+                            </span>
+                        )}
+                        <span>{thread.title}</span>
                     </h3>
                     <ContentRenderer
                         content={thread.content}

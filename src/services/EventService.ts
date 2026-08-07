@@ -24,6 +24,11 @@ export interface FrikiEvent {
     saved_count: number;
     average_rating?: number;
     created_by?: string;
+    qr_requested?: boolean;
+    qr_approved?: boolean;
+    qr_reward_amount?: number;
+    parent_event_id?: string | null;
+    edition_number?: number | null;
     // Transient UI properties
     isLiked?: boolean;
     isSaved?: boolean;

@@ -20,6 +20,9 @@ export interface TavernThread {
     is_edited?: boolean;
     edited_by_admin?: boolean;
     is_pinned?: boolean;
+    deleted_at?: string | null;
+    is_locked?: boolean;
+    is_archived?: boolean;
 
     // Joined data from profiles
     profiles?: {
@@ -52,6 +55,7 @@ export interface TavernReply {
     updated_at: string;
     is_edited?: boolean;
     edited_by_admin?: boolean;
+    deleted_at?: string | null;
 
     // Joined data from profiles
     profiles?: {

@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { getAvatarSource } from '../config/avatars';
-import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings, Trophy } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
+import AchievementToast from './AchievementToast';
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
@@ -26,6 +27,7 @@ export default function RootLayout() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [surveyBadge, setSurveyBadge] = useState(0);
     const [triviaBadge, setTriviaBadge] = useState(0);
+    const [unlockedAchievement, setUnlockedAchievement] = useState<any>(null);
     const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
 
     useEffect(() => {
@@ -58,7 +60,22 @@ export default function RootLayout() {
                 })
             .subscribe();
 
-        return () => { supabase.removeChannel(notifSub); };
+        // Realtime subscription for new achievements
+        const achSub = supabase
+            .channel(`achievements_${user.id}`)
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'user_achievements', filter: `user_id=eq.${user.id}` },
+                async (payload) => {
+                    const { data } = await supabase.from('achievements').select('*').eq('id', payload.new.achievement_id).single();
+                    if (data) {
+                        setUnlockedAchievement(data as any);
+                    }
+                })
+            .subscribe();
+
+        return () => { 
+            supabase.removeChannel(notifSub); 
+            supabase.removeChannel(achSub);
+        };
     }, [user?.id]);
 
     // When notification modal closes, refresh unread count
@@ -157,6 +174,10 @@ export default function RootLayout() {
                                                 <Calendar size={14} className="text-text-muted" />
                                                 {t('myEvents.title')}
                                             </Link>
+                                             <Link to="/achievements" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
+                                                <Trophy size={14} className="text-amber-400" />
+                                                {t('achievements.title', 'Vitrina de Logros')}
+                                             </Link>
                                              <Link to="/notifications" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
                                                 <Bell size={14} className="text-text-muted" />
                                                 {t('notifications.title', 'Notificaciones')}
@@ -205,7 +226,7 @@ export default function RootLayout() {
                 {tavern && <MobileNavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-6 h-6 object-contain" />} label={t('nav.tavern')} />}
                 <MobileNavLink to="/surveys" icon={<BarChart2 size={22} />} label={t('nav.surveys')} badge={surveyBadge} />
                 <MobileNavLink to="/trivias" icon={<Gamepad2 size={22} />} label={t('nav.trivias')} badge={triviaBadge} />
-                {frikiVs && <MobileNavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="VS" className="w-6 h-6 object-contain" />} label="VS" />}
+                <MobileNavLink to="/achievements" icon={<Trophy size={22} className="text-amber-400" />} label={t('achievements.title', 'Logros')} />
                 <MobileNavLink to="/profile" icon={<Grid size={22} />} label={t('nav.profile')} />
             </nav>
 
@@ -223,6 +244,13 @@ export default function RootLayout() {
                         userId={user.id}
                     />
                 </>
+            )}
+
+            {unlockedAchievement && (
+                <AchievementToast 
+                    achievement={unlockedAchievement} 
+                    onClose={() => setUnlockedAchievement(null)} 
+                />
             )}
 
         </div>

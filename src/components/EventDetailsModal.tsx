@@ -167,6 +167,14 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                 <div className="p-6">
                     {activeTab === 'details' ? (
                         <div className="space-y-6">
+                            {event.qr_approved && (
+                                <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-3 flex items-center justify-center gap-2">
+                                    <span className="text-amber-400 font-black text-sm">
+                                        {t('events.qrBanner', { amount: event.qr_reward_amount || 0 })}
+                                    </span>
+                                </div>
+                            )}
+
                             {/* Action Bar */}
                             <div className="flex justify-between items-center bg-bg-sub/30 p-4 rounded-xl border border-divider-theme">
                                 <div className="flex items-center gap-4">

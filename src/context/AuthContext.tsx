@@ -38,14 +38,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         supabase.auth.getSession().then(async ({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
+            if (session?.user) {
+                supabase.rpc('update_daily_streak').then(({ error }) => {
+                    if (error) console.warn('[Streak] Could not update:', error.message);
+                });
+            }
             await checkMaintenance();
             setIsLoading(false);
         });
 
         // 2. Listen for changes (login, logout, token refresh)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
+            if (event === 'SIGNED_IN' && session?.user) {
+                supabase.rpc('update_daily_streak').then(({ error }) => {
+                    if (error) console.warn('[Streak] Could not update:', error.message);
+                });
+            }
         });
 
         return () => subscription.unsubscribe();

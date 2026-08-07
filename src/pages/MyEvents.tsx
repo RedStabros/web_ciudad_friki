@@ -6,10 +6,12 @@ import { supabase } from '../lib/supabase';
 import {
     Calendar, MapPin, Heart, Bookmark, Eye,
     Pencil, Clock, XCircle, ArrowLeft,
-    CalendarX, RefreshCw, Loader2, AlertTriangle,
+    CalendarX, RefreshCw, Loader2, AlertTriangle, Ticket,
 } from 'lucide-react';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 import { CreateEventModal } from '../components/CreateEventModal';
+import { QRCodeSVG } from 'qrcode.react';
+import { Copy } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface MyEvent {
@@ -34,6 +36,11 @@ interface MyEvent {
     saved_count?: number;
     views_count?: number;
     rejection_reason?: string | null;
+    qr_requested?: boolean;
+    qr_approved?: boolean;
+    qr_reward_amount?: number;
+    parent_event_id?: string | null;
+    edition_number?: number | null;
 }
 
 type Tab = 'published' | 'saved';
@@ -81,6 +88,24 @@ export default function MyEvents() {
     const [_savedIds, setSavedIds] = useState<string[]>([]);
     const [_likedIds, setLikedIds] = useState<string[]>([]);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [qrModalEvent, setQrModalEvent] = useState<MyEvent | null>(null);
+
+    const handleLaunchEdition = (event: MyEvent) => {
+        const editionEvent = {
+            ...event,
+            id: undefined,
+            date: '',
+            start_time: '',
+            end_date: '',
+            end_time: '',
+            status: 'pending',
+            qr_approved: false,
+            parent_event_id: event.parent_event_id || event.id,
+            edition_number: (event.edition_number || 1) + 1
+        };
+        setEventToEdit(editionEvent as any);
+        setShowCreateModal(true);
+    };
 
     const fetchEvents = useCallback(async (isRefresh = false) => {
         if (!user?.id) return;
@@ -237,10 +262,53 @@ export default function MyEvents() {
                             onEdit={() => setEventToEdit(event)}
                             onUnsave={() => handleUnsave(event.id)}
                             onConfirmAction={(action) => setConfirmModal({ action, eventId: event.id })}
+                            onLaunchEdition={() => handleLaunchEdition(event)}
+                            onViewQr={() => setQrModalEvent(event)}
                         />
                     ))
                 )}
             </div>
+
+            {/* QR Code Modal */}
+            {qrModalEvent && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-bg-side border border-border-theme rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center mb-4">
+                            <Ticket size={24} />
+                        </div>
+                        <h3 className="font-black text-text-main text-lg mb-2">{t('events.qrReward', { amount: qrModalEvent.qr_reward_amount })}</h3>
+                        <p className="text-text-muted text-xs mb-6 px-4">
+                            Muestra este código a los asistentes durante el evento. Al escanearlo, recibirán su recompensa automáticamente.
+                        </p>
+                        
+                        <div className="bg-white p-4 rounded-2xl mb-6 shadow-inner">
+                            <QRCodeSVG 
+                                value={`ciudadfriki://event-reward/${qrModalEvent.id}`} 
+                                size={200}
+                                level="H"
+                                fgColor="#1e222a"
+                            />
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(`ciudadfriki://event-reward/${qrModalEvent.id}`);
+                                alert('Link copiado. También puedes guardarlo.');
+                            }}
+                            className="flex items-center gap-2 text-text-muted hover:text-brand-primary text-sm font-bold mb-6 transition"
+                        >
+                            <Copy size={16} /> Copiar enlace manual
+                        </button>
+
+                        <button
+                            onClick={() => setQrModalEvent(null)}
+                            className="w-full py-3 rounded-xl bg-bg-sub text-text-main font-black hover:bg-border-theme transition"
+                        >
+                            {t('common.close', 'Cerrar')}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Confirm Action Modal */}
             {confirmModal && (
@@ -309,9 +377,11 @@ interface EventCardProps {
     onEdit: () => void;
     onUnsave: () => void;
     onConfirmAction: (a: 'cancel' | 'postpone') => void;
+    onLaunchEdition: () => void;
+    onViewQr: () => void;
 }
 
-function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConfirmAction }: EventCardProps) {
+function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConfirmAction, onLaunchEdition, onViewQr }: EventCardProps) {
     const { t, i18n } = useTranslation();
     const isPast = isEventPast(event);
     const isCancelled = event.status === 'cancelled';
@@ -393,51 +463,69 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
             </div>
 
             {/* Actions footer */}
-            {(showActions || tab === 'saved') && (
-                <div className="border-t border-divider-theme px-4 py-2.5 flex items-center justify-end gap-2 bg-bg-sub/30">
-                    {tab === 'saved' && (
-                        <button
-                            onClick={onUnsave}
-                            disabled={actionLoading}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition disabled:opacity-50"
-                        >
-                            {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <Bookmark size={11} />}
-                            {t('myEvents.remove')}
-                        </button>
-                    )}
+            <div className="border-t border-divider-theme px-4 py-2.5 flex items-center justify-end gap-2 bg-bg-sub/30 flex-wrap">
+                {tab === 'saved' && (
+                    <button
+                        onClick={onUnsave}
+                        disabled={actionLoading}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition disabled:opacity-50"
+                    >
+                        {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <Bookmark size={11} />}
+                        {t('myEvents.remove')}
+                    </button>
+                )}
 
-                    {showActions && (
-                        <>
+                {tab === 'published' && (
+                    <>
+                        {event.qr_approved && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition"
+                                onClick={(e) => { e.stopPropagation(); onViewQr(); }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-amber-400/10 text-amber-400 hover:bg-amber-400/20 border border-amber-400/20 transition"
                             >
-                                <Pencil size={11} /> {t('myEvents.edit')}
+                                <Ticket size={11} /> {t('events.viewQr', 'Ver QR')}
                             </button>
+                        )}
 
-                            {(event.status === 'approved' || event.status === 'delayed') && (
-                                <>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onConfirmAction('postpone'); }}
-                                        disabled={actionLoading}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 transition disabled:opacity-50"
-                                    >
-                                        <Clock size={11} /> {t('myEvents.postpone')}
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onConfirmAction('cancel'); }}
-                                        disabled={actionLoading}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-accent-red/10 text-accent-red hover:bg-accent-red/20 border border-accent-red/20 transition disabled:opacity-50"
-                                    >
-                                        {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <XCircle size={11} />}
-                                        {t('myEvents.cancel')}
-                                    </button>
-                                </>
-                            )}
-                        </>
-                    )}
-                </div>
-            )}
+                        {showActions ? (
+                            <>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition"
+                                >
+                                    <Pencil size={11} /> {t('myEvents.edit')}
+                                </button>
+
+                                {(event.status === 'approved' || event.status === 'delayed') && (
+                                    <>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onConfirmAction('postpone'); }}
+                                            disabled={actionLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 transition disabled:opacity-50"
+                                        >
+                                            <Clock size={11} /> {t('myEvents.postpone')}
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onConfirmAction('cancel'); }}
+                                            disabled={actionLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-accent-red/10 text-accent-red hover:bg-accent-red/20 border border-accent-red/20 transition disabled:opacity-50"
+                                        >
+                                            {actionLoading ? <Loader2 size={11} className="animate-spin" /> : <XCircle size={11} />}
+                                            {t('myEvents.cancel')}
+                                        </button>
+                                    </>
+                                )}
+                            </>
+                        ) : isPast ? (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onLaunchEdition(); }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20 transition"
+                            >
+                                <RefreshCw size={11} /> {t('events.launchEdition', 'Nueva Edición')}
+                            </button>
+                        ) : null}
+                    </>
+                )}
+            </div>
         </article>
     );
 }

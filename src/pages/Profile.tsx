@@ -1,15 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import {
     ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug, Lock, ChevronDown, ChevronUp,
-    Eye, EyeOff, CheckCircle2, Circle
+    Eye, EyeOff, CheckCircle2, Circle, Trophy
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { SystemService } from '../services/SystemService';
 import { useProfile } from '../hooks/useProfile';
+import { useAchievements } from '../hooks/useAchievements';
+import type { Achievement } from '../types/achievements';
 import { UserService } from '../services/UserService';
 import { getAvatarSource, AVATARS } from '../config/avatars';
 import { useTheme, type Theme } from '../context/ThemeContext';
@@ -92,12 +94,47 @@ function SelectionModal({ isOpen, onClose, title, children }: SelectionModalProp
 }
 
 export default function Profile() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { session, user, isSuperuser, maintenanceMode, checkMaintenance } = useAuth();
     const { theme: currentTheme, setTheme } = useTheme();
     const userId = user?.id;
 
     const { profile, wallet, isLoading, refetch } = useProfile(userId);
+    const { unlocked, catalog } = useAchievements(userId);
+
+    const topAchievements = useMemo(() => {
+        return unlocked
+            .map(ua => catalog.find(c => c.id === ua.achievement_id))
+            .filter((c): c is Achievement => Boolean(c))
+            .sort((a, b) => {
+                const tierWeights: any = { special: 5, diamond: 4, gold: 3, silver: 2, bronze: 1 };
+                const tierDiff = (tierWeights[b.tier] || 0) - (tierWeights[a.tier] || 0);
+                if (tierDiff !== 0) return tierDiff;
+                return b.reward_amount - a.reward_amount;
+            })
+            .slice(0, 2);
+    }, [unlocked, catalog]);
+
+    const tierCounts = useMemo(() => {
+        const counts = { special: 0, diamond: 0, gold: 0, silver: 0, bronze: 0 };
+        unlocked.forEach(ua => {
+            const ach = catalog.find(c => c.id === ua.achievement_id);
+            if (ach && counts[ach.tier as keyof typeof counts] !== undefined) {
+                counts[ach.tier as keyof typeof counts]++;
+            }
+        });
+        return counts;
+    }, [unlocked, catalog]);
+
+    const getTierIcon = (tier: string) => {
+        switch (tier) {
+            case 'special': return '/icons/tiers/tier_special512x512.png';
+            case 'diamond': return '/icons/tiers/tier_diamond512x512.png';
+            case 'gold': return '/icons/tiers/tier_gold512x512.png';
+            case 'silver': return '/icons/tiers/tier_silver512x512.png';
+            default: return '/icons/tiers/tier_bronze512x512.png';
+        }
+    };
 
     const [isSaving, setIsSaving] = useState(false);
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -403,7 +440,7 @@ export default function Profile() {
 
                         <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
                             <div className="w-32 h-32 rounded-full border-4 border-brand-primary p-1">
-                                <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} />
+                                <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} crossOrigin="anonymous" />
                             </div>
                             <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors share-hide-el">
                                 <Pencil size={16} />
@@ -416,6 +453,52 @@ export default function Profile() {
                                 <Shield size={14} className="text-brand-primary" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{profile?.role || t('common.member')}</span>
                             </div>
+                        </div>
+
+                        {/* Top Achievements & Tier Counts (Mobile App parity) */}
+                        <div className="mt-4 flex flex-col items-center">
+                            {/* Tier Counts */}
+                            <div className="flex justify-center gap-3 mb-3 bg-bg-sub/50 py-1.5 px-4 rounded-full border border-border-theme">
+                                {Object.entries(tierCounts).filter(([_, count]) => count > 0).map(([tier, count]) => (
+                                    <div key={tier} className="flex items-center gap-1">
+                                        <img src={getTierIcon(tier)} alt={tier} className="w-5 h-5 object-contain" crossOrigin="anonymous" />
+                                        <span className="text-sm font-black text-text-main">{count}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Top 2 Achievements */}
+                            {topAchievements.length > 0 && (
+                                <div className="flex gap-2 justify-center">
+                                    {topAchievements.map((ach) => (
+                                        <div key={ach.id} className="bg-bg-sub/50 border border-border-theme rounded-xl px-2 py-1.5 flex items-center gap-1.5 max-w-[120px]">
+                                            {ach.icon_url ? (
+                                                <img 
+                                                    src={ach.icon_url} 
+                                                    alt={ach.name_es} 
+                                                    className="w-4 h-4 object-contain" 
+                                                    crossOrigin="anonymous"
+                                                    onError={(e) => { e.currentTarget.src = getTierIcon(ach.tier); }}
+                                                />
+                                            ) : (
+                                                <img src={getTierIcon(ach.tier)} alt={ach.tier} className="w-4 h-4 object-contain" crossOrigin="anonymous" />
+                                            )}
+                                            <span className="text-[9px] font-bold text-text-main leading-tight truncate">
+                                                {i18n.language === 'en' ? ach.name_en : ach.name_es}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Vitrina Button */}
+                            <Link 
+                                to="/achievements" 
+                                className="mt-4 flex items-center gap-2 bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-xl font-bold hover:bg-brand-primary/20 transition share-hide-el"
+                            >
+                                <Trophy size={16} />
+                                {t('achievements.showcase', 'Vitrina de Logros')}
+                            </Link>
                         </div>
 
                         <p className="mt-4 text-sm text-text-sub font-medium share-hide-el">{t('profile.tapToChange')}</p>
@@ -447,7 +530,7 @@ export default function Profile() {
 
                         {/* Interests visible in card capture */}
                         {formData.interests.length > 0 && (
-                            <div className="hidden card-show mt-6 flex flex-wrap justify-center gap-2 max-w-sm">
+                            <div className="hidden card-show mt-6 flex flex-wrap justify-center gap-2 max-w-sm max-h-14 overflow-hidden">
                                 {formData.interests.slice(0, 8).map(int => (
                                     <span key={int} className="px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-[10px] font-bold text-brand-primary">
                                         #{t(`profile.interests_list.${int}`, int)}

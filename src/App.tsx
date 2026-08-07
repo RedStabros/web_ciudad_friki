@@ -14,6 +14,7 @@ import { MaintenanceGuard } from './components/MaintenanceGuard';
 import Surveys from './pages/Surveys';
 import Trivias from './pages/Trivias';
 import FrikiVS from './pages/FrikiVS';
+import Achievements from './pages/Achievements';
 import TTRPGPage from './pages/TTRPGPage';
 import GMScreen from './pages/GMScreen';
 import Legal from './pages/Legal';
@@ -117,6 +118,7 @@ function App() {
           <Route path="/friki-vs" element={<FrikiVS />} />
           <Route path="/ttrpg" element={<TTRPGPage />} />
           <Route path="/gm-screen" element={<GMScreen />} />
+          <Route path="/achievements" element={<Achievements />} />
 
           {/* Events Feed (Now unified with Home) */}
           <Route path="/events" element={<Home />} />

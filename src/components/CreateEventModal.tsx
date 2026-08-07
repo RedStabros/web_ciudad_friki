@@ -27,7 +27,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
         is_free: false,
         external_link: '',
         whatsapp: '',
-        tags: [] as string[]
+        tags: [] as string[],
+        qr_requested: false,
     });
 
     const [imageFile, setImageFile] = useState<Blob | null>(null);
@@ -48,7 +49,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 is_free: initialData.is_free || (initialData.price_min === 0),
                 external_link: initialData.external_link || '',
                 whatsapp: initialData.whatsapp || '',
-                tags: initialData.tags || []
+                tags: initialData.tags || [],
+                qr_requested: initialData.qr_requested || false
             });
             setImagePreview(initialData.banner_url || null);
             setImageFile(null); // No need to re-upload if unmodified
@@ -56,7 +58,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
             setFormData({
                 title: '', description: '', date: '', startTime: '', endDate: '', endTime: '',
                 location: '', maps_location_url: '', price_min: 0, is_free: false,
-                external_link: '', whatsapp: '', tags: []
+                external_link: '', whatsapp: '', tags: [], qr_requested: false
             });
             setImagePreview(null);
             setImageFile(null);
@@ -176,11 +178,14 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 tags: formData.tags,
                 banner_url: bannerUrl,            // app uses banner_url (not image_url)
                 created_by: user.id,              // app always sends created_by
-                status: 'pending' as const,            // app sends 'pending' → goes through review
+                status: 'pending' as const,
+                qr_requested: formData.qr_requested,
+                parent_event_id: initialData?.parent_event_id || null,
+                edition_number: initialData?.edition_number || 1,
             };
 
             // 3. Insert or Update
-            if (initialData) {
+            if (initialData && initialData.id) {
                 const { error } = await EventService.updateEvent(initialData.id, eventData as any);
                 if (error) throw error;
                 alert(t('events.updateSuccess'));
@@ -410,6 +415,22 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                                         className="w-full bg-bg-sub border border-border-theme text-text-main rounded-xl pl-10 px-4 py-3 focus:ring-2 focus:ring-brand-primary outline-none shadow-sm"
                                     />
                                 </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl mt-4">
+                                <div className="pr-4">
+                                    <p className="text-sm font-bold text-amber-400 flex items-center gap-2">
+                                        <Ticket size={16} /> {t('events.qrRequest')}
+                                    </p>
+                                    <p className="text-xs text-text-muted mt-0.5">La app recompensará a los asistentes. El Admin debe aprobar esto.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, qr_requested: !formData.qr_requested })}
+                                    className={`w-10 h-6 rounded-full transition-all relative shrink-0 ${formData.qr_requested ? 'bg-amber-400' : 'bg-bg-sub border border-border-theme'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-black transition-all ${formData.qr_requested ? 'left-5' : 'left-1'}`} />
+                                </button>
                             </div>
                         </div>
 
