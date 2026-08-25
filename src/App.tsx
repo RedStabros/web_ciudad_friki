@@ -20,6 +20,7 @@ import GMScreen from './pages/GMScreen';
 import Legal from './pages/Legal';
 import Support from './pages/Support';
 import AccountDeletion from './pages/AccountDeletion';
+import About from './pages/About';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import MapPage from './pages/MapPage';
@@ -130,6 +131,7 @@ function App() {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
+          <Route path="/about" element={<About />} />
           <Route path="/legal/:type" element={<Legal />} />
           <Route path="/support" element={<Support />} />
           <Route path="/account-deletion" element={<AccountDeletion />} />
