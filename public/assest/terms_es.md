@@ -48,7 +48,7 @@ Email: udcarkangel@gmail.com
 Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.
 
 ## 11. Servicios de Mapas y Ubicación
-La aplicación utiliza mapas interactivos para localizar eventos y negocios aliados. Al utilizar esta funcionalidad:
-• Aceptas que los servicios de mapas pueden depender de plataformas de terceros (como CARTO y Leaflet), sujetos a sus respectivos términos de uso.
+La plataforma (tanto en la aplicación móvil como en la versión web) utiliza mapas interactivos para localizar eventos y negocios aliados. Al utilizar esta funcionalidad:
+• Aceptas que los servicios de mapas dependen de plataformas de terceros (como la API de Google Maps en la app móvil, y CARTO/Leaflet en la web). Tu uso está sujeto a sus respectivos términos, incluyendo los [Términos de Servicio Adicionales de Google Maps/Google Earth](https://maps.google.com/help/terms_maps.html).
 • Reconoces que la precisión de las ubicaciones, direcciones y rutas de navegación es aproximada y se proporciona "tal cual", sin garantías de exactitud milimétrica.
 • La Corporación Ciudad Friki no se hace responsable por inconvenientes, desvíos o incidentes de seguridad derivados del uso del mapa o de la navegación hacia los eventos listados por la comunidad.

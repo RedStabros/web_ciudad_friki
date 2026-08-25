@@ -48,7 +48,7 @@ Email: udcarkangel@gmail.com
 Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.
 
 ## 11. Map and Location Services
-The application uses interactive maps to locate events and partner businesses. By using this functionality:
-• You acknowledge that map services may rely on third-party platforms (such as CARTO and Leaflet), subject to their respective terms of use.
+The platform (both the mobile application and the web version) uses interactive maps to locate events and partner businesses. By using this functionality:
+• You acknowledge that map services rely on third-party platforms (such as the Google Maps API in the mobile app, and CARTO/Leaflet on the web). Your use is subject to their respective terms, including the [Google Maps/Google Earth Additional Terms of Service](https://maps.google.com/help/terms_maps.html).
 • You acknowledge that the accuracy of locations, addresses, and navigation routes is approximate and provided "as is", without guarantees of pinpoint accuracy.
 • Corporación Ciudad Friki is not responsible for inconveniences, detours, or safety incidents arising from the use of the map or navigation to events listed by the community.
