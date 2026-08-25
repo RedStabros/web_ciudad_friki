@@ -1,5 +1,5 @@
 # Privacy Policy - Ciudad Friki
-*Last updated: April 2026*
+*Last updated: August 2026*
 
 At Ciudad Friki, we value your privacy and comply with the Law 1581 of 2012 of Colombia.
 
@@ -47,4 +47,10 @@ When signing in with Google, we receive your name, email, and photo. We do not s
 We request permission to send you alerts. You can disable them from your device. We use local storage to keep your session active and save preferences, optimizing offline performance.
 
 ## 10. International Transfers
-Your data may be processed on Supabase Inc. servers (United States) under security guarantees equivalent to those required by Law 1581 of 2012, as authorized by the SIC of Colombia.
+Your data may be processed on servers located outside of Colombia, including Supabase Inc. infrastructure (United States). These transfers are carried out under security guarantees equivalent to those required by Law 1581 of 2012, as authorized by the Colombian Superintendence of Industry and Commerce.
+
+## 11. Location Data and Map Services
+Our platform includes interactive maps to display the locations of events and partner establishments. By using this feature:
+• Third-Party Services: We use Leaflet technology and map styles provided by CARTO. When loading and using the maps, your IP address may be recorded by CARTO servers or other map tile providers exclusively for the technical provision of the map service.
+• Location Permissions: If you choose to use the "Center on my location" feature (the crosshair button), the web application will request permission from your browser to access your device's GPS coordinates. This location is used in real-time only to center your view on the local map on your device; we do not store, track, or send your current location to our servers.
+• You may deny this permission in your browser at any time, which will disable the auto-location feature, but you will still be able to use the rest of the map normally.

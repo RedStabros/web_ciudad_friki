@@ -1,5 +1,5 @@
 # Terms and Conditions - Ciudad Friki
-*Last updated: April 2026*
+*Last updated: August 2026*
 
 Welcome to Ciudad Friki. By accessing or using our mobile application, you agree to be bound by these terms and conditions.
 
@@ -46,3 +46,9 @@ Ciudad Friki is not responsible for the safety of events organized by third part
 These terms are governed by the laws of the Republic of Colombia.
 Email: udcarkangel@gmail.com
 Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.
+
+## 11. Map and Location Services
+The application uses interactive maps to locate events and partner businesses. By using this functionality:
+• You acknowledge that map services may rely on third-party platforms (such as CARTO and Leaflet), subject to their respective terms of use.
+• You acknowledge that the accuracy of locations, addresses, and navigation routes is approximate and provided "as is", without guarantees of pinpoint accuracy.
+• Corporación Ciudad Friki is not responsible for inconveniences, detours, or safety incidents arising from the use of the map or navigation to events listed by the community.

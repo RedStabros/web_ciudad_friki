@@ -109,7 +109,7 @@
 - **Place Details:** Ese mismo token debe enviarse al consultar los detalles de la ubicación elegida (*Place Details*).
 - **Fallback de UUID:** Si usas un motor JS que no soporte `crypto.randomUUID()`, implementa una función de generación UUID pura de fallback para no romper la app (el error `Property 'crypto' doesn't exist`).
 
-### [ ] 9. Actualización de Políticas y Términos por Google Maps ⚖️
+### [x] 9. Actualización de Políticas y Términos por Google Maps ⚖️
 
 **Contexto:** Los términos de servicio de Google Maps Platform exigen explícitamente que la app incorpore enlaces visibles a sus condiciones y que se declare en la Política de Privacidad el uso y compartición de datos de ubicación.
 **Instrucciones:**

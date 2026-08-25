@@ -1,5 +1,5 @@
 # Términos y Condiciones - Ciudad Friki
-*Última actualización: Abril 2026*
+*Última actualización: Agosto 2026*
 
 Bienvenido a Ciudad Friki. Al acceder o usar nuestra aplicación móvil, aceptas estar sujeto a estos términos y condiciones.
 
@@ -46,3 +46,9 @@ Ciudad Friki no se hace responsable por la seguridad de eventos organizados por 
 Estos términos se rigen por las leyes de la República de Colombia.
 Email: udcarkangel@gmail.com
 Corporación Ciudad Friki - NIT 901.597.939-0, Medellín, Colombia.
+
+## 11. Servicios de Mapas y Ubicación
+La aplicación utiliza mapas interactivos para localizar eventos y negocios aliados. Al utilizar esta funcionalidad:
+• Aceptas que los servicios de mapas pueden depender de plataformas de terceros (como CARTO y Leaflet), sujetos a sus respectivos términos de uso.
+• Reconoces que la precisión de las ubicaciones, direcciones y rutas de navegación es aproximada y se proporciona "tal cual", sin garantías de exactitud milimétrica.
+• La Corporación Ciudad Friki no se hace responsable por inconvenientes, desvíos o incidentes de seguridad derivados del uso del mapa o de la navegación hacia los eventos listados por la comunidad.

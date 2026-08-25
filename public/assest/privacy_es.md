@@ -1,5 +1,5 @@
 # Política de Privacidad - Ciudad Friki
-*Última actualización: Abril 2026*
+*Última actualización: Agosto 2026*
 
 En Ciudad Friki, valoramos tu privacidad y cumplimos con la Ley 1581 de 2012 de Colombia.
 
@@ -48,3 +48,9 @@ Solicitamos permiso para enviarte alertas. Puedes desactivarlas desde tu disposi
 
 ## 10. Transferencias Internacionales
 Tus datos pueden ser procesados en servidores de Supabase Inc. (Estados Unidos) bajo garantías de seguridad equivalentes a las exigidas por la Ley 1581 de 2012, conforme a lo autorizado por la SIC de Colombia.
+
+## 11. Datos de Ubicación y Servicios de Mapas
+Nuestra plataforma incluye mapas interactivos para mostrar la ubicación de eventos y establecimientos aliados. Al utilizar esta función:
+• **Servicios de Terceros:** Utilizamos la tecnología Leaflet y los estilos de mapa proporcionados por CARTO. Al cargar y usar los mapas, tu dirección IP puede ser registrada por los servidores de CARTO u otros proveedores de teselas geográficas (*tiles*) exclusivamente para la provisión técnica del servicio de mapas.
+• **Permisos de Ubicación:** Si decides utilizar la función "Centrar en mi ubicación" (el botón de punto de mira), la aplicación web solicitará permiso a tu navegador para acceder a las coordenadas GPS de tu dispositivo. Esta ubicación se utiliza en tiempo real **únicamente** para centrar tu vista en el mapa local de tu dispositivo; **no almacenamos, rastreamos ni enviamos** tu ubicación actual a nuestros servidores.
+• Puedes denegar este permiso en tu navegador en cualquier momento, lo cual deshabilitará la función de autolocalización, pero podrás seguir usando el resto del mapa con normalidad.
