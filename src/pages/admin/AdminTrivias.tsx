@@ -13,6 +13,10 @@ export default function AdminTrivias() {
     const [trivias, setTrivias] = useState<Trivia[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState<'all' | TriviaStatus>('all');
+    const [page, setPage] = useState(1);
+    const [totalTrivias, setTotalTrivias] = useState(0);
+    const ITEMS_PER_PAGE = 20;
+
 
     // Stats
     const [stats, setStats] = useState({ total: 0, active: 0, drafts: 0, paused: 0, attempts: 0 });
@@ -25,29 +29,46 @@ export default function AdminTrivias() {
 
     useEffect(() => {
         if (user) {
-            loadTrivias();
+            loadDashboardStats();
+            loadTrivias(1);
         }
-    }, [user]);
+    }, [user, activeFilter]);
 
-    const loadTrivias = async () => {
-        setLoading(true);
+
+    const loadDashboardStats = async () => {
         try {
-            const data = await TriviaAdminService.getAllTriviasWithStats();
-            setTrivias(data);
+            const [counts, globalAttempts] = await Promise.all([
+                TriviaAdminService.getTriviaStatsCounts(),
+                TriviaAdminService.getGlobalAttemptsCount()
+            ]);
+            
             setStats({
-                total: data.length,
-                active: data.filter(s => s.status === 'active').length,
-                drafts: data.filter(s => s.status === 'draft').length,
-                paused: data.filter(s => s.status === 'paused').length,
-                attempts: data.reduce((sum, s) => sum + (s.attempt_count || 0), 0),
+                total: counts.total,
+                active: counts.active,
+                drafts: counts.drafts,
+                paused: counts.paused,
+                attempts: globalAttempts,
             });
         } catch (error) {
+            console.error('Error loading dashboard stats:', error);
+        }
+    };
+
+    const loadTrivias = async (pageNumber: number = page) => {
+        setLoading(true);
+        try {
+            const offset = (pageNumber - 1) * ITEMS_PER_PAGE;
+            const { trivias: data, totalCount } = await TriviaAdminService.getAdminTriviasPaginated(ITEMS_PER_PAGE, offset, activeFilter);
+            setTrivias(data);
+            setTotalTrivias(totalCount);
+            setPage(pageNumber);
+        } catch (error) {
             console.error('Error loading admin trivias:', error);
-            // Optional: alert(t('adminTrivias.errors.loadError'));
         } finally {
             setLoading(false);
         }
     };
+
 
     const handleViewAnalytics = (trivia: Trivia) => {
         setSelectedTriviaAnalytics({ id: trivia.id, title: trivia.title });
@@ -58,7 +79,8 @@ export default function AdminTrivias() {
         try {
             const { error } = await TriviaAdminService.changeTriviaStatus(triviaId, newStatus);
             if (error) throw error;
-            loadTrivias();
+            loadTrivias(page);
+            loadDashboardStats();
         } catch (error: any) {
             alert(t('adminTrivias.errors.statusChangeError', { message: error.message }));
         }
@@ -94,9 +116,7 @@ export default function AdminTrivias() {
         return secs > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${mins}m`;
     };
 
-    const filteredTrivias = activeFilter === 'all'
-        ? trivias
-        : trivias.filter(s => s.status === activeFilter);
+    const filteredTrivias = trivias; // Filtering is handled by the RPC backend now
 
     return (
         <div className="space-y-6">
@@ -146,10 +166,10 @@ export default function AdminTrivias() {
 
             {/* Tabbed Navigation */}
             <div className="flex items-center gap-2 border-b border-border-theme bg-bg-pop rounded-t-2xl px-2 pt-2 overflow-x-auto hide-scrollbar">
-                {(['all', 'active', 'draft', 'paused', 'closed'] as const).map((filter) => (
+                {(['all', 'active', 'expired', 'draft', 'paused', 'closed'] as const).map((filter) => (
                     <button
                         key={filter}
-                        onClick={() => setActiveFilter(filter)}
+                        onClick={() => { setActiveFilter(filter as any); setPage(1); }}
                         className={`px-4 py-3 text-sm font-black border-b-2 transition-all whitespace-nowrap capitalize ${activeFilter === filter
                             ? 'border-brand-primary text-brand-primary'
                             : 'border-transparent text-text-muted hover:text-text-main hover:bg-bg-side/50 rounded-t-xl'
@@ -261,6 +281,29 @@ export default function AdminTrivias() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!loading && totalTrivias > ITEMS_PER_PAGE && (
+                    <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-border-theme">
+                        <button
+                            onClick={() => loadTrivias(Math.max(1, page - 1))}
+                            disabled={page === 1}
+                            className="px-4 py-2 bg-bg-side border border-border-theme rounded-xl text-text-muted hover:text-text-main disabled:opacity-50 font-bold text-sm transition"
+                        >
+                            {t('common.previous', 'Anterior')}
+                        </button>
+                        <span className="text-sm font-bold text-text-muted">
+                            {t('common.page', 'Página')} {page} / {Math.ceil(totalTrivias / ITEMS_PER_PAGE)}
+                        </span>
+                        <button
+                            onClick={() => loadTrivias(page + 1)}
+                            disabled={page >= Math.ceil(totalTrivias / ITEMS_PER_PAGE)}
+                            className="px-4 py-2 bg-bg-side border border-border-theme rounded-xl text-text-muted hover:text-text-main disabled:opacity-50 font-bold text-sm transition"
+                        >
+                            {t('common.next', 'Siguiente')}
+                        </button>
                     </div>
                 )}
             </div>

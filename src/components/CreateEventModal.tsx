@@ -7,6 +7,7 @@ import type { FrikiEvent } from '../services/EventService';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { supabase } from '../lib/supabase';
 import { ALL_INTERESTS } from '../config/interests';
+import { LocationPicker } from './LocationPicker';
 
 export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { isOpen: boolean, onClose: () => void, onCreated: () => void, initialData?: FrikiEvent }) {
     const { t } = useTranslation();
@@ -29,6 +30,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
         whatsapp: '',
         tags: [] as string[],
         qr_requested: false,
+        lat: null as number | null,
+        lng: null as number | null,
     });
 
     const [imageFile, setImageFile] = useState<Blob | null>(null);
@@ -50,7 +53,9 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 external_link: initialData.external_link || '',
                 whatsapp: initialData.whatsapp || '',
                 tags: initialData.tags || [],
-                qr_requested: initialData.qr_requested || false
+                qr_requested: initialData.qr_requested || false,
+                lat: initialData.lat || null,
+                lng: initialData.lng || null,
             });
             setImagePreview(initialData.banner_url || null);
             setImageFile(null); // No need to re-upload if unmodified
@@ -58,7 +63,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
             setFormData({
                 title: '', description: '', date: '', startTime: '', endDate: '', endTime: '',
                 location: '', maps_location_url: '', price_min: 0, is_free: false,
-                external_link: '', whatsapp: '', tags: [], qr_requested: false
+                external_link: '', whatsapp: '', tags: [], qr_requested: false,
+                lat: null, lng: null
             });
             setImagePreview(null);
             setImageFile(null);
@@ -182,6 +188,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 qr_requested: formData.qr_requested,
                 parent_event_id: initialData?.parent_event_id || null,
                 edition_number: initialData?.edition_number || 1,
+                lat: formData.lat,
+                lng: formData.lng,
             };
 
             // 3. Insert or Update
@@ -190,9 +198,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 if (error) throw error;
                 alert(t('events.updateSuccess'));
             } else {
-                const { error } = await supabase
-                    .from('events')
-                    .insert(eventData);
+                const { error } = await EventService.createEvent(eventData as any);
                 if (error) throw error;
                 alert(t('events.success', '¡Evento enviado! Quedará pendiente de revisión.'));
             }
@@ -363,6 +369,14 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                                         className="w-full bg-bg-sub border border-border-theme text-text-main rounded-xl pl-10 px-4 py-3 focus:ring-2 focus:ring-brand-primary outline-none shadow-sm"
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-text-sub mb-1">{t('events.pinLocation', 'Fijar en el Mapa (Opcional)')}</label>
+                                <LocationPicker 
+                                    initialLat={formData.lat} 
+                                    initialLng={formData.lng} 
+                                    onLocationChange={(lat, lng) => setFormData({ ...formData, lat, lng })}
+                                />
                             </div>
                         </div>
 

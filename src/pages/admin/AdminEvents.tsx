@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { CalendarCheck, Loader2, CheckCircle, XCircle, Ban, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { EventDetailsModal } from '../../components/EventDetailsModal';
+import { EventQrModal } from '../../components/EventQrModal';
+import { injectLatLng } from '../../utils/geoUtils';
 import type { FrikiEvent } from '../../services/EventService';
+import { getLocalTodayString } from '../../utils/dateUtils';
 
 export default function AdminEvents() {
     const { t } = useTranslation();
@@ -19,6 +22,9 @@ export default function AdminEvents() {
     const [rejectionReason, setRejectionReason] = useState('');
     const [sponsorModalVisible, setSponsorModalVisible] = useState(false);
     const [isSponsored, setIsSponsored] = useState(false);
+    const [isQrApproved, setIsQrApproved] = useState(false);
+    const [qrRewardAmount, setQrRewardAmount] = useState(0);
+    const [showQrModal, setShowQrModal] = useState<FrikiEvent | null>(null);
 
     useEffect(() => {
         fetchEvents();
@@ -36,19 +42,22 @@ export default function AdminEvents() {
                 `)
                 .order('created_at', { ascending: false });
 
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalTodayString();
 
             if (activeTab === 'pending') {
                 query = query.eq('status', 'pending');
             } else if (activeTab === 'published') {
-                query = query.in('status', ['approved', 'delayed']).gte('date', today);
+                query = query.in('status', ['approved', 'delayed']).or(`date.gte.${today},end_date.gte.${today}`);
             } else {
-                query = query.or(`status.eq.rejected,status.eq.cancelled,date.lt.${today}`);
+                // History: rejected, cancelled, or passed (date < today AND (end_date < today OR end_date is null))
+                // We use eq.rejected, eq.cancelled, and a nested OR for the date logic
+                query = query.or(`status.eq.rejected,status.eq.cancelled,and(date.lt.${today},or(end_date.lt.${today},end_date.is.null))`);
             }
 
             const { data, error } = await query;
             if (error) throw error;
-            setEvents(data as FrikiEvent[] || []);
+            const mappedEvents = (data || []).map((ev: any) => injectLatLng(ev));
+            setEvents(mappedEvents as FrikiEvent[]);
         } catch (error) {
             console.error('Error fetching admin events:', error);
             alert(t('adminEvents.errors.loadError'));
@@ -60,6 +69,8 @@ export default function AdminEvents() {
     const handleApprove = (event: FrikiEvent) => {
         setSelectedEvent(event);
         setIsSponsored(false);
+        setIsQrApproved(event.qr_requested || false);
+        setQrRewardAmount(event.qr_reward_amount || 0);
         setSponsorModalVisible(true);
     };
 
@@ -72,6 +83,8 @@ export default function AdminEvents() {
                 .update({
                     status: 'approved',
                     is_sponsored: isSponsored,
+                    qr_approved: isQrApproved,
+                    qr_reward_amount: isQrApproved ? qrRewardAmount : 0,
                     rejection_reason: null
                 })
                 .eq('id', selectedEvent.id);
@@ -269,6 +282,11 @@ export default function AdminEvents() {
                                                     />
                                                     <span className="text-xs font-bold text-text-main">{t('adminEvents.card.sponsor')}</span>
                                                 </label>
+                                                {event.qr_approved && (
+                                                    <button onClick={() => setShowQrModal(event)} className="py-1.5 px-3 rounded-lg text-brand-primary hover:bg-brand-primary/10 font-bold text-xs transition">
+                                                        Ver QRs
+                                                    </button>
+                                                )}
                                                 <button onClick={() => cancelEvent(event)} className="py-1.5 px-3 rounded-lg text-text-muted hover:text-accent-red hover:bg-accent-red/10 font-bold text-xs transition">
                                                     {t('adminEvents.card.cancel')}
                                                 </button>
@@ -363,6 +381,40 @@ export default function AdminEvents() {
                             </label>
                         </div>
 
+                        {selectedEvent?.qr_requested && (
+                            <div className="mb-6 bg-bg-pop rounded-xl border border-border-theme p-4">
+                                <label className="flex items-center justify-between cursor-pointer mb-3">
+                                    <div>
+                                        <span className="font-bold text-text-main flex items-center gap-1">🪙 Aprobar Frikicoins</span>
+                                        <p className="text-xs text-text-muted mt-1 max-w-[200px]">El creador solicitó entregar Frikicoins a los asistentes vía QR.</p>
+                                    </div>
+                                    <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input
+                                            type="checkbox"
+                                            checked={isQrApproved}
+                                            onChange={(e) => setIsQrApproved(e.target.checked)}
+                                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-border-theme transition-transform duration-200"
+                                            style={{ transform: isQrApproved ? 'translateX(100%)' : 'translateX(0)', borderColor: isQrApproved ? '#10b981' : '' }}
+                                        />
+                                        <label className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${isQrApproved ? 'bg-accent-green' : 'bg-bg-side border border-border-theme'}`}></label>
+                                    </div>
+                                </label>
+                                
+                                {isQrApproved && (
+                                    <div className="mt-3 pt-3 border-t border-border-theme">
+                                        <label className="block text-xs font-bold text-text-sub mb-2">Cantidad de Frikicoins por asistencia</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={qrRewardAmount}
+                                            onChange={(e) => setQrRewardAmount(Number(e.target.value))}
+                                            className="w-full bg-bg-side border border-border-theme text-text-main rounded-lg p-2 focus:ring-2 focus:ring-accent-green outline-none"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setSponsorModalVisible(false)}
@@ -390,6 +442,14 @@ export default function AdminEvents() {
                     onClose={() => setViewEvent(null)}
                     event={viewEvent}
                     isAdminMode={true}
+                />
+            )}
+
+            {/* QR Manager Modal */}
+            {showQrModal && (
+                <EventQrModal
+                    event={showQrModal as any}
+                    onClose={() => setShowQrModal(null)}
                 />
             )}
         </div>

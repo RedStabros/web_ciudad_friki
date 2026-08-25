@@ -1,6 +1,6 @@
 import { Link, useOutletContext } from 'react-router-dom';
 import { SEO } from '../components/SEO';
-import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock, Dices, List, LayoutGrid } from 'lucide-react';
+import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock, Dices, List, LayoutGrid, MapPin } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import { EventCard } from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
@@ -200,6 +200,10 @@ export default function Home() {
                         <Calendar className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
                         {t('dashboard.eventsTab')}
                     </Link>
+                    <Link to="/map" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                        <MapPin className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
+                        {t('nav.map', 'Mapa')}
+                    </Link>
                     <Link to="/surveys" className="group relative flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                         <BarChart2 className="mr-3 text-xl text-text-muted group-hover:text-text-sub" size={20} />
                         {t('nav.surveys')}
@@ -302,6 +306,13 @@ export default function Home() {
                             </button>
                         </div>
 
+                        <Link
+                            to="/map"
+                            className="p-2 bg-bg-side rounded-xl border border-border-theme text-text-muted hover:text-text-main hover:bg-bg-sub transition-all flex items-center justify-center"
+                            title={t('nav.map', 'Ver Mapa')}
+                        >
+                            <MapPin size={18} />
+                        </Link>
                         <button
                             onClick={handleToggleCompactView}
                             className="p-2 bg-bg-side rounded-xl border border-border-theme text-text-muted hover:text-text-main hover:bg-bg-sub transition-all cursor-pointer flex items-center justify-center"

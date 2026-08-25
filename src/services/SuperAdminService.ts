@@ -48,5 +48,31 @@ export const SuperAdminService = {
         } catch (error) {
             return { data: null, error };
         }
+    },
+
+    async createGlobalBroadcast(title: string, message: string) {
+        try {
+            const { data, error } = await supabase
+                .from('global_broadcasts')
+                .insert([{ title, message }])
+                .select()
+                .single();
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error creating global broadcast:', error);
+            return { data: null, error };
+        }
+    },
+
+    async getAdminStats() {
+        try {
+            const { data, error } = await supabase.rpc('get_admin_stats');
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('getAdminStats error:', error);
+            return { data: null, error };
+        }
     }
 };

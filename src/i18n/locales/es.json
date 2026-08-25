@@ -261,7 +261,17 @@
     "qrBanner": "🎁 ¡Este evento entrega {{amount}} Frikicoins por asistencia presencial!",
     "viewQr": "Ver / Imprimir Código QR",
     "launchEdition": "🔄 Lanzar Nueva Edición",
-    "edition": "Edición {{number}}"
+    "edition": "Edición {{number}}",
+    "qrModal": {
+      "legacyDesc": "QR del Evento",
+      "defaultDesc": "QR de Asistencia",
+      "copied": "Enlace copiado al portapapeles",
+      "copyLink": "Copiar Link",
+      "title": "Frikicoins QR",
+      "subtitle": "Muestra estos códigos a los asistentes para que reclamen su recompensa.",
+      "multiDayHint": " Cada día tiene un código diferente.",
+      "generating": "Generando QRs..."
+    }
   },
   "adminRoles": {
     "title": "Gestión de Roles",
@@ -542,6 +552,16 @@
       "uniqueBuyers": "C. Únicos",
       "avgFcPerSale": "Promedio FC / Venta",
       "activeItems": "Items Activos"
+    },
+    "broadcast": {
+      "title": "Enviar Comunicado Global",
+      "description": "Esto enviará una notificación a todos los usuarios de la plataforma (web y móvil) de manera global y persistente.",
+      "titlePlaceholder": "Título del comunicado",
+      "messagePlaceholder": "Mensaje del comunicado...",
+      "send": "Enviar Comunicado",
+      "confirm": "¿Estás seguro de enviar este comunicado global a TODOS los usuarios?",
+      "success": "Comunicado enviado con éxito.",
+      "error": "Error enviando comunicado: {{message}}"
     }
   },
   "adminFrikiMart": {
@@ -656,35 +676,10 @@
     }
   },
   "seo": {
-    "home": {
-      "title": "Eventos Geek, Anime y Videojuegos",
-      "description": "Descubre la comunidad definitiva para amantes del Anime, Cosplay y Videojuegos en Medellín y toda Colombia. Encuentra eventos, retos y más en Ciudad Friki.",
-      "keywords": "Anime, Cosplay, Videojuegos, Geek, Medellín, Colombia, Manga, K-Pop, Rol, Cómics"
-    },
-    "surveys": {
-      "title": "Encuestas Friki | Tu opinión cuenta",
-      "description": "Participa en las encuestas de Ciudad Friki. Vota por tus animes, juegos y tendencias favoritas de la cultura geek y gana Frikicoins.",
-      "keywords": "Encuestas Anime, Votación Geek, Frikicoins, Tendencias Manga, Ciudad Friki"
-    },
-    "trivias": {
-      "title": "Trivias Friki | Demuestra tus conocimientos",
-      "description": "Desafía tus conocimientos sobre Anime, Videojuegos y Cultura Geek en las Trivias de Ciudad Friki. ¡Responde correctamente y gana Frikicoins!",
-      "keywords": "Trivia Anime, Quiz Videojuegos, Conocimiento Geek, Frikicoins, Juegos Mentales"
-    },
     "frikimart": {
-      "title": "FrikiMart | Canjea tus Frikicoins",
-      "description": "Visita la tienda oficial de Ciudad Friki. Canjea tus Frikicoins por artículos exclusivos, figuras de anime, accesorios geek y más.",
-      "keywords": "Tienda Geek, Canje de Premios, Frikicoins, Anime Merch, Medellín"
-    },
-    "tavern": {
-      "title": "La Taberna | Comunidad Geek",
-      "description": "Únete a la conversación en La Taberna de Ciudad Friki. Foros de debate sobre Anime, Videojuegos y Cultura Pop en Medellín y Colombia.",
-      "keywords": "Foro Geek, Comunidad Anime, Debate Gaming, Medellín Friki, La Taberna"
-    },
-    "vs": {
-      "title": "Friki VS | Duelos 1vs1",
-      "description": "Compite en duelos de trivia en tiempo real. Reta a otros Frikis, apuesta tus Frikicoins y demuestra que eres el que más sabe de Anime y Videojuegos.",
-      "keywords": "Duelos Geek, Trivia VS, Competición Anime, Apuestas Frikicoins, Ranking VS"
+      "title": "FrikiMart - Tienda Oficial Ciudad Friki",
+      "description": "Canjea tus Frikicoins por productos exclusivos en FrikiMart.",
+      "keywords": "frikimart, tienda, frikicoins, productos, tienda friki"
     }
   },
   "tavern": {
@@ -978,6 +973,8 @@
     "scanFromGallery": "Escanear desde Galería",
     "selectQrImage": "Selecciona una imagen con código QR",
     "noQrFound": "No se encontró ningún código QR en la imagen",
+    "receivedFrom": "Recibido de {{username}}",
+    "sentTo": "Enviado a {{username}}",
     "selfTransfer": "No puedes transferirte a ti mismo",
     "recentTransactions": "Transacciones Recientes",
     "noTransactions": "No hay transacciones recientes",
@@ -1724,45 +1721,49 @@
   },
   "frikimart": {
     "title": "FrikiMart",
-    "subtitle": "Canjea tus Frikicoins",
-    "balance": "Tu balance",
-    "loading": "Cargando FrikiMart...",
-    "closed": "Tienda Cerrada",
-    "closedSubtitle": "FrikiMart no está disponible temporalmente. Nuestro equipo está trabajando en nuevas recompensas. 🐉",
-    "returnHome": "Volver a inicio",
+    "balance": "Saldo Disponible",
+    "loading": "Cargando artículos...",
+    "closed": "FrikiMart Fuera de Servicio",
+    "closedSubtitle": "La tienda oficial se encuentra temporalmente deshabilitada.",
+    "returnHome": "Volver al Inicio",
+    "shippingNotice": "Los envíos corren por cuenta del comprador (por cobrar). También puedes coordinar la entrega en nuestra sede o en eventos con un administrador.",
+    "emptyItems": "No hay artículos disponibles en este momento.",
+    "emptyOrders": "Aún no has realizado pedidos.",
     "tabs": {
-      "items": "Artículos",
+      "items": "Tienda",
       "orders": "Mis Pedidos",
       "donations": "Donaciones"
     },
-    "chat": {
-      "title": "Chat de entrega",
-      "empty": "Aún no hay mensajes. El equipo de FrikiMart se pondrá en contacto pronto.",
-      "placeholder": "Escribe un mensaje...",
-      "confirmReceived": "¿Confirmas que recibiste tu artículo?",
-      "received": "Recibido",
-      "confirmButton": "Confirmar recibo ✅",
+    "items": {
+      "lastUnit": "Última unidad",
+      "fewUnits": "¡Últimas {{count}} unidades!",
+      "available": "{{count}} disponibles",
+      "buy": "Comprar",
+      "noFC": "Frikicoins Insuficientes",
+      "insufficientFC": "No tienes suficientes Frikicoins. Requieres {{required}} FC y tu saldo es {{balance}} FC.",
+      "buyConfirm": "¿Deseas comprar {{title}} por {{price}} FC?",
+      "purchaseSuccess": "¡Compra Realizada con Éxito!",
+      "adminContact": "Se ha abierto un chat de entrega con el administrador."
+    },
+    "errors": {
+      "noFC": "Frikicoins insuficientes para realizar la compra.",
+      "outOfStock": "El producto se ha agotado.",
+      "generic": "Ocurrió un error al procesar tu compra."
+    },
+    "orders": {
       "status": {
         "delivered": "Entregado",
         "cancelled": "Cancelado",
-        "pending": "Pendiente de entrega"
+        "pending": "Pendiente de Entrega"
       }
     },
-    "items": {
-      "empty": "No hay artículos disponibles ahora mismo.",
-      "lastUnit": "¡Última unidad!",
-      "fewUnits": "Quedan {{count}} unidades",
-      "available": "{{count}} disponibles",
-      "buy": "Comprar",
-      "noFC": "Sin FC",
-      "buyConfirm": "¿Comprar \"{{title}}\" por {{price}} FC?\n\n⚠️ Las compras con Frikicoins no tienen devolución.",
-      "insufficientFC": "Necesitas {{required}} FC.\nTienes {{balance}} FC.",
-      "purchaseSuccess": "¡Compra exitosa!",
-      "adminContact": "Un administrador se pondrá en contacto para coordinar la entrega.",
-      "viewOrders": "Ver mis pedidos"
-    },
-    "orders": {
-      "empty": "No tienes compras aún.",
+    "chat": {
+      "title": "Chat de Pedido",
+      "confirmReceived": "¿Confirmas que has recibido tu producto a satisfacción?",
+      "confirmButton": "Confirmar Entrega",
+      "received": "Recibido",
+      "empty": "Aún no hay mensajes en este chat. Escribe un mensaje para coordinar la entrega.",
+      "placeholder": "Escribe un mensaje...",
       "status": {
         "delivered": "Entregado",
         "cancelled": "Cancelado",
@@ -1770,19 +1771,10 @@
       }
     },
     "donations": {
-      "comingSoon": "Donaciones — Próximamente en web",
-      "availability": "Las donaciones con dinero real están disponibles en la app móvil de Ciudad Friki a través de Google Play. Puedes ver los paquetes disponibles aquí. Para donar, descarga la app.",
-      "empty": "No hay paquetes de donación activos.",
-      "onlyInApp": "Solo en App 📱"
-    },
-    "errors": {
-      "noFC": "No tienes suficientes Frikicoins.",
-      "outOfStock": "Artículo agotado.",
-      "generic": "Ocurrió un error. Intenta de nuevo."
-    },
-    "emptyItems": "No hay artículos disponibles en este momento.",
-    "emptyOrders": "Aún no has realizado pedidos.",
-    "shippingNotice": "Los envíos corren por cuenta del comprador (por cobrar). También puedes coordinar la entrega en nuestra sede o en eventos con un administrador."
+      "comingSoon": "Próximamente Donaciones Web",
+      "availability": "Las donaciones están disponibles en la app móvil.",
+      "onlyInApp": "Solo disponible en App"
+    }
   },
   "adminEvents": {
     "title": "Moderación de Eventos",
@@ -1891,7 +1883,8 @@
     "title": "¡Próximo lanzamiento!",
     "message": "Estamos preparando los últimos detalles para el gran lanzamiento oficial de Ciudad Friki Web. ¡Falta muy poco para la apertura!",
     "scheduled": "Lanzamiento en preparación",
-    "adminLogin": "Acceso Staff"
+    "adminLogin": "Acceso Staff",
+    "logout": "Cerrar Sesión"
   },
   "categories": {
     "princesas": "Princesas"
@@ -1924,70 +1917,6 @@
     "streak": {
       "label": "Racha de conexión",
       "days": "{{days}} días"
-    }
-  },
-  "frikimart": {
-    "title": "FrikiMart",
-    "balance": "Saldo Disponible",
-    "loading": "Cargando artículos...",
-    "closed": "FrikiMart Fuera de Servicio",
-    "closedSubtitle": "La tienda oficial se encuentra temporalmente deshabilitada.",
-    "returnHome": "Volver al Inicio",
-    "shippingNotice": "Los envíos corren por cuenta del comprador (por cobrar). También puedes coordinar la entrega en nuestra sede o en eventos con un administrador.",
-    "emptyItems": "No hay artículos disponibles en este momento.",
-    "emptyOrders": "Aún no has realizado pedidos.",
-    "tabs": {
-      "items": "Tienda",
-      "orders": "Mis Pedidos",
-      "donations": "Donaciones"
-    },
-    "items": {
-      "lastUnit": "Última unidad",
-      "fewUnits": "¡Últimas {{count}} unidades!",
-      "available": "{{count}} disponibles",
-      "buy": "Comprar",
-      "noFC": "Frikicoins Insuficientes",
-      "insufficientFC": "No tienes suficientes Frikicoins. Requieres {{required}} FC y tu saldo es {{balance}} FC.",
-      "buyConfirm": "¿Deseas comprar {{title}} por {{price}} FC?",
-      "purchaseSuccess": "¡Compra Realizada con Éxito!",
-      "adminContact": "Se ha abierto un chat de entrega con el administrador."
-    },
-    "errors": {
-      "noFC": "Frikicoins insuficientes para realizar la compra.",
-      "outOfStock": "El producto se ha agotado.",
-      "generic": "Ocurrió un error al procesar tu compra."
-    },
-    "orders": {
-      "status": {
-        "delivered": "Entregado",
-        "cancelled": "Cancelado",
-        "pending": "Pendiente de Entrega"
-      }
-    },
-    "chat": {
-      "title": "Chat de Pedido",
-      "confirmReceived": "¿Confirmas que has recibido tu producto a satisfacción?",
-      "confirmButton": "Confirmar Entrega",
-      "received": "Recibido",
-      "empty": "Aún no hay mensajes en este chat. Escribe un mensaje para coordinar la entrega.",
-      "placeholder": "Escribe un mensaje...",
-      "status": {
-        "delivered": "Entregado",
-        "cancelled": "Cancelado",
-        "pending": "Pendiente"
-      }
-    },
-    "donations": {
-      "comingSoon": "Próximamente Donaciones Web",
-      "availability": "Las donaciones están disponibles en la app móvil.",
-      "onlyInApp": "Solo disponible en App"
-    }
-  },
-  "seo": {
-    "frikimart": {
-      "title": "FrikiMart - Tienda Oficial Ciudad Friki",
-      "description": "Canjea tus Frikicoins por productos exclusivos en FrikiMart.",
-      "keywords": "frikimart, tienda, frikicoins, productos, tienda friki"
     }
   }
 }

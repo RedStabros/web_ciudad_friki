@@ -10,8 +10,11 @@ import {
 } from 'lucide-react';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 import { CreateEventModal } from '../components/CreateEventModal';
-import { QRCodeSVG } from 'qrcode.react';
-import { Copy } from 'lucide-react';
+import { EventQrModal } from '../components/EventQrModal';
+import { isEventFinished, hasEventStarted } from '../utils/dateUtils';
+import { injectLatLng } from '../utils/geoUtils';
+
+
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface MyEvent {
@@ -56,10 +59,7 @@ const STATUS_CONFIG: Record<string, { labelKey: string; cls: string }> = {
 };
 
 function isEventPast(event: MyEvent): boolean {
-    try {
-        const dt = new Date(`${event.date}T${event.start_time || '00:00'}`);
-        return isNaN(dt.getTime()) ? false : dt < new Date();
-    } catch { return false; }
+    return isEventFinished(event.date, event.end_date);
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -121,7 +121,7 @@ export default function MyEvents() {
                     .eq('created_by', user.id)
                     .order('created_at', { ascending: false });
                 if (error) throw error;
-                data = rows || [];
+                data = (rows || []).map((row: any) => injectLatLng(row));
             } else {
                 const { data: rows, error } = await supabase
                     .from('saved_events')
@@ -129,7 +129,7 @@ export default function MyEvents() {
                     .eq('user_id', user.id);
                 if (error) throw error;
                 data = (rows || [])
-                    .map((r: any) => r.event)
+                    .map((r: any) => injectLatLng(r.event))
                     .filter(Boolean)
                     .sort((a: MyEvent, b: MyEvent) =>
                         new Date(`${a.date}T${a.start_time || '00:00'}`).getTime() -
@@ -271,43 +271,10 @@ export default function MyEvents() {
 
             {/* QR Code Modal */}
             {qrModalEvent && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-                    <div className="bg-bg-side border border-border-theme rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center mb-4">
-                            <Ticket size={24} />
-                        </div>
-                        <h3 className="font-black text-text-main text-lg mb-2">{t('events.qrReward', { amount: qrModalEvent.qr_reward_amount })}</h3>
-                        <p className="text-text-muted text-xs mb-6 px-4">
-                            Muestra este código a los asistentes durante el evento. Al escanearlo, recibirán su recompensa automáticamente.
-                        </p>
-                        
-                        <div className="bg-white p-4 rounded-2xl mb-6 shadow-inner">
-                            <QRCodeSVG 
-                                value={`ciudadfriki://event-reward/${qrModalEvent.id}`} 
-                                size={200}
-                                level="H"
-                                fgColor="#1e222a"
-                            />
-                        </div>
-
-                        <button
-                            onClick={() => {
-                                navigator.clipboard.writeText(`ciudadfriki://event-reward/${qrModalEvent.id}`);
-                                alert('Link copiado. También puedes guardarlo.');
-                            }}
-                            className="flex items-center gap-2 text-text-muted hover:text-brand-primary text-sm font-bold mb-6 transition"
-                        >
-                            <Copy size={16} /> Copiar enlace manual
-                        </button>
-
-                        <button
-                            onClick={() => setQrModalEvent(null)}
-                            className="w-full py-3 rounded-xl bg-bg-sub text-text-main font-black hover:bg-border-theme transition"
-                        >
-                            {t('common.close', 'Cerrar')}
-                        </button>
-                    </div>
-                </div>
+                <EventQrModal
+                    event={qrModalEvent}
+                    onClose={() => setQrModalEvent(null)}
+                />
             )}
 
             {/* Confirm Action Modal */}
@@ -384,6 +351,7 @@ interface EventCardProps {
 function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConfirmAction, onLaunchEdition, onViewQr }: EventCardProps) {
     const { t, i18n } = useTranslation();
     const isPast = isEventPast(event);
+    const hasStarted = event.date ? hasEventStarted(`${event.date}T${event.start_time || '00:00'}`) : false;
     const isCancelled = event.status === 'cancelled';
     const displayStatus = isPast && !isCancelled ? 'finished' : event.status;
     const showActions = tab === 'published' && !isPast && !isCancelled;
@@ -488,12 +456,14 @@ function EventCard({ event, tab, actionLoading, onView, onEdit, onUnsave, onConf
 
                         {showActions ? (
                             <>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition"
-                                >
-                                    <Pencil size={11} /> {t('myEvents.edit')}
-                                </button>
+                                {!hasStarted && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition"
+                                    >
+                                        <Pencil size={11} /> {t('myEvents.edit')}
+                                    </button>
+                                )}
 
                                 {(event.status === 'approved' || event.status === 'delayed') && (
                                     <>

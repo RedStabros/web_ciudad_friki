@@ -656,35 +656,10 @@
     }
   },
   "seo": {
-    "home": {
-      "title": "Geek Events, Anime and Video Games",
-      "description": "Discover the ultimate community for Anime, Cosplay, and Video Game lovers in Medellín and all of Colombia. Find events, challenges and more in Ciudad Friki.",
-      "keywords": "Anime, Cosplay, Video Games, Geek, Medellín, Colombia, Manga, K-Pop, Rol, Comics"
-    },
-    "surveys": {
-      "title": "Friki Polls | Your opinion counts",
-      "description": "Participate in Ciudad Friki polls. Vote for your favorite anime, games and geek culture trends and earn Frikicoins.",
-      "keywords": "Anime Polls, Geek Voting, Frikicoins, Manga Trends, Ciudad Friki"
-    },
-    "trivias": {
-      "title": "Friki Trivias | Show your knowledge",
-      "description": "Challenge your knowledge about Anime, Video Games and Geek Culture in the Ciudad Friki Trivias. Answer correctly and earn Frikicoins!",
-      "keywords": "Trivia Anime, Quiz Video Games, Geek Knowledge, Frikicoins, Mental Games"
-    },
-    "tavern": {
-      "title": "The Tavern | Geek Community",
-      "description": "Join the conversation in the Ciudad Friki Tavern. Debate forums about Anime, Video Games and Pop Culture in Medellín and Colombia.",
-      "keywords": "Geek Forum, Anime Community, Gaming Debate, Medellín Friki, The Tavern"
-    },
     "frikimart": {
-      "title": "FrikiMart | Redeem your Frikicoins",
-      "description": "Visit the official Ciudad Friki store. Redeem your Frikicoins for exclusive items, anime figures, geek accessories and more.",
-      "keywords": "Geek Store, Prize Redemption, Frikicoins, Anime Merch, Medellín"
-    },
-    "vs": {
-      "title": "Friki VS | 1vs1 Duels",
-      "description": "Compete in real-time trivia duels. Challenge other Frikis, wager your Frikicoins and prove you know the most about Anime and Video Games.",
-      "keywords": "Geek Duels, Trivia VS, Anime Competition, Frikicoins Wager, VS Ranking"
+      "title": "FrikiMart - Official Store Ciudad Friki",
+      "description": "Redeem your Frikicoins for exclusive products in FrikiMart.",
+      "keywords": "frikimart, store, frikicoins, products, geek store"
     }
   },
   "tavern": {
@@ -1725,45 +1700,49 @@
   },
   "frikimart": {
     "title": "FrikiMart",
-    "subtitle": "Redeem your Frikicoins",
-    "balance": "Your balance",
-    "loading": "Loading FrikiMart...",
-    "closed": "Store Closed",
-    "closedSubtitle": "FrikiMart is temporarily unavailable. Our team is working on new rewards. 🐉",
-    "returnHome": "Back to home",
+    "balance": "Available Balance",
+    "loading": "Loading items...",
+    "closed": "FrikiMart Out of Service",
+    "closedSubtitle": "The official store is temporarily disabled.",
+    "returnHome": "Return to Home",
+    "shippingNotice": "Shipping costs are paid by the buyer upon receipt. You can also arrange pickup at our headquarters or at events with an administrator.",
+    "emptyItems": "No items available at this time.",
+    "emptyOrders": "You haven't placed any orders yet.",
     "tabs": {
-      "items": "Items",
+      "items": "Store",
       "orders": "My Orders",
       "donations": "Donations"
     },
-    "chat": {
-      "title": "Delivery Chat",
-      "empty": "No messages yet. The FrikiMart team will contact you soon.",
-      "placeholder": "Type a message...",
-      "confirmReceived": "Do you confirm you received your item?",
-      "received": "Received",
-      "confirmButton": "Confirm receipt ✅",
+    "items": {
+      "lastUnit": "Last unit",
+      "fewUnits": "Only {{count}} units left!",
+      "available": "{{count}} available",
+      "buy": "Buy",
+      "noFC": "Insufficient Frikicoins",
+      "insufficientFC": "You don't have enough Frikicoins. Required {{required}} FC and your balance is {{balance}} FC.",
+      "buyConfirm": "Do you want to buy {{title}} for {{price}} FC?",
+      "purchaseSuccess": "Purchase Successful!",
+      "adminContact": "A delivery chat with the admin has been opened."
+    },
+    "errors": {
+      "noFC": "Insufficient Frikicoins to make this purchase.",
+      "outOfStock": "Product is out of stock.",
+      "generic": "An error occurred while processing your purchase."
+    },
+    "orders": {
       "status": {
         "delivered": "Delivered",
         "cancelled": "Cancelled",
-        "pending": "Pending delivery"
+        "pending": "Pending Delivery"
       }
     },
-    "items": {
-      "empty": "No items available right now.",
-      "lastUnit": "Last unit!",
-      "fewUnits": "{{count}} units left",
-      "available": "{{count}} available",
-      "buy": "Buy",
-      "noFC": "No FC",
-      "buyConfirm": "Buy \"{{title}}\" for {{price}} FC?\n\n⚠️ Frikicoin purchases are non-refundable.",
-      "insufficientFC": "You need {{required}} FC.\nYou have {{balance}} FC.",
-      "purchaseSuccess": "Purchase successful!",
-      "adminContact": "An administrator will contact you to coordinate delivery.",
-      "viewOrders": "View my orders"
-    },
-    "orders": {
-      "empty": "You have no purchases yet.",
+    "chat": {
+      "title": "Order Chat",
+      "confirmReceived": "Do you confirm you have received your product to your satisfaction?",
+      "confirmButton": "Confirm Delivery",
+      "received": "Received",
+      "empty": "No messages in this chat yet. Write a message to coordinate delivery.",
+      "placeholder": "Type a message...",
       "status": {
         "delivered": "Delivered",
         "cancelled": "Cancelled",
@@ -1771,19 +1750,10 @@
       }
     },
     "donations": {
-      "comingSoon": "Donations — Coming soon on web",
-      "availability": "Real money donations are available on the Ciudad Friki mobile app via Google Play. You can see available packages here. To donate, download the app.",
-      "empty": "No active donation packages.",
-      "onlyInApp": "App Only 📱"
-    },
-    "errors": {
-      "noFC": "You don't have enough Frikicoins.",
-      "outOfStock": "Item out of stock.",
-      "generic": "An error occurred. Try again."
-    },
-    "emptyItems": "No items available at the moment.",
-    "emptyOrders": "You have not placed any orders yet.",
-    "shippingNotice": "Shipping is paid by the buyer upon delivery. You can also coordinate pickup at our headquarters or at events with an admin."
+      "comingSoon": "Web Donations Coming Soon",
+      "availability": "Donations are available in the mobile app.",
+      "onlyInApp": "Only in App"
+    }
   },
   "adminEvents": {
     "title": "Event Moderation",
@@ -1925,70 +1895,6 @@
     "streak": {
       "label": "Login Streak",
       "days": "{{days}} days"
-    }
-  },
-  "frikimart": {
-    "title": "FrikiMart",
-    "balance": "Available Balance",
-    "loading": "Loading items...",
-    "closed": "FrikiMart Out of Service",
-    "closedSubtitle": "The official store is temporarily disabled.",
-    "returnHome": "Return to Home",
-    "shippingNotice": "Shipping costs are paid by the buyer upon receipt. You can also arrange pickup at our headquarters or at events with an administrator.",
-    "emptyItems": "No items available at this time.",
-    "emptyOrders": "You haven't placed any orders yet.",
-    "tabs": {
-      "items": "Store",
-      "orders": "My Orders",
-      "donations": "Donations"
-    },
-    "items": {
-      "lastUnit": "Last unit",
-      "fewUnits": "Only {{count}} units left!",
-      "available": "{{count}} available",
-      "buy": "Buy",
-      "noFC": "Insufficient Frikicoins",
-      "insufficientFC": "You don't have enough Frikicoins. Required {{required}} FC and your balance is {{balance}} FC.",
-      "buyConfirm": "Do you want to buy {{title}} for {{price}} FC?",
-      "purchaseSuccess": "Purchase Successful!",
-      "adminContact": "A delivery chat with the admin has been opened."
-    },
-    "errors": {
-      "noFC": "Insufficient Frikicoins to make this purchase.",
-      "outOfStock": "Product is out of stock.",
-      "generic": "An error occurred while processing your purchase."
-    },
-    "orders": {
-      "status": {
-        "delivered": "Delivered",
-        "cancelled": "Cancelled",
-        "pending": "Pending Delivery"
-      }
-    },
-    "chat": {
-      "title": "Order Chat",
-      "confirmReceived": "Do you confirm you have received your product to your satisfaction?",
-      "confirmButton": "Confirm Delivery",
-      "received": "Received",
-      "empty": "No messages in this chat yet. Write a message to coordinate delivery.",
-      "placeholder": "Type a message...",
-      "status": {
-        "delivered": "Delivered",
-        "cancelled": "Cancelled",
-        "pending": "Pending"
-      }
-    },
-    "donations": {
-      "comingSoon": "Web Donations Coming Soon",
-      "availability": "Donations are available in the mobile app.",
-      "onlyInApp": "Only in App"
-    }
-  },
-  "seo": {
-    "frikimart": {
-      "title": "FrikiMart - Official Store Ciudad Friki",
-      "description": "Redeem your Frikicoins for exclusive products in FrikiMart.",
-      "keywords": "frikimart, store, frikicoins, products, geek store"
     }
   }
 }

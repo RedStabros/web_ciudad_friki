@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getLocalTodayString } from '../utils/dateUtils';
 import type { Trivia, TriviaQuestion, TriviaStatus } from '../types/trivia';
 
 export const TriviaAdminService = {
@@ -34,6 +35,109 @@ export const TriviaAdminService = {
         } catch (error) {
             console.error('Error fetching trivias with stats:', error);
             return [];
+        }
+    },
+
+    async getAdminTriviasPaginated(limit: number = 20, offset: number = 0, statusFilter: string = 'all'): Promise<{ trivias: any[], totalCount: number, error: any }> {
+        try {
+            let query = supabase
+                .from('trivias')
+                .select('*', { count: 'exact' });
+
+            const todayStr = getLocalTodayString();
+
+            if (statusFilter !== 'all') {
+                if (statusFilter === 'active') {
+                    query = query.eq('status', 'active').or(`expire_date.gte.${todayStr},expire_date.is.null`);
+                } else if (statusFilter === 'expired') {
+                    // A trivia is considered expired if its expire_date has passed, regardless of its 'active' status
+                    query = query.lt('expire_date', todayStr);
+                } else {
+                    query = query.eq('status', statusFilter);
+                }
+            }
+
+            // Order by created_at desc
+            query = query.order('created_at', { ascending: false });
+
+            // Range pagination
+            const { data, count, error } = await query.range(offset, offset + limit - 1);
+
+            if (error) throw error;
+            if (!data) return { trivias: [], totalCount: count || 0, error: null };
+
+            // Fetch attempt_count and total_points for each trivia
+            const triviasWithStats = await Promise.all(
+                data.map(async (trivia) => {
+                    const { count: attemptCount } = await supabase
+                        .from('trivia_attempts')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('trivia_id', trivia.id);
+
+                    const { data: qData } = await supabase
+                        .from('trivia_questions')
+                        .select('points')
+                        .eq('trivia_id', trivia.id);
+                        
+                    const total_points = (qData || []).reduce((sum, q) => sum + (q.points || 0), 0);
+
+                    const isExpired = trivia.expire_date && trivia.expire_date.split('T')[0].split(' ')[0] < todayStr;
+                    const derivedStatus = (trivia.status === 'active' && isExpired) ? 'expired' : trivia.status;
+
+                    return {
+                        ...trivia,
+                        status: derivedStatus,
+                        attempt_count: attemptCount || 0,
+                        total_points
+                    };
+                })
+            );
+
+            return { trivias: triviasWithStats, totalCount: count || 0, error: null };
+        } catch (error) {
+            console.error('Error in getAdminTriviasPaginated:', error);
+            return { trivias: [], totalCount: 0, error };
+        }
+    },
+
+    async getGlobalAttemptsCount(): Promise<number> {
+        try {
+            const { count, error } = await supabase
+                .from('trivia_attempts')
+                .select('*', { count: 'exact', head: true });
+            
+            if (error) throw error;
+            return count || 0;
+        } catch (error) {
+            console.error('Error fetching global attempts:', error);
+            return 0;
+        }
+    },
+
+    async getTriviaStatsCounts(): Promise<{ total: number, active: number, drafts: number, paused: number }> {
+        try {
+            const todayStr = getLocalTodayString();
+            const [
+                { count: total },
+                { count: active },
+                { count: drafts },
+                { count: paused }
+            ] = await Promise.all([
+                supabase.from('trivias').select('*', { count: 'exact', head: true }),
+                supabase.from('trivias').select('*', { count: 'exact', head: true }).eq('status', 'active').or(`expire_date.gte.${todayStr},expire_date.is.null`),
+                supabase.from('trivias').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+                supabase.from('trivias').select('*', { count: 'exact', head: true }).eq('status', 'paused'),
+            ]);
+
+            return {
+                total: total || 0,
+                active: active || 0,
+                drafts: drafts || 0,
+                paused: paused || 0
+            };
+        } catch (error) {
+            console.error('Error fetching trivia counts:', error);
+            return { total: 0, active: 0, drafts: 0, paused: 0 };
         }
     },
 

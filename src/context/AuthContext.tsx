@@ -25,6 +25,8 @@ const AuthContext = createContext<AuthContextType>({
     checkMaintenance: async () => { },
 });
 
+let streakUpdated = false;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
@@ -38,7 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         supabase.auth.getSession().then(async ({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
-            if (session?.user) {
+            if (session?.user && !streakUpdated) {
+                streakUpdated = true;
                 supabase.rpc('update_daily_streak').then(({ error }) => {
                     if (error) console.warn('[Streak] Could not update:', error.message);
                 });
@@ -51,7 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
-            if (event === 'SIGNED_IN' && session?.user) {
+            if (event === 'SIGNED_IN' && session?.user && !streakUpdated) {
+                streakUpdated = true;
                 supabase.rpc('update_daily_streak').then(({ error }) => {
                     if (error) console.warn('[Streak] Could not update:', error.message);
                 });
@@ -62,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const checkMaintenance = async () => {
-        const mode = await SystemService.getGlobalSetting('maintenance_mode', false);
+        const mode = await SystemService.getGlobalSetting('app_maintenance_mode', false);
         setMaintenanceMode(mode === true);
     };
 

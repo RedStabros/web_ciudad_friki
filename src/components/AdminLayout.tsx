@@ -1,7 +1,7 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel, Zap } from 'lucide-react';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel, Zap, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminLayout() {
@@ -35,6 +35,7 @@ export default function AdminLayout() {
         { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
         { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
         { path: '/admin/bans', icon: <Gavel size={20} />, label: t('admin.sidebar.bans') },
+        { path: '/admin/allies', icon: <MapPin size={20} />, label: t('admin.sidebar.allies', 'Aliados') },
         { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
         ...(isSuperuser || frikiMartAdmin ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
         ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),

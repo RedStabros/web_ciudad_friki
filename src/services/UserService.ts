@@ -8,6 +8,7 @@ export interface Notification {
     created_at: string;
     is_read: boolean;
     type?: string;
+    is_global?: boolean; // Flag to identify global broadcasts
 }
 
 export interface Transaction {
@@ -115,14 +116,48 @@ export const UserService = {
      */
     async getNotifications(userId: string) {
         try {
-            const { data, error } = await supabase
-                .from('notifications')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
+            const [personalRes, globalRes] = await Promise.all([
+                supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('global_broadcasts')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+            ]);
 
-            if (error) throw error;
-            return { notifications: data as Notification[], error: null };
+            if (personalRes.error) throw personalRes.error;
+            if (globalRes.error) throw globalRes.error;
+
+            // Load read state from localStorage for global broadcasts
+            let readBroadcasts: string[] = [];
+            try {
+                const stored = localStorage.getItem(`read_broadcasts_${userId}`);
+                if (stored) readBroadcasts = JSON.parse(stored);
+            } catch (e) {
+                console.warn('Could not parse read_broadcasts from localStorage');
+            }
+
+            const personalNotifications: Notification[] = personalRes.data || [];
+            
+            const globalBroadcasts: Notification[] = (globalRes.data || []).map((b: any) => ({
+                id: b.id,
+                title: b.title,
+                message: b.message,
+                created_at: b.created_at,
+                is_read: readBroadcasts.includes(b.id),
+                type: 'system', // or 'broadcast'
+                is_global: true
+            }));
+
+            // Merge and sort
+            const merged = [...personalNotifications, ...globalBroadcasts].sort((a, b) => 
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+
+            return { notifications: merged, error: null };
         } catch (error) {
             console.error('UserService.getNotifications error:', error);
             return { notifications: [], error };
@@ -132,8 +167,20 @@ export const UserService = {
     /**
      * Mark a single notification as read
      */
-    async markNotificationRead(notificationId: string) {
+    async markNotificationRead(notificationId: string, userId: string, isGlobal = false) {
         try {
+            if (isGlobal) {
+                // Save to localStorage for global broadcasts
+                let readBroadcasts: string[] = [];
+                const stored = localStorage.getItem(`read_broadcasts_${userId}`);
+                if (stored) readBroadcasts = JSON.parse(stored);
+                if (!readBroadcasts.includes(notificationId)) {
+                    readBroadcasts.push(notificationId);
+                    localStorage.setItem(`read_broadcasts_${userId}`, JSON.stringify(readBroadcasts));
+                }
+                return { success: true, error: null };
+            }
+
             const { error } = await supabase
                 .from('notifications')
                 .update({ is_read: true })
@@ -150,8 +197,20 @@ export const UserService = {
     /**
      * Mark all notifications as read for a user
      */
-    async markAllNotificationsRead(userId: string) {
+    async markAllNotificationsRead(userId: string, unreadGlobals: string[] = []) {
         try {
+            if (unreadGlobals.length > 0) {
+                let readBroadcasts: string[] = [];
+                const stored = localStorage.getItem(`read_broadcasts_${userId}`);
+                if (stored) readBroadcasts = JSON.parse(stored);
+                
+                const newBroadcasts = unreadGlobals.filter(id => !readBroadcasts.includes(id));
+                if (newBroadcasts.length > 0) {
+                    readBroadcasts.push(...newBroadcasts);
+                    localStorage.setItem(`read_broadcasts_${userId}`, JSON.stringify(readBroadcasts));
+                }
+            }
+
             const { error } = await supabase
                 .from('notifications')
                 .update({ is_read: true })

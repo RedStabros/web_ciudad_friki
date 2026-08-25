@@ -8,6 +8,8 @@ import type { FrikiEvent, Review } from '../services/EventService';
 import { useAuth } from '../context/AuthContext';
 import { getAvatarSource } from '../config/avatars';
 import { shareContent, buildEventShare, registerCopiedCallback } from '../utils/shareContent';
+import { isEventFinished } from '../utils/dateUtils';
+
 
 interface EventDetailsModalProps {
     isOpen: boolean;
@@ -40,14 +42,8 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
         shareContent(buildEventShare(event));
     };
 
-    const isPastEvent = (dateStr: string) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const eventDate = new Date(dateStr);
-        return eventDate < today;
-    };
+    const past = event ? isEventFinished(event.date, event.end_date) : false;
 
-    const past = event ? isPastEvent(event.date) : false;
 
     const averageRating = reviews.length > 0
         ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
@@ -64,7 +60,8 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
     const fetchReviews = async () => {
         if (!event) return;
         setIsLoadingReviews(true);
-        const { reviews: fetchedReviews } = await EventService.getEventReviews(event.id);
+        const isAlly = event.tags?.includes('aliado') ?? false;
+        const { reviews: fetchedReviews } = await EventService.getEventReviews(event.id, isAlly);
         setReviews(fetchedReviews);
         setIsLoadingReviews(false);
     };
@@ -74,8 +71,9 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
         setIsSubmittingReview(true);
 
         const existingReview = reviews.find(r => r.user_id === user.id);
-
-        await EventService.submitReview(user.id, event.id, existingReview?.id || null, myRating, myReview);
+        
+        const isAlly = event.tags?.includes('aliado') ?? false;
+        await EventService.submitReview(user.id, event.id, existingReview?.id || null, myRating, myReview, isAlly);
         setMyReview('');
         setIsEditing(false);
         await fetchReviews();
@@ -90,10 +88,25 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
     if (!isOpen || !event) return null;
 
-    // Derive free status: use is_free flag OR fallback to price_min
+    const isAlly = event.tags?.includes('aliado') ?? false;
     const isFreeEvent = event.is_free === true || (event as any).price_min === 0 || (event as any).price_min == null;
 
+    // Calculate maximum possible Frikicoins (Fix #6)
+    let totalReward = event.qr_reward_amount || 0;
+    if (event.qr_approved && event.date && event.end_date) {
+        const d1 = new Date(event.date);
+        const d2 = new Date(event.end_date);
+        if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+            const diffTime = Math.abs(d2.getTime() - d1.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+            if (diffDays > 1) {
+                totalReward = totalReward * diffDays;
+            }
+        }
+    }
+
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US', {
+
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     }) : t('events.noDate');
 
@@ -170,24 +183,27 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                             {event.qr_approved && (
                                 <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-3 flex items-center justify-center gap-2">
                                     <span className="text-amber-400 font-black text-sm">
-                                        {t('events.qrBanner', { amount: event.qr_reward_amount || 0 })}
+                                        {t('events.qrBannerMax', { defaultValue: '🚀 ¡Gana hasta {{amount}} FC por asistir!', amount: totalReward })}
                                     </span>
                                 </div>
                             )}
 
                             {/* Action Bar */}
-                            <div className="flex justify-between items-center bg-bg-sub/30 p-4 rounded-xl border border-divider-theme">
-                                <div className="flex items-center gap-4">
-                                    <div className="text-center">
-                                        <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startDate')}</div>
-                                        <div className="font-bold text-text-main capitalize text-sm">{formattedDate}</div>
+                            <div className={`flex items-center bg-bg-sub/30 p-4 rounded-xl border border-divider-theme ${isAlly ? 'justify-end' : 'justify-between'}`}>
+                                {!isAlly && (
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-center">
+                                            <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startDate')}</div>
+                                            <div className="font-bold text-text-main capitalize text-sm">{formattedDate}</div>
+                                        </div>
+                                        <div className="w-px h-8 bg-divider-theme"></div>
+                                        <div className="text-center">
+                                            <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startTime')}</div>
+                                            <div className="font-bold text-text-main text-sm">{event.start_time || t('common.tbd')}</div>
+                                        </div>
                                     </div>
-                                    <div className="w-px h-8 bg-divider-theme"></div>
-                                    <div className="text-center">
-                                        <div className="text-[10px] text-text-muted uppercase font-black tracking-widest">{t('events.startTime')}</div>
-                                        <div className="font-bold text-text-main text-sm">{event.start_time || t('common.tbd')}</div>
-                                    </div>
-                                </div>
+                                )}
+                                
                                 <div className="flex gap-2">
                                     <button onClick={onLikeToggle} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${event.isLiked ? 'border-brand-primary bg-brand-primary/10' : 'border-divider-theme hover:bg-bg-sub'}`}>
                                         <Heart size={20} className={event.isLiked ? 'text-brand-primary' : 'text-text-muted'} fill={event.isLiked ? 'currentColor' : 'none'} />
@@ -207,12 +223,12 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                 </div>
                             </div>
 
-                            {/* Description */}
+                            {/* About */}
                             <div>
-                                <h3 className="text-lg font-bold text-text-main mb-2">{t('events.about')}</h3>
-                                <div className="text-text-sub leading-relaxed whitespace-pre-line text-sm">
-                                    {renderTextWithMedia(event.description || t('events.noDescription'), t)}
-                                </div>
+                                <h3 className="text-lg font-black text-text-main mb-3">{isAlly ? t('eventDetails.aboutAlly', 'Acerca del Lugar') : t('eventDetails.aboutEvent', 'Acerca del Evento')}</h3>
+                                <p className="text-text-sub text-sm leading-relaxed whitespace-pre-line">
+                                    {event.description}
+                                </p>
                             </div>
 
                             {/* Tags */}

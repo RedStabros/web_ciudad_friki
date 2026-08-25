@@ -8,6 +8,9 @@ export interface FrikiEvent {
   end_time?: string | null;
   location?: string;
   maps_location_url?: string;
+  lat?: number | null;
+  lng?: number | null;
+  geo_location?: any;
   banner_url?: string | null;
   status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'delayed';
   price_min?: number | null;

@@ -24,15 +24,16 @@ export default function Notifications() {
         setIsLoading(false);
     };
 
-    const markAsRead = async (id: string) => {
+    const markAsRead = async (notif: Notification) => {
         if (!user) return;
-        await UserService.markNotificationRead(id);
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        await UserService.markNotificationRead(notif.id, user.id, notif.is_global);
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
     };
 
     const markAllAsRead = async () => {
         if (!user) return;
-        await UserService.markAllNotificationsRead(user.id);
+        const unreadGlobals = notifications.filter(n => !n.is_read && n.is_global).map(n => n.id);
+        await UserService.markAllNotificationsRead(user.id, unreadGlobals);
         setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     };
 
@@ -92,7 +93,7 @@ export default function Notifications() {
                     notifications.map((notif) => (
                         <div
                             key={notif.id}
-                            onClick={() => !notif.is_read && markAsRead(notif.id)}
+                            onClick={() => !notif.is_read && markAsRead(notif)}
                             className={`p-5 rounded-[2rem] border transition-all hover:scale-[1.01] cursor-pointer shadow-lg
                                 ${notif.is_read
                                     ? 'bg-bg-side/50 border-border-theme opacity-80'

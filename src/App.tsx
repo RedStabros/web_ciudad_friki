@@ -22,6 +22,7 @@ import Support from './pages/Support';
 import AccountDeletion from './pages/AccountDeletion';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
+import MapPage from './pages/MapPage';
 import FrikiMart from './pages/FrikiMart';
 import Notifications from './pages/Notifications';
 import NotificationSettings from './pages/NotificationSettings';
@@ -37,6 +38,7 @@ import AdminFrikiMartPage from './pages/admin/AdminFrikiMartPage';
 import AdminToolsPage from './pages/admin/AdminToolsPage';
 import AdminBans from './pages/admin/AdminBans';
 import AdminFrikiVS from './pages/admin/AdminFrikiVS';
+import AdminAllies from './pages/admin/AdminAllies';
 
 function OnboardingGate() {
   const { user, isLoading: authLoading } = useAuth();
@@ -108,6 +110,7 @@ function App() {
           {/* Profile */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-events" element={<MyEvents />} />
+          <Route path="/map" element={<MapPage />} />
           <Route path="/frikimart" element={<FrikiMart />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/settings/notifications" element={<NotificationSettings />} />
@@ -142,9 +145,10 @@ function App() {
             <Route path="frikimart" element={<AdminFrikiMartPage />} />
             <Route path="qrs" element={<AdminQRs />} />
             <Route path="tavern" element={<AdminTavern />} />
+            <Route path="bans" element={<AdminBans />} />
+            <Route path="allies" element={<AdminAllies />} />
             <Route path="tools" element={<AdminToolsPage />} />
             <Route path="gm" element={<AdminGM />} />
-            <Route path="bans" element={<AdminBans />} />
           </Route>
 
           <Route path="*" element={<div className="p-8 text-center text-2xl font-bold text-red-500">404 - Not Found</div>} />

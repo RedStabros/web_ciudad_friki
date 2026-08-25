@@ -309,7 +309,10 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                             const isReceived = tx.to_user === userId;
                                             const isP2P = tx.type === 'transfer' || tx.type === 'p2p' || (!tx.type && tx.from_user && tx.to_user);
                                             let descriptionText = tx.description;
-                                            if (isP2P) {
+                                            if (descriptionText) {
+                                                // Display fix for Fix #14 (Encoding issue fallback)
+                                                descriptionText = descriptionText.replace(/\bDia \b/g, 'Día ').replace(/\bdia \b/g, 'día ').replace(/ - Dia (\d+)/g, ' - Día $1');
+                                            } else if (isP2P) {
                                                 if (isReceived) {
                                                     descriptionText = t('wallet.receivedFrom', { username: tx.from_profile?.username ? `@${tx.from_profile.username}` : '@Usuario' });
                                                     if (!descriptionText || descriptionText.includes('wallet.receivedFrom')) {
@@ -321,7 +324,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                         descriptionText = `Enviado a ${tx.to_profile?.username ? `@${tx.to_profile.username}` : '@Usuario'}`;
                                                     }
                                                 }
-                                            } else if (!descriptionText) {
+                                            } else {
                                                 descriptionText = isReceived ? t('wallet.received') : t('wallet.sent');
                                             }
 

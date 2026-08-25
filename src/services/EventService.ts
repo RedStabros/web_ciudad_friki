@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabase';
+import { getLocalTodayString } from '../utils/dateUtils';
+import { injectLatLng } from '../utils/geoUtils';
 
 export interface FrikiEvent {
     id: string;
@@ -10,6 +12,9 @@ export interface FrikiEvent {
     end_time?: string;
     location: string;
     maps_location_url?: string;
+    lat?: number | null;
+    lng?: number | null;
+    geo_location?: any;
     price_min?: number;
     is_free?: boolean;
     external_link?: string;
@@ -63,24 +68,29 @@ export const EventService = {
                 .select(`
                     *,
                     event_likes!left(user_id),
-                    saved_events!left(user_id)
+                    saved_events!left(user_id),
+                    views_count,
+                    geo_location
                 `)
                 .in('status', ['approved', 'delayed']);
 
+            const todayStr = getLocalTodayString();
+
             if (type === 'past') {
                 query = query
-                    .lt('date', new Date().toISOString().split('T')[0])
+                    .lt('date', todayStr)
+                    .or(`end_date.lt.${todayStr},end_date.is.null`)
                     .order('date', { ascending: false });
             } else if (type === 'interests' && userInterests && userInterests.length > 0) {
                 query = query
-                    .gte('date', new Date().toISOString().split('T')[0])
+                    .or(`date.gte.${todayStr},end_date.gte.${todayStr}`)
                     .overlaps('tags', userInterests)
                     .order('is_sponsored', { ascending: false })
                     .order('date', { ascending: true });
             } else {
                 // Default: upcoming (also if type is interests but no interests found)
                 query = query
-                    .gte('date', new Date().toISOString().split('T')[0])
+                    .or(`date.gte.${todayStr},end_date.gte.${todayStr}`)
                     .order('is_sponsored', { ascending: false })
                     .order('date', { ascending: true });
             }
@@ -106,11 +116,11 @@ export const EventService = {
                 delete event.event_likes;
                 delete event.saved_events;
 
-                return {
+                return injectLatLng({
                     ...event,
                     isLiked,
                     isSaved
-                } as FrikiEvent;
+                }) as FrikiEvent;
             });
 
             return {
@@ -169,15 +179,17 @@ export const EventService = {
         }
     },
 
-    async getEventReviews(eventId: string) {
+    async getEventReviews(eventId: string, isAlly: boolean = false) {
         try {
+            const table = isAlly ? 'ally_reviews' : 'event_reviews';
+            const idColumn = isAlly ? 'location_id' : 'event_id';
             const { data, error } = await supabase
-                .from('event_reviews')
+                .from(table)
                 .select(`
                     *,
                     user:profiles(username, avatar_url)
                 `)
-                .eq('event_id', eventId)
+                .eq(idColumn, eventId)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -197,18 +209,20 @@ export const EventService = {
         }
     },
 
-    async submitReview(userId: string, eventId: string, reviewId: string | null, rating: number, comment: string) {
+    async submitReview(userId: string, eventId: string, reviewId: string | null, rating: number, comment: string, isAlly: boolean = false) {
         try {
+            const table = isAlly ? 'ally_reviews' : 'event_reviews';
+            const idColumn = isAlly ? 'location_id' : 'event_id';
             if (reviewId) {
                 const { error } = await supabase
-                    .from('event_reviews')
+                    .from(table)
                     .update({ rating, comment, updated_at: new Date() })
                     .eq('id', reviewId);
                 if (error) throw error;
             } else {
                 const { error } = await supabase
-                    .from('event_reviews')
-                    .insert({ event_id: eventId, user_id: userId, rating, comment });
+                    .from(table)
+                    .insert({ [idColumn]: eventId, user_id: userId, rating, comment });
                 if (error) throw error;
             }
             return { error: null };
@@ -218,10 +232,11 @@ export const EventService = {
         }
     },
 
-    async deleteReview(reviewId: string) {
+    async deleteReview(reviewId: string, isAlly: boolean = false) {
         try {
+            const table = isAlly ? 'ally_reviews' : 'event_reviews';
             const { error } = await supabase
-                .from('event_reviews')
+                .from(table)
                 .delete()
                 .eq('id', reviewId);
             if (error) throw error;
@@ -233,9 +248,19 @@ export const EventService = {
 
     async createEvent(eventData: Partial<FrikiEvent>) {
         try {
+            // Map lat/lng to geo_location for Supabase PostGIS if provided
+            const dataToInsert = { ...eventData };
+            if (dataToInsert.lat !== undefined && dataToInsert.lng !== undefined) {
+                if (dataToInsert.lat !== null && dataToInsert.lng !== null) {
+                    dataToInsert.geo_location = `POINT(${dataToInsert.lng} ${dataToInsert.lat})`;
+                }
+                delete dataToInsert.lat;
+                delete dataToInsert.lng;
+            }
+
             const { error, data } = await supabase
                 .from('events')
-                .insert([eventData])
+                .insert([dataToInsert])
                 .select()
                 .single();
             if (error) throw error;
@@ -248,9 +273,20 @@ export const EventService = {
 
     async updateEvent(id: string, eventData: Partial<FrikiEvent>) {
         try {
+            const dataToUpdate = { ...eventData };
+            if (dataToUpdate.lat !== undefined && dataToUpdate.lng !== undefined) {
+                if (dataToUpdate.lat !== null && dataToUpdate.lng !== null) {
+                    dataToUpdate.geo_location = `POINT(${dataToUpdate.lng} ${dataToUpdate.lat})`;
+                } else {
+                    dataToUpdate.geo_location = null;
+                }
+                delete dataToUpdate.lat;
+                delete dataToUpdate.lng;
+            }
+
             const { error, data } = await supabase
                 .from('events')
-                .update(eventData)
+                .update(dataToUpdate)
                 .eq('id', id)
                 .select()
                 .single();
@@ -283,7 +319,7 @@ export const EventService = {
             const { data: eventTags } = await supabase
                 .from('events')
                 .select('tags')
-                .gte('date', new Date().toISOString().split('T')[0])
+                .or(`date.gte.${getLocalTodayString()},end_date.gte.${getLocalTodayString()}`)
                 .limit(50);
 
             const counts: Record<string, number> = {};

@@ -10,7 +10,7 @@ export const SystemService = {
                 .from('global_settings')
                 .select('value')
                 .eq('key', key)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 if (error.code !== 'PGRST116') {
@@ -19,7 +19,7 @@ export const SystemService = {
                 return defaultValue;
             }
 
-            return (data.value as T) ?? defaultValue;
+            return (data?.value as T) ?? defaultValue;
         } catch (error) {
             console.error(`Unexpected error fetching global setting ${key}:`, error);
             return defaultValue;

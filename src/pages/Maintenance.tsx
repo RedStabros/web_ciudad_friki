@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Lock } from 'lucide-react';
+import { AlertCircle, Lock, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export function MaintenancePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { user, signOut } = useAuth();
 
     return (
         <div className="min-h-screen bg-bg-main flex items-center justify-center p-6 text-center transition-colors duration-300">
@@ -36,15 +38,30 @@ export function MaintenancePage() {
                     </div>
 
                     <div className="pt-6">
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="group flex items-center gap-3 mx-auto px-8 py-4 bg-bg-side hover:bg-bg-sub text-text-muted hover:text-text-main rounded-2xl transition-all duration-300 border border-divider-theme shadow-xl hover:shadow-brand-primary/10"
-                        >
-                            <Lock size={18} className="group-hover:rotate-12 transition duration-300 text-brand-primary" />
-                            <span className="font-black text-sm uppercase tracking-widest">
-                                {t('maintenance.adminLogin')}
-                            </span>
-                        </button>
+                        {user ? (
+                            <button
+                                onClick={async () => {
+                                    await signOut();
+                                    navigate('/login');
+                                }}
+                                className="group flex items-center gap-3 mx-auto px-8 py-4 bg-bg-side hover:bg-bg-sub text-text-muted hover:text-text-main rounded-2xl transition-all duration-300 border border-divider-theme shadow-xl hover:shadow-accent-red/10"
+                            >
+                                <LogOut size={18} className="group-hover:-translate-x-1 transition duration-300 text-accent-red" />
+                                <span className="font-black text-sm uppercase tracking-widest">
+                                    {t('maintenance.logout', 'Cerrar Sesión')}
+                                </span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="group flex items-center gap-3 mx-auto px-8 py-4 bg-bg-side hover:bg-bg-sub text-text-muted hover:text-text-main rounded-2xl transition-all duration-300 border border-divider-theme shadow-xl hover:shadow-brand-primary/10"
+                            >
+                                <Lock size={18} className="group-hover:rotate-12 transition duration-300 text-brand-primary" />
+                                <span className="font-black text-sm uppercase tracking-widest">
+                                    {t('maintenance.adminLogin')}
+                                </span>
+                            </button>
+                        )}
                     </div>
                 </div>
 

@@ -12,6 +12,9 @@ import { getAvatarSource } from '../../config/avatars';
 import { TavernAdminService } from '../../services/TavernAdminService';
 import UserAuditModal from '../../components/admin/UserAuditModal';
 import AutoTriviaGeneratorModal from '../../components/admin/AutoTriviaGeneratorModal';
+import { AdminBugReports } from '../../components/AdminBugReports';
+import { Send, Bug, Radio } from 'lucide-react';
+
 
 export default function AdminGM() {
     const { t } = useTranslation();
@@ -40,11 +43,17 @@ export default function AdminGM() {
     // Search and Audit States
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
+
+    // Broadcast state
+    const [broadcastTitle, setBroadcastTitle] = useState('');
+    const [broadcastMessage, setBroadcastMessage] = useState('');
+    const [sendingBroadcast, setSendingBroadcast] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [showAuditModal, setShowAuditModal] = useState(false);
     const [auditUserId, setAuditUserId] = useState<string | null>(null);
     const [auditUsername, setAuditUsername] = useState('');
     const [showAutoModal, setShowAutoModal] = useState(false);
+    const [showBugReports, setShowBugReports] = useState(false);
 
     useEffect(() => {
         if (isSpecialAdmin) {
@@ -70,7 +79,7 @@ export default function AdminGM() {
             const keys = [
                 'tavern_enabled', 'trivia_vs_enabled', 'store_enabled',
                 'store_admin_visible', 'ttrpg_enabled', 'user_trivias_enabled',
-                'store_web_enabled', 'maintenance_mode'
+                'store_web_enabled', 'app_maintenance_mode'
             ];
             const settings = await SuperAdminService.getGlobalSettings(keys);
             setTavernEnabled(settings['tavern_enabled']);
@@ -80,7 +89,7 @@ export default function AdminGM() {
             setTtrpgEnabled(settings['ttrpg_enabled']);
             setUserTriviasEnabled(settings['user_trivias_enabled']);
             setStoreWebEnabled(settings['store_web_enabled']);
-            setMaintenanceMode(settings['maintenance_mode']);
+            setMaintenanceMode(settings['app_maintenance_mode']);
         } catch (e) {
             console.error('Error loading global settings batch:', e);
         }
@@ -100,11 +109,28 @@ export default function AdminGM() {
             const newVal = !currentValue;
             const { error } = await SuperAdminService.toggleGlobalSetting(key, newVal);
             if (error) {
-                alert(t('adminGM.errors.updateError', { message: error.message }));
+                alert(t('adminGM.errors.updateError', { message: (error as any).message }));
             } else {
                 setter(newVal);
             }
             setSavingSettings(prev => ({ ...prev, [key]: false }));
+        }
+    };
+
+    const handleSendBroadcast = async () => {
+        if (!broadcastTitle.trim() || !broadcastMessage.trim()) return;
+        if (!window.confirm(t('adminGM.broadcast.confirm'))) return;
+        
+        setSendingBroadcast(true);
+        const { error } = await SuperAdminService.createGlobalBroadcast(broadcastTitle, broadcastMessage);
+        setSendingBroadcast(false);
+        
+        if (error) {
+            alert(t('adminGM.broadcast.error', { message: (error as any).message }));
+        } else {
+            alert(t('adminGM.broadcast.success'));
+            setBroadcastTitle('');
+            setBroadcastMessage('');
         }
     };
 
@@ -241,15 +267,15 @@ export default function AdminGM() {
                         <div className="flex flex-col h-full justify-between gap-3">
                             <div>
                                 <h3 className="font-bold text-text-main flex items-center gap-2">
-                                    <Zap size={18} className="text-brand-primary animate-pulse" /> Generador de Trivias
+                                    <Zap size={18} className="text-brand-primary animate-pulse" /> {t('adminGM.autoTrivia.title', 'Generador de Trivias')}
                                 </h3>
-                                <p className="text-xs text-text-muted mt-1 max-w-[220px]">Genera trivias oficiales usando el pool aleatorio de Trivia VS.</p>
+                                <p className="text-xs text-text-muted mt-1 max-w-[220px]">{t('adminGM.autoTrivia.description', 'Genera trivias oficiales usando el pool aleatorio de Trivia VS.')}</p>
                             </div>
                             <button
                                 onClick={() => setShowAutoModal(true)}
                                 className="w-fit px-4 py-2 bg-brand-primary hover:bg-brand-primary-light text-text-inv font-black text-xs rounded-xl transition-all shadow-md shadow-brand-primary/20 flex items-center gap-1.5"
                             >
-                                <Zap size={12} /> Generar
+                                <Zap size={12} /> {t('adminGM.autoTrivia.button', 'Generar')}
                             </button>
                         </div>
                     </div>
@@ -266,13 +292,47 @@ export default function AdminGM() {
                             <p className="text-xs text-text-muted mt-1 max-w-[400px]">{t('adminGM.controls.maintenance.description', 'Poner la plataforma entera en modo de mantenimiento.')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                            <input type="checkbox" className="sr-only peer" checked={maintenanceMode} disabled={savingSettings['maintenance_mode']}
-                                onChange={() => handleToggle('maintenance_mode', maintenanceMode, setMaintenanceMode, t('adminGM.controls.maintenance.confirmMsg', '¿Cambiar el estado del Modo Mantenimiento global?'))}
+                            <input type="checkbox" className="sr-only peer" checked={maintenanceMode} disabled={savingSettings['app_maintenance_mode']}
+                                onChange={() => handleToggle('app_maintenance_mode', maintenanceMode, setMaintenanceMode, t('adminGM.controls.maintenance.confirmMsg', '¿Cambiar el estado del Modo Mantenimiento global?'))}
                             />
-                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                            <div className="w-11 h-6 bg-bg-main border border-border-theme rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
                         </label>
                     </div>
-                    {savingSettings['maintenance_mode'] && <p className="text-[10px] text-red-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                    {savingSettings['app_maintenance_mode'] && <p className="text-[10px] text-red-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
+                {/* Broadcast Tool */}
+                <div className="flex items-center justify-between p-4 bg-bg-sub border border-border-theme rounded-2xl">
+                    <div className="flex-1 pr-4">
+                        <h4 className="font-bold text-text-main flex items-center gap-2">
+                            <Radio size={18} className="text-brand-primary" /> 
+                            {t('adminGM.controls.broadcast.title', 'Comunicado Global')}
+                        </h4>
+                        <p className="text-xs text-text-muted mt-1 max-w-[400px]">{t('adminGM.controls.broadcast.description', 'Enviar un mensaje push global sin afectar a los usuarios.')}</p>
+                        <div className="mt-3 space-y-2 max-w-sm">
+                            <input 
+                                type="text" 
+                                placeholder={t('adminGM.controls.broadcast.titlePlaceholder', 'Título del comunicado')}
+                                className="w-full bg-bg-side border border-border-theme rounded-xl px-3 py-2 text-sm text-text-main focus:border-brand-primary outline-none"
+                                value={broadcastTitle}
+                                onChange={e => setBroadcastTitle(e.target.value)}
+                            />
+                            <textarea 
+                                placeholder={t('adminGM.controls.broadcast.messagePlaceholder', 'Mensaje del comunicado')}
+                                className="w-full bg-bg-side border border-border-theme rounded-xl px-3 py-2 text-sm text-text-main focus:border-brand-primary outline-none resize-none h-20"
+                                value={broadcastMessage}
+                                onChange={e => setBroadcastMessage(e.target.value)}
+                            ></textarea>
+                            <button 
+                                onClick={handleSendBroadcast}
+                                disabled={sendingBroadcast || !broadcastTitle.trim() || !broadcastMessage.trim()}
+                                className="w-full bg-brand-primary text-white font-bold py-2 rounded-xl text-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                            >
+                                {sendingBroadcast ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                                {t('common.send', 'Enviar')}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* FrikiMart Controls */}
@@ -358,13 +418,13 @@ export default function AdminGM() {
                     <div className="absolute top-0 right-0 w-48 h-48 bg-brand-secondary/5 rounded-full -mr-24 -mt-24 pointer-events-none"></div>
                     <div className="flex items-center gap-2 mb-2 z-10">
                         <ShieldAlert size={22} className="text-brand-secondary" />
-                        <h3 className="font-bold text-lg text-text-main">Auditoría de Usuarios (GM)</h3>
+                        <h3 className="font-bold text-lg text-text-main">{t('adminGM.audit.title', 'Auditoría de Usuarios (GM)')}</h3>
                     </div>
                     <div className="flex flex-col gap-3.5 z-10">
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="Buscar usuario por @username o correo..."
+                                placeholder={t('adminGM.audit.searchPlaceholder', 'Buscar usuario por @username o correo...')}
                                 value={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 className="w-full bg-bg-side border border-border-theme text-text-main px-4 py-3 pl-10 rounded-xl focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary outline-none transition-all placeholder:text-text-muted text-sm"
@@ -399,7 +459,7 @@ export default function AdminGM() {
                                                         <span className="bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest">{u.role}</span>
                                                     )}
                                                     {u.is_banned && (
-                                                        <span className="bg-accent-red text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Baneado</span>
+                                                        <span className="bg-accent-red text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter">{t('adminGM.audit.banned', 'Baneado')}</span>
                                                     )}
                                                 </div>
                                                 <span className="text-[10px] text-text-muted block mt-0.5">{u.email}</span>
@@ -412,19 +472,76 @@ export default function AdminGM() {
                         )}
 
                         {searchQuery.trim().length > 1 && searchResults.length === 0 && !isSearching && (
-                            <p className="text-xs text-text-muted italic text-center py-2">No se encontraron usuarios.</p>
+                            <p className="text-xs text-text-muted italic text-center py-2">{t('adminGM.audit.noUsersFound', 'No se encontraron usuarios.')}</p>
                         )}
+                    </div>
+                </div>
+
+                {/* Bug Reports Section */}
+                <div className="bg-bg-pop border border-accent-red/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm md:col-span-1 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-accent-red/5 rounded-full -mr-12 -mt-12 pointer-events-none"></div>
+                    <div className="flex items-start justify-between z-10 h-full">
+                        <div className="flex flex-col h-full justify-between gap-3">
+                            <div>
+                                <h3 className="font-bold text-text-main flex items-center gap-2">
+                                    <Bug size={18} className="text-accent-red" /> {t('admin.bugReportsTitle', 'Reportes de Sistema')}
+                                </h3>
+                                <p className="text-xs text-text-muted mt-1 max-w-[220px]">
+                                    Revisar los reportes de bugs enviados por los usuarios.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowBugReports(true)}
+                                className="w-fit px-4 py-2 bg-accent-red hover:bg-red-600 text-white font-black text-xs rounded-xl transition-all shadow-md shadow-accent-red/20 flex items-center gap-1.5"
+                            >
+                                <Bug size={12} /> Revisar Reportes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Global Broadcast Section */}
+                <div className="bg-bg-pop border border-brand-primary/30 rounded-2xl p-5 flex flex-col gap-5 shadow-sm md:col-span-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/5 rounded-full -mr-24 -mt-24 pointer-events-none"></div>
+                    <div className="flex items-center gap-2 mb-2 z-10">
+                        <Send size={22} className="text-brand-primary" />
+                        <h3 className="font-bold text-lg text-text-main">{t('adminGM.broadcast.title')}</h3>
+                    </div>
+                    <div className="flex flex-col gap-3 z-10">
+                        <p className="text-xs text-text-muted">{t('adminGM.broadcast.description')}</p>
+                        <input
+                            type="text"
+                            placeholder={t('adminGM.broadcast.titlePlaceholder')}
+                            value={broadcastTitle}
+                            onChange={(e) => setBroadcastTitle(e.target.value)}
+                            className="bg-bg-side border border-border-theme text-text-main px-4 py-3 rounded-xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-text-muted text-sm"
+                        />
+                        <textarea
+                            placeholder={t('adminGM.broadcast.messagePlaceholder')}
+                            value={broadcastMessage}
+                            onChange={(e) => setBroadcastMessage(e.target.value)}
+                            rows={3}
+                            className="bg-bg-side border border-border-theme text-text-main px-4 py-3 rounded-xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-text-muted text-sm resize-none"
+                        />
+                        <button
+                            onClick={handleSendBroadcast}
+                            disabled={sendingBroadcast || !broadcastTitle.trim() || !broadcastMessage.trim()}
+                            className="mt-2 w-fit ml-auto flex items-center gap-2 px-6 py-2.5 bg-brand-primary hover:bg-brand-primary/90 text-text-inv font-black text-sm rounded-xl transition-all shadow-md disabled:opacity-50"
+                        >
+                            {sendingBroadcast ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            {t('adminGM.broadcast.send')}
+                        </button>
                     </div>
                 </div>
 
             </div>
 
             {/* Audit Modal */}
-            <UserAuditModal
-                visible={showAuditModal}
-                onClose={() => setShowAuditModal(false)}
-                userId={auditUserId}
-                username={auditUsername}
+            <UserAuditModal 
+                visible={showAuditModal} 
+                onClose={() => setShowAuditModal(false)} 
+                userId={auditUserId} 
+                username={auditUsername} 
                 isSuperAdmin={true}
             />
 
@@ -436,6 +553,12 @@ export default function AdminGM() {
                 onCreated={() => {
                     loadMetrics();
                 }}
+            />
+
+            {/* Bug Reports Modal */}
+            <AdminBugReports 
+                isOpen={showBugReports}
+                onClose={() => setShowBugReports(false)}
             />
         </div>
     );
