@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  <title>Acerca de Ciudad Friki | Comunidad Geek en Colombia</title>
+  <meta name="description" content="Ciudad Friki es la plataforma interactiva y red social oficial de la comunidad geek, friki, otaku y gamer en Colombia. Descubre eventos, mapas interactivos, trivias y más." />
+  <meta property="og:title" content="Ciudad Friki — La comunidad geek de Colombia" />
+  <meta property="og:description" content="Red social, mapa interactivo y gamificación para la comunidad friki de Colombia." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ciudadfriki.app/about.html" />
+  <meta property="og:site_name" content="Ciudad Friki" />
+  <link rel="icon" href="/assets/adaptive-icon.png" type="image/png" />
+  <style>
+    :root {
+      --brand: #00ff9d;
+      --brand-dark: #00cc7a;
+      --bg: #0a0a0f;
+      --bg-card: #111118;
+      --text: #e8e8f0;
+      --text-sub: #9090a8;
+      --border: #1e1e2e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.95);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-weight: 900; font-size: 1.25rem; color: var(--brand); letter-spacing: -0.02em;
+    }
+    .nav-logo img { width: 36px; height: 36px; border-radius: 8px; }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .btn-primary {
+      background: var(--brand); color: #0a0a0f;
+      padding: 0.5rem 1.25rem; border-radius: 9999px;
+      font-weight: 800; font-size: 0.875rem;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; text-decoration: none; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--brand);
+      color: var(--brand);
+      padding: 0.25rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+    }
+    h1 span { color: var(--brand); }
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--text-sub);
+      max-width: 640px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1.4rem; border-radius: 9999px;
+      font-weight: 700; font-size: 0.875rem;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--brand); text-decoration: none; }
+
+    /* FEATURES */
+    .features {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: var(--brand); transform: translateY(-2px); }
+    .card-icon {
+      font-size: 2rem; margin-bottom: 1rem;
+    }
+    .card h2 {
+      font-size: 1.125rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .card p { color: var(--text-sub); font-size: 0.9rem; }
+
+    /* ABOUT SECTION */
+    .about-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .about-section h2 {
+      font-size: 1.75rem; font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .about-section p { color: var(--text-sub); margin-bottom: 1rem; }
+
+    /* DATA TABLE */
+    .info-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .info-table th, .info-table td {
+      text-align: left; padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border); font-size: 0.875rem;
+    }
+    .info-table th { color: var(--brand); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-table td { color: var(--text-sub); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+    }
+    footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    footer .footer-links a { color: var(--brand); font-size: 0.8rem; }
+
+    @media (max-width: 600px) {
+      nav { padding: 0.75rem 1rem; }
+      .nav-links span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">
+      <img src="/assets/adaptive-icon.png" alt="Ciudad Friki Logo" />
+      Ciudad Friki
+    </div>
+    <div class="nav-links">
+      <a href="/legal/privacy" class="btn-secondary">Privacidad</a>
+      <a href="/" class="btn-primary">Entrar a la App</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="badge">🎮 Comunidad Geek · Colombia</div>
+      <h1>La plataforma de la <span>comunidad friki</span> de Colombia</h1>
+      <p>
+        Ciudad Friki es la red social, el mapa interactivo y la plataforma de gamificación
+        para la comunidad geek, otaku, gamer y friki de Colombia. Descubre eventos, conecta
+        con tu comunidad y compite en trivias y duelos.
+      </p>
+      <div class="hero-cta">
+        <a href="/" class="btn-primary">Unirse a la Comunidad</a>
+        <a href="/legal/privacy" class="btn-secondary">Política de Privacidad</a>
+        <a href="/legal/terms" class="btn-secondary">Términos del Servicio</a>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" aria-label="Características de Ciudad Friki">
+
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <h2>Mapa Interactivo de Eventos</h2>
+        <p>
+          Encuentra eventos, convenciones, tiendas aliadas y torneos en tu área. Los organizadores
+          georreferencia sus eventos para que puedas navegar directamente hacia ellos.
+          <strong>La app usa Google Maps API (móvil) y Leaflet/CARTO (web).</strong>
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🎮</div>
+        <h2>Gamificación: Trivias y Duelos</h2>
+        <p>
+          Participa en trivias temáticas de anime, videojuegos y cómics. Desafía a otros usuarios
+          en duelos de conocimiento (Friki VS). Gana <strong>Frikicoins</strong> (puntos de lealtad
+          sin valor monetario real) y sube en el ranking de la comunidad.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🍺</div>
+        <h2>La Taberna — Foro Comunitario</h2>
+        <p>
+          Un foro moderado donde puedes discutir anime, videojuegos, rol en mesa, películas y
+          cultura pop con miles de usuarios. Con sistema de reportes, moderación activa y normas
+          de convivencia claras.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🏆</div>
+        <h2>Logros y Perfil de Usuario</h2>
+        <p>
+          Gana logros desbloqueables, construye tu perfil friki con tu historial de eventos y
+          juegos, y exhibe tus logros en tu vitrina personal. El inicio de sesión es seguro
+          a través de <strong>Google OAuth 2.0</strong> gestionado por Supabase.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h2>Encuestas Culturales</h2>
+        <p>
+          Participa en encuestas sobre preferencias culturales geek que alimentan estudios de
+          planificación cultural. Las respuestas son siempre anonimizadas y agregadas. Tu
+          participación es completamente voluntaria.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🛡️</div>
+        <h2>Seguridad y Privacidad</h2>
+        <p>
+          No almacenamos tu ubicación en tiempo real. El inicio de sesión con Google solo
+          recibe tu nombre, correo y foto de perfil. Los datos se protegen bajo la
+          <strong>Ley 1581 de 2012</strong> de Colombia y normativas RGPD equivalentes.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ABOUT ORG -->
+    <section class="about-section">
+      <h2>Sobre la Organización</h2>
+      <p>
+        Ciudad Friki es desarrollada y operada por la <strong>Corporación Ciudad Friki</strong>,
+        una organización cultural sin ánimo de lucro con sede en Medellín, Colombia, en colaboración
+        con su desarrollador técnico, Mauricio Saldarriaga García.
+      </p>
+      <p>
+        La plataforma existe para fortalecer la identidad cultural de la comunidad geek colombiana,
+        facilitando el acceso a eventos, la conexión entre personas apasionadas por la cultura pop
+        y la visibilización de negocios y organizadores locales del sector.
+      </p>
+
+      <table class="info-table" aria-label="Información de la organización">
+        <thead>
+          <tr><th>Campo</th><th>Información</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Organización</td><td>Corporación Ciudad Friki</td></tr>
+          <tr><td>NIT</td><td>901.597.939-0</td></tr>
+          <tr><td>Ciudad</td><td>Medellín, Colombia</td></tr>
+          <tr><td>Correo de Contacto</td><td><a href="mailto:udcarkangel@gmail.com">udcarkangel@gmail.com</a></td></tr>
+          <tr><td>Aplicación Móvil</td><td>Disponible en Google Play Store (Android)</td></tr>
+          <tr><td>Autenticación</td><td>Google OAuth 2.0 (gestionado por Supabase)</td></tr>
+          <tr><td>Datos que usamos de Google</td><td>Nombre, correo electrónico y foto de perfil público</td></tr>
+          <tr><td>Datos que NO almacenamos</td><td>Contraseña, ubicación en tiempo real, tokens de acceso a otros servicios de Google</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Corporación Ciudad Friki &copy; <script>document.write(new Date().getFullYear())</script> — NIT 901.597.939-0 — Medellín, Colombia</p>
+    <div class="footer-links">
+      <a href="/">Iniciar Sesión / Entrar a la App</a>
+      <a href="/legal/privacy">Política de Privacidad</a>
+      <a href="/legal/terms">Términos del Servicio</a>
+      <a href="/account-deletion">Eliminación de Cuenta</a>
+      <a href="mailto:udcarkangel@gmail.com">Contacto</a>
+    </div>
+  </footer>
+
+</body>
+</html>
