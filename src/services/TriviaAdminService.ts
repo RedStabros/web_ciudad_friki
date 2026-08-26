@@ -40,58 +40,46 @@ export const TriviaAdminService = {
 
     async getAdminTriviasPaginated(limit: number = 20, offset: number = 0, statusFilter: string = 'all'): Promise<{ trivias: any[], totalCount: number, error: any }> {
         try {
-            let query = supabase
+            // Fetch total count for pagination
+            let countQuery = supabase
                 .from('trivias')
-                .select('*', { count: 'exact' });
+                .select('*', { count: 'exact', head: true });
 
             const todayStr = getLocalTodayString();
 
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active') {
-                    query = query.eq('status', 'active').or(`expire_date.gte.${todayStr},expire_date.is.null`);
+                    countQuery = countQuery.eq('status', 'active').or(`expire_date.gte.${todayStr},expire_date.is.null`);
                 } else if (statusFilter === 'expired') {
-                    // A trivia is considered expired if its expire_date has passed, regardless of its 'active' status
-                    query = query.lt('expire_date', todayStr);
+                    countQuery = countQuery.lt('expire_date', todayStr);
                 } else {
-                    query = query.eq('status', statusFilter);
+                    countQuery = countQuery.eq('status', statusFilter);
                 }
             }
 
-            // Order by created_at desc
-            query = query.order('created_at', { ascending: false });
+            const { count, error: countError } = await countQuery;
+            if (countError) throw countError;
 
-            // Range pagination
-            const { data, count, error } = await query.range(offset, offset + limit - 1);
+            if (!count) {
+                return { trivias: [], totalCount: 0, error: null };
+            }
+
+            // Fetch paginated data with stats using the RPC
+            const { data, error } = await supabase.rpc('get_admin_trivias_paginated', {
+                p_limit: limit,
+                p_offset: offset,
+                p_status: statusFilter
+            });
 
             if (error) throw error;
-            if (!data) return { trivias: [], totalCount: count || 0, error: null };
 
-            // Fetch attempt_count and total_points for each trivia
-            const triviasWithStats = await Promise.all(
-                data.map(async (trivia) => {
-                    const { count: attemptCount } = await supabase
-                        .from('trivia_attempts')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('trivia_id', trivia.id);
-
-                    const { data: qData } = await supabase
-                        .from('trivia_questions')
-                        .select('points')
-                        .eq('trivia_id', trivia.id);
-                        
-                    const total_points = (qData || []).reduce((sum, q) => sum + (q.points || 0), 0);
-
-                    const isExpired = trivia.expire_date && trivia.expire_date.split('T')[0].split(' ')[0] < todayStr;
-                    const derivedStatus = (trivia.status === 'active' && isExpired) ? 'expired' : trivia.status;
-
-                    return {
-                        ...trivia,
-                        status: derivedStatus,
-                        attempt_count: attemptCount || 0,
-                        total_points
-                    };
-                })
-            );
+            // Map computed fields as done in mobile
+            const triviasWithStats = (data || []).map((t: any) => ({
+                ...t,
+                status: t.computed_status || t.status,
+                attempt_count: parseInt(t.attempt_count) || 0,
+                total_points: parseInt(t.total_points) || 0
+            }));
 
             return { trivias: triviasWithStats, totalCount: count || 0, error: null };
         } catch (error) {
