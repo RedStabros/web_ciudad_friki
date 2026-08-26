@@ -28,13 +28,13 @@ const createCustomIcon = (color: string, iconUrl?: string) => {
     });
 };
 
-const iconEventGold = createCustomIcon('#f59e0b');
+const iconEventGold = createCustomIcon('#f59e0b'); // Gold — events
 const allyIcons: Record<string, L.DivIcon> = {
-    STORE: createCustomIcon('#8b5cf6'), // Purple
-    GAMING_CENTER: createCustomIcon('#06b6d4'), // Cyan
-    CULTURAL: createCustomIcon('#10b981'), // Green
-    FOOD: createCustomIcon('#f97316'), // Orange
-    EVENT_VENUE: createCustomIcon('#ec4899'), // Pink
+    STORE: createCustomIcon('#f97316'),         // Orange — Tienda Friki
+    GAMING_CENTER: createCustomIcon('#8b5cf6'), // Purple — Centro Gaming
+    CULTURAL: createCustomIcon('#06b6d4'),      // Cyan — Cultural
+    FOOD: createCustomIcon('#ef4444'),          // Red — Comida
+    EVENT_VENUE: createCustomIcon('#10b981'),   // Green — Sedes
     DEFAULT: createCustomIcon('#8b5cf6')
 };
 
@@ -169,7 +169,7 @@ export default function MapPage() {
         <div className="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden relative">
             <SEO 
                 title={t('nav.map', 'Mapa Friki')}
-                description="Explora los eventos y aliados comerciales en el Mapa Friki."
+                description={t('map.seoDescription')}
             />
             
             {loading && (
@@ -236,6 +236,36 @@ export default function MapPage() {
                             >
                                 <Crosshair size={20} />
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Map Legend — bottom-left */}
+                <div className="absolute bottom-4 left-4 z-[1000] pointer-events-auto">
+                    <div className="bg-bg-side/90 backdrop-blur-md border border-border-theme rounded-xl shadow-lg px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-muted space-y-1.5">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#f59e0b' }} />
+                            <span>{t('nav.events', 'Eventos')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#f97316' }} />
+                            <span>{t('map.legend.store', 'Tienda Friki')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#8b5cf6' }} />
+                            <span>{t('map.legend.gaming', 'Centro Gaming')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#06b6d4' }} />
+                            <span>{t('map.legend.cultural', 'Cultural')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#ef4444' }} />
+                            <span>{t('map.legend.food', 'Comida')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#10b981' }} />
+                            <span>{t('map.legend.venue', 'Sedes')}</span>
                         </div>
                     </div>
                 </div>

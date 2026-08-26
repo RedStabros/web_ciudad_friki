@@ -261,7 +261,30 @@
     "qrBanner": "🎁 This event gives {{amount}} Frikicoins for physical attendance!",
     "viewQr": "View / Print QR Code",
     "launchEdition": "🔄 Launch New Edition",
-    "edition": "Edition {{number}}"
+    "edition": "Edition {{number}}",
+    "onlyEvents": "Events Only",
+    "onlyAllies": "Allies Only",
+    "mapInstructions": "Click on the map to set the exact location.",
+    "errors": {
+      "locationDenied": "Could not get your location. Please check your browser permissions."
+    }
+  },
+  "map": {
+    "normalMode": "Normal Mode",
+    "frikiMode": "Friki Mode",
+    "seoDescription": "Explore friki events and commercial allies on the interactive map.",
+    "legend": {
+      "store": "Friki Store",
+      "gaming": "Gaming Center",
+      "cultural": "Cultural",
+      "food": "Food",
+      "venue": "Venues"
+    }
+  },
+  "adminAllies": {
+    "form": {
+      "pinPlaced": "Pin placed"
+    }
   },
   "adminRoles": {
     "title": "Role Management",

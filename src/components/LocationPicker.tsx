@@ -122,9 +122,18 @@ export function LocationPicker({ initialLat, initialLng, onLocationChange, onAdd
         }
     };
 
-    const mapTheme = document.documentElement.getAttribute('data-theme') === 'light-friki' 
-        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' 
-        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const getMapTileUrl = () =>
+        document.documentElement.getAttribute('data-theme') === 'light-friki'
+            ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+    const [mapTheme, setMapTheme] = useState<string>(getMapTileUrl);
+
+    useEffect(() => {
+        const observer = new MutationObserver(() => setMapTheme(getMapTileUrl()));
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        return () => observer.disconnect();
+    }, []);
 
     const handleLocateMe = (e: React.MouseEvent) => {
         e.preventDefault();

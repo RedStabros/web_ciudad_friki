@@ -271,6 +271,29 @@
       "subtitle": "Muestra estos códigos a los asistentes para que reclamen su recompensa.",
       "multiDayHint": " Cada día tiene un código diferente.",
       "generating": "Generando QRs..."
+    },
+    "onlyEvents": "Solo Eventos",
+    "onlyAllies": "Solo Aliados",
+    "mapInstructions": "Haz clic en el mapa para ajustar la ubicación exacta.",
+    "errors": {
+      "locationDenied": "No se pudo obtener tu ubicación. Verifica los permisos de tu navegador."
+    }
+  },
+  "map": {
+    "normalMode": "Modo Normal",
+    "frikiMode": "Modo Friki",
+    "seoDescription": "Explora eventos frikis y aliados comerciales en el mapa interactivo.",
+    "legend": {
+      "store": "Tienda Friki",
+      "gaming": "Centro Gaming",
+      "cultural": "Cultural",
+      "food": "Comida",
+      "venue": "Sedes"
+    }
+  },
+  "adminAllies": {
+    "form": {
+      "pinPlaced": "Pin ubicado"
     }
   },
   "adminRoles": {
