@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, Check, Loader2, MessageSquare, Trophy, Calendar, Zap, AlertCircle, Settings } from 'lucide-react';
+import { Bell, Check, Loader2, MessageSquare, Trophy, Calendar, Zap, AlertCircle, Settings, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { UserService, type Notification } from '../services/UserService';
 import { Navigate, Link } from 'react-router-dom';
@@ -35,6 +35,23 @@ export default function Notifications() {
         const unreadGlobals = notifications.filter(n => !n.is_read && n.is_global).map(n => n.id);
         await UserService.markAllNotificationsRead(user.id, unreadGlobals);
         setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    };
+
+    const deleteNotification = async (e: React.MouseEvent, notif: Notification) => {
+        e.stopPropagation();
+        if (!user) return;
+        
+        await UserService.deleteNotification(notif.id, user.id, notif.is_global);
+        setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    };
+
+    const deleteAllNotifications = async () => {
+        if (!user) return;
+        if (!window.confirm(t('common.confirmDeleteAll', '¿Estás seguro de que quieres borrar todas las notificaciones?'))) return;
+        
+        const currentGlobals = notifications.filter(n => n.is_global).map(n => n.id);
+        await UserService.deleteAllNotifications(user.id, currentGlobals);
+        setNotifications([]);
     };
 
     if (!user) {
@@ -80,6 +97,14 @@ export default function Notifications() {
                             <Check size={16} /> {t('common.markAllRead', 'Marcar todo como leído')}
                         </button>
                     )}
+                    {notifications.length > 0 && (
+                        <button
+                            onClick={deleteAllNotifications}
+                            className="px-4 py-2 rounded-xl bg-accent-red/10 text-accent-red hover:bg-accent-red hover:text-white font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <Trash2 size={16} /> {t('common.clearAll', 'Borrar Todo')}
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -104,13 +129,20 @@ export default function Notifications() {
                                     ${notif.is_read ? 'bg-bg-sub/80 border-border-theme' : 'bg-brand-primary/10 border-brand-primary/20'}`}>
                                     {getIcon(notif.type)}
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 relative pr-8">
                                     <h3 className={`font-black text-lg mb-1 leading-tight ${notif.is_read ? 'text-text-main/80' : 'text-text-main'}`}>
                                         {notif.title}
                                     </h3>
                                     <p className={`text-sm leading-relaxed ${notif.is_read ? 'text-text-muted' : 'text-text-sub font-medium'}`}>
                                         {notif.message}
                                     </p>
+                                    <button 
+                                        onClick={(e) => deleteNotification(e, notif)}
+                                        className="absolute -top-1 -right-2 p-2 text-text-muted hover:text-accent-red hover:bg-accent-red/10 rounded-xl transition-colors"
+                                        title={t('common.delete', 'Eliminar')}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                     <div className="mt-4 flex items-center justify-between">
                                         <span className="text-[11px] font-black uppercase tracking-widest text-text-muted/60 bg-bg-sub px-3 py-1 rounded-full">
                                             {new Date(notif.created_at).toLocaleString()}

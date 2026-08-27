@@ -40,6 +40,8 @@ import AdminToolsPage from './pages/admin/AdminToolsPage';
 import AdminBans from './pages/admin/AdminBans';
 import AdminFrikiVS from './pages/admin/AdminFrikiVS';
 import AdminAllies from './pages/admin/AdminAllies';
+import AdminBillers from './pages/admin/AdminBillers';
+import AdminStaffReports from './pages/admin/AdminStaffReports';
 
 function OnboardingGate() {
   const { user, isLoading: authLoading } = useAuth();
@@ -149,6 +151,8 @@ function App() {
             <Route path="tavern" element={<AdminTavern />} />
             <Route path="bans" element={<AdminBans />} />
             <Route path="allies" element={<AdminAllies />} />
+            <Route path="billers" element={<AdminBillers />} />
+            <Route path="reports" element={<AdminStaffReports />} />
             <Route path="tools" element={<AdminToolsPage />} />
             <Route path="gm" element={<AdminGM />} />
           </Route>

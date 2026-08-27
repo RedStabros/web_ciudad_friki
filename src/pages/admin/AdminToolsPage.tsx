@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { getAvatarSource } from '../../config/avatars';
 import UserAuditModal from '../../components/admin/UserAuditModal';
+import { Link } from 'react-router-dom';
 
 export default function AdminToolsPage() {
     const { t } = useTranslation();
@@ -475,6 +476,35 @@ export default function AdminToolsPage() {
                             )}
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* Quick Links Section */}
+            <div className="bg-bg-pop border border-border-theme rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-6 border-b border-border-theme pb-4">
+                    <LayoutDashboard className="text-brand-primary" size={20} />
+                    <h3 className="font-black text-text-main uppercase tracking-wider text-sm">{t('adminTools.shortcuts.title', 'Accesos Directos')}</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link to="/admin/billers" className="bg-gradient-to-br from-bg-side to-bg-sub border border-border-theme rounded-xl p-6 flex items-center justify-between group hover:border-amber-500 transition-colors shadow-sm">
+                        <div>
+                            <h4 className="font-black text-text-main text-lg mb-1 group-hover:text-amber-500 transition-colors">{t('adminTools.shortcuts.billers.title', 'Facturadores y Auditoría')}</h4>
+                            <p className="text-xs text-text-muted">{t('adminTools.shortcuts.billers.desc', 'Gestionar permisos y registros de Frikicoins físicos')}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                            <ArrowRightLeft size={24} className="group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </Link>
+
+                    <Link to="/admin/reports" className="bg-gradient-to-br from-bg-side to-bg-sub border border-border-theme rounded-xl p-6 flex items-center justify-between group hover:border-brand-primary transition-colors shadow-sm">
+                        <div>
+                            <h4 className="font-black text-text-main text-lg mb-1 group-hover:text-brand-primary transition-colors">{t('adminTools.shortcuts.reports.title', 'Reportes del Staff')}</h4>
+                            <p className="text-xs text-text-muted">{t('adminTools.shortcuts.reports.desc', 'Gestión de incidencias reportadas por trabajadores')}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+                            <MessageSquare size={24} className="group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </Link>
                 </div>
             </div>
 

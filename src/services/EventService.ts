@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { getLocalTodayString } from '../utils/dateUtils';
+import { getLocalTodayString, getLocalYesterdayString } from '../utils/dateUtils';
 import { injectLatLng } from '../utils/geoUtils';
 
 export interface FrikiEvent {
@@ -74,23 +74,23 @@ export const EventService = {
                 `)
                 .in('status', ['approved', 'delayed']);
 
-            const todayStr = getLocalTodayString();
+            const yesterdayStr = getLocalYesterdayString();
 
             if (type === 'past') {
                 query = query
-                    .lt('date', todayStr)
-                    .or(`end_date.lt.${todayStr},end_date.is.null`)
+                    .lt('date', yesterdayStr)
+                    .or(`end_date.lt.${yesterdayStr},end_date.is.null`)
                     .order('date', { ascending: false });
             } else if (type === 'interests' && userInterests && userInterests.length > 0) {
                 query = query
-                    .or(`date.gte.${todayStr},end_date.gte.${todayStr}`)
+                    .or(`date.gte.${yesterdayStr},end_date.gte.${yesterdayStr}`)
                     .overlaps('tags', userInterests)
                     .order('is_sponsored', { ascending: false })
                     .order('date', { ascending: true });
             } else {
                 // Default: upcoming (also if type is interests but no interests found)
                 query = query
-                    .or(`date.gte.${todayStr},end_date.gte.${todayStr}`)
+                    .or(`date.gte.${yesterdayStr},end_date.gte.${yesterdayStr}`)
                     .order('is_sponsored', { ascending: false })
                     .order('date', { ascending: true });
             }

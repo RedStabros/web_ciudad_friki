@@ -15,6 +15,17 @@ export const getLocalTodayString = (): string => {
 };
 
 /**
+ * Returns yesterday's date in YYYY-MM-DD format based on the user's LOCAL timezone.
+ */
+export const getLocalYesterdayString = (): string => {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+    const offsetMs = now.getTimezoneOffset() * 60000;
+    const localDate = new Date(now.getTime() - offsetMs);
+    return localDate.toISOString().split('T')[0];
+};
+
+/**
  * Converts a database date string (which might contain time or T/Z) 
  * into a safe YYYY-MM-DD local format for comparison.
  */

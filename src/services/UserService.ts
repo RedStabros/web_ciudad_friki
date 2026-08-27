@@ -140,9 +140,20 @@ export const UserService = {
                 console.warn('Could not parse read_broadcasts from localStorage');
             }
 
+            // Load deleted state from localStorage for global broadcasts
+            let deletedBroadcasts: string[] = [];
+            try {
+                const deletedStored = localStorage.getItem(`deleted_broadcasts_${userId}`);
+                if (deletedStored) deletedBroadcasts = JSON.parse(deletedStored);
+            } catch (e) {
+                console.warn('Could not parse deleted_broadcasts from localStorage');
+            }
+
             const personalNotifications: Notification[] = personalRes.data || [];
             
-            const globalBroadcasts: Notification[] = (globalRes.data || []).map((b: any) => ({
+            const globalBroadcasts: Notification[] = (globalRes.data || [])
+                .filter((b: any) => !deletedBroadcasts.includes(b.id))
+                .map((b: any) => ({
                 id: b.id,
                 title: b.title,
                 message: b.message,
@@ -221,6 +232,67 @@ export const UserService = {
             return { success: true, error: null };
         } catch (error) {
             console.error('UserService.markAllNotificationsRead error:', error);
+            return { success: false, error };
+        }
+    },
+
+    /**
+     * Delete a single notification (hides global ones locally)
+     */
+    async deleteNotification(notificationId: string, userId: string, isGlobal = false) {
+        try {
+            if (isGlobal) {
+                // Save to localStorage for global broadcasts
+                let deletedBroadcasts: string[] = [];
+                const stored = localStorage.getItem(`deleted_broadcasts_${userId}`);
+                if (stored) deletedBroadcasts = JSON.parse(stored);
+                if (!deletedBroadcasts.includes(notificationId)) {
+                    deletedBroadcasts.push(notificationId);
+                    localStorage.setItem(`deleted_broadcasts_${userId}`, JSON.stringify(deletedBroadcasts));
+                }
+                return { success: true, error: null };
+            }
+
+            const { error } = await supabase
+                .from('notifications')
+                .delete()
+                .eq('id', notificationId)
+                .eq('user_id', userId);
+
+            if (error) throw error;
+            return { success: true, error: null };
+        } catch (error) {
+            console.error('UserService.deleteNotification error:', error);
+            return { success: false, error };
+        }
+    },
+
+    /**
+     * Delete all notifications for a user (hides all current globals locally)
+     */
+    async deleteAllNotifications(userId: string, currentGlobals: string[] = []) {
+        try {
+            if (currentGlobals.length > 0) {
+                let deletedBroadcasts: string[] = [];
+                const stored = localStorage.getItem(`deleted_broadcasts_${userId}`);
+                if (stored) deletedBroadcasts = JSON.parse(stored);
+                
+                const newBroadcasts = currentGlobals.filter(id => !deletedBroadcasts.includes(id));
+                if (newBroadcasts.length > 0) {
+                    deletedBroadcasts.push(...newBroadcasts);
+                    localStorage.setItem(`deleted_broadcasts_${userId}`, JSON.stringify(deletedBroadcasts));
+                }
+            }
+
+            const { error } = await supabase
+                .from('notifications')
+                .delete()
+                .eq('user_id', userId);
+
+            if (error) throw error;
+            return { success: true, error: null };
+        } catch (error) {
+            console.error('UserService.deleteAllNotifications error:', error);
             return { success: false, error };
         }
     },
