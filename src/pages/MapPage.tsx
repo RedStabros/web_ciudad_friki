@@ -152,12 +152,8 @@ export default function MapPage() {
         // Could be used to re-fetch events within map bounds if implemented
     };
 
-    // Normal Mode = Positron (Light) base + No filter
-    // Friki Mode = Dark Matter (Dark) base + Custom Cyberpunk Filter
-    const tileUrl = isFrikiMode 
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    
+    // Usar OpenStreetMap libre para evitar costos/API Keys
+    const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     const filteredEvents = events.filter(e => {
         const isAlly = e.tags?.includes('aliado');
         if (activeFilter === 'events') return !isAlly;
@@ -306,7 +302,7 @@ export default function MapPage() {
                 >
                     <MapController center={center} onMoveEnd={handleMapMoveEnd} />
                     <TileLayer
-                        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         url={tileUrl}
                     />
                     
@@ -348,13 +344,10 @@ export default function MapPage() {
                     background: var(--bg-primary);
                 }
                 
-                /* Ingress / Cyberpunk Dark Theme Effect */
-                /* Mathematical extraction of secondary streets from dark_all:
-                   - Background is RGB 34. Secondary streets are RGB 42. Main are RGB 51.
-                   - brightness(310%) shifts secondary streets to ~130 (just above 50% contrast midpoint).
-                   - contrast(400%) pushes background down to dark cyan, secondary up to bright cyan, main to neon. */
+                /* Ingress / Cyberpunk Dark Theme Effect on OSM Light tiles */
+                /* Invierte OSM, lo tiñe y satura para lograr el aspecto oscuro/friki */
                 .ingress-theme .leaflet-tile {
-                    filter: brightness(310%) contrast(400%) sepia(100%) hue-rotate(130deg) saturate(500%) brightness(0.8);
+                    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
                 }
             `}</style>
         </div>
