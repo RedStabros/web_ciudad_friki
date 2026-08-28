@@ -122,15 +122,12 @@ export function LocationPicker({ initialLat, initialLng, onLocationChange, onAdd
         }
     };
 
-    const getMapTileUrl = () =>
-        document.documentElement.getAttribute('data-theme') === 'light-friki'
-            ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-            : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const getMapTileUrl = () => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-    const [mapTheme, setMapTheme] = useState<string>(getMapTileUrl);
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(document.documentElement.getAttribute('data-theme') === 'dark-friki');
 
     useEffect(() => {
-        const observer = new MutationObserver(() => setMapTheme(getMapTileUrl()));
+        const observer = new MutationObserver(() => setIsDarkMode(document.documentElement.getAttribute('data-theme') === 'dark-friki'));
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
         return () => observer.disconnect();
     }, []);
@@ -168,7 +165,7 @@ export function LocationPicker({ initialLat, initialLng, onLocationChange, onAdd
                 />
             </div>
             
-            <div className="w-full h-[250px] rounded-xl overflow-hidden border border-border-theme z-0 relative">
+            <div className={`w-full h-[250px] rounded-xl overflow-hidden border border-border-theme z-0 relative ${isDarkMode ? 'ingress-theme' : ''}`}>
                 <button
                     onClick={handleLocateMe}
                     className="absolute top-2 right-2 z-[1000] w-10 h-10 bg-bg-side/90 backdrop-blur-md border border-border-theme rounded-full flex items-center justify-center text-text-main shadow-lg hover:bg-bg-sub transition"
@@ -183,7 +180,8 @@ export function LocationPicker({ initialLat, initialLng, onLocationChange, onAdd
                     className="w-full h-full"
                 >
                     <TileLayer
-                        url={mapTheme}
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url={getMapTileUrl()}
                     />
                     <MapEvents onLocationSelect={handleLocationSelect} />
                     <SmartMapController center={center} />

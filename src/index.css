@@ -428,3 +428,13 @@
   margin-bottom: 0.5rem;
   border-radius: 0.75rem;
 }
+
+/* Global Map Styles (OpenStreetMap Dark Mode) */
+.leaflet-container {
+  background: var(--bg-primary);
+}
+
+/* Ingress / Cyberpunk Dark Theme Effect on OSM Light tiles */
+.ingress-theme .leaflet-tile {
+  filter: invert(100%) hue-rotate(200deg) brightness(80%) contrast(110%) saturate(110%) sepia(40%);
+}

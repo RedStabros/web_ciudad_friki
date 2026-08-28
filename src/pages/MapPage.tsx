@@ -41,7 +41,7 @@ const allyIcons: Record<string, L.DivIcon> = {
 // Map Controller for imperative actions and events
 function MapController({ center, onMoveEnd }: { center: [number, number], onMoveEnd: () => void }) {
     const map = useMap();
-    
+
     // FlyTo when center changes
     useEffect(() => {
         if (center[0] !== map.getCenter().lat || center[1] !== map.getCenter().lng) {
@@ -79,7 +79,7 @@ export default function MapPage() {
     const [activeFilter, setActiveFilter] = useState<'all' | 'events' | 'allies'>('all');
     const [isFrikiMode, setIsFrikiMode] = useState(true);
     const navigate = useNavigate();
-    
+
     // Default center (can be user's location or city center)
     const [center, setCenter] = useState<[number, number]>([6.2442, -75.5812]); // Medellín as default
 
@@ -92,7 +92,7 @@ export default function MapPage() {
         try {
             // Load active events (upcoming + past active)
             const { events: eventData } = await EventService.getFeedEvents(user?.id, 0, 100, 'upcoming');
-            
+
             // Load allies from sponsored_locations
             const { data: allyData } = await supabase
                 .from('sponsored_locations')
@@ -163,11 +163,11 @@ export default function MapPage() {
 
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden relative">
-            <SEO 
+            <SEO
                 title={t('nav.map', 'Mapa Friki')}
                 description={t('map.seoDescription')}
             />
-            
+
             {loading && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-bg-main/50 backdrop-blur-sm">
                     <Loader2 className="animate-spin text-brand-primary" size={48} />
@@ -182,33 +182,33 @@ export default function MapPage() {
                             <div className="bg-bg-side/90 backdrop-blur-md px-4 py-3 rounded-2xl border border-border-theme shadow-lg inline-block">
                                 <h1 className="font-black text-lg text-text-main leading-none">{t('nav.map', 'Mapa Mundo Friki')}</h1>
                             </div>
-                            
+
                             <div className="relative">
-                                <button 
+                                <button
                                     onClick={() => setFilterMenuOpen(!filterMenuOpen)}
                                     className="w-12 h-12 bg-bg-side/90 backdrop-blur-md border border-border-theme rounded-full flex items-center justify-center text-text-main shadow-lg hover:bg-bg-sub transition"
                                 >
                                     <SlidersHorizontal size={20} />
                                 </button>
-                                
+
                                 {filterMenuOpen && (
                                     <div className="absolute top-14 left-0 bg-bg-side border border-border-theme rounded-xl shadow-xl w-56 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                                        <button onClick={() => {setActiveFilter('all'); setFilterMenuOpen(false)}} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'all' ? 'text-brand-primary' : 'text-text-main'}`}>
+                                        <button onClick={() => { setActiveFilter('all'); setFilterMenuOpen(false) }} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'all' ? 'text-brand-primary' : 'text-text-main'}`}>
                                             <div className="w-3 h-3 rounded-full bg-text-muted"></div>
                                             {t('dashboard.filter.all', 'Todos')}
                                         </button>
-                                        <button onClick={() => {setActiveFilter('events'); setFilterMenuOpen(false)}} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'events' ? 'text-amber-500' : 'text-text-main'}`}>
+                                        <button onClick={() => { setActiveFilter('events'); setFilterMenuOpen(false) }} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'events' ? 'text-amber-500' : 'text-text-main'}`}>
                                             <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                                             {t('events.onlyEvents', 'Solo Eventos')}
                                         </button>
-                                        <button onClick={() => {setActiveFilter('allies'); setFilterMenuOpen(false)}} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'allies' ? 'text-purple-500' : 'text-text-main'}`}>
+                                        <button onClick={() => { setActiveFilter('allies'); setFilterMenuOpen(false) }} className={`w-full text-left px-4 py-2.5 text-sm font-bold flex items-center gap-3 hover:bg-bg-sub ${activeFilter === 'allies' ? 'text-purple-500' : 'text-text-main'}`}>
                                             <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                                             {t('events.onlyAllies', 'Solo Aliados')}
                                         </button>
-                                        
+
                                         <div className="h-px bg-border-theme my-2 mx-4"></div>
-                                        
-                                        <button onClick={() => {setIsFrikiMode(!isFrikiMode); setFilterMenuOpen(false)}} className="w-full text-left px-4 py-2.5 text-sm font-bold flex items-center justify-between hover:bg-bg-sub text-text-main">
+
+                                        <button onClick={() => { setIsFrikiMode(!isFrikiMode); setFilterMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm font-bold flex items-center justify-between hover:bg-bg-sub text-text-main">
                                             <span>{isFrikiMode ? t('map.normalMode', 'Modo Normal') : t('map.frikiMode', 'Modo Friki')}</span>
                                             <div className={`w-8 h-4 rounded-full relative transition-colors ${isFrikiMode ? 'bg-brand-primary' : 'bg-bg-main'}`}>
                                                 <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${isFrikiMode ? 'left-4.5 right-0.5' : 'left-0.5'}`} style={{ [isFrikiMode ? 'right' : 'left']: '2px' }}></div>
@@ -220,13 +220,13 @@ export default function MapPage() {
                         </div>
 
                         <div className="pointer-events-auto flex flex-col gap-3">
-                            <button 
+                            <button
                                 onClick={() => navigate(-1)}
                                 className="w-12 h-12 bg-bg-side/90 backdrop-blur-md border border-border-theme rounded-full flex items-center justify-center text-text-main shadow-lg hover:bg-bg-sub transition"
                             >
                                 <X size={20} />
                             </button>
-                            <button 
+                            <button
                                 onClick={handleLocateMe}
                                 className="w-12 h-12 bg-bg-side/90 backdrop-blur-md border border-border-theme rounded-full flex items-center justify-center text-text-main shadow-lg hover:bg-bg-sub transition"
                             >
@@ -269,7 +269,7 @@ export default function MapPage() {
                 {/* Bottom Sheet Card */}
                 {selectedEvent && (
                     <div className="absolute bottom-4 left-4 right-4 z-[1000] pointer-events-auto animate-in slide-in-from-bottom-4">
-                        <div 
+                        <div
                             onClick={handleViewDetails}
                             className="bg-bg-side/95 backdrop-blur-xl border border-border-theme shadow-2xl rounded-2xl overflow-hidden cursor-pointer hover:border-brand-primary transition flex items-center max-w-lg mx-auto"
                         >
@@ -283,7 +283,7 @@ export default function MapPage() {
                             <div className="p-4 text-text-muted">
                                 <ChevronRight size={24} />
                             </div>
-                            <button 
+                            <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedEvent(null); }}
                                 className="absolute top-2 right-2 w-6 h-6 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition"
                             >
@@ -293,10 +293,10 @@ export default function MapPage() {
                     </div>
                 )}
 
-                <MapContainer 
-                    center={center} 
-                    zoom={14} 
-                    scrollWheelZoom={true} 
+                <MapContainer
+                    center={center}
+                    zoom={14}
+                    scrollWheelZoom={true}
                     className="w-full h-full"
                     zoomControl={false}
                 >
@@ -305,7 +305,7 @@ export default function MapPage() {
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         url={tileUrl}
                     />
-                    
+
                     {filteredEvents.map((event) => {
                         const coords = parseGeoLocation(event.geo_location);
                         if (!coords) return null;
@@ -318,9 +318,9 @@ export default function MapPage() {
                         }
 
                         return (
-                            <Marker 
-                                key={event.id} 
-                                position={coords} 
+                            <Marker
+                                key={event.id}
+                                position={coords}
                                 icon={icon}
                                 eventHandlers={{
                                     click: () => handleMarkerClick(event),
@@ -330,26 +330,15 @@ export default function MapPage() {
                     })}
                 </MapContainer>
             </div>
-            
+
             <EventDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 event={selectedEvent}
-                onLikeToggle={() => {}}
-                onSaveToggle={() => {}}
+                onLikeToggle={() => { }}
+                onSaveToggle={() => { }}
             />
-            
-            <style>{`
-                .leaflet-container {
-                    background: var(--bg-primary);
-                }
-                
-                /* Ingress / Cyberpunk Dark Theme Effect on OSM Light tiles */
-                /* Invierte OSM, lo tiñe y satura para lograr el aspecto oscuro/friki */
-                .ingress-theme .leaflet-tile {
-                    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-                }
-            `}</style>
+
         </div>
     );
 }
