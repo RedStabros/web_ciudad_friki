@@ -521,7 +521,7 @@ export default function Profile() {
                                 <div className="bg-white p-1.5 rounded-xl shadow-lg border-2 border-brand-primary">
                                     <img
                                         alt="Wallet QR Code"
-                                        className="w-20 h-20 mix-blend-multiply"
+                                        className="w-20 h-20"
                                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet.deposit_qr}`}
                                     />
                                 </div>
@@ -768,7 +768,7 @@ export default function Profile() {
                             <div className="bg-white p-3 rounded-lg shadow-sm">
                                 <img
                                     alt="Wallet QR Code"
-                                    className="w-48 h-48 mix-blend-multiply"
+                                    className="w-48 h-48"
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet?.deposit_qr || `FRIKI:QR_${user?.id}`}`}
                                 />
                             </div>

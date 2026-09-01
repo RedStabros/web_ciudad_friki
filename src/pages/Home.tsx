@@ -391,7 +391,7 @@ export default function Home() {
                             <div className="bg-white p-2 rounded-lg mx-auto w-40 h-40 shadow-inner mb-4 flex items-center justify-center border-2 border-dashed border-border-theme">
                                 <img
                                     alt="Wallet QR"
-                                    className="w-full h-full opacity-90 object-contain mix-blend-multiply"
+                                    className="w-full h-full object-contain"
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet?.deposit_qr || `FRIKI:QR_${user.id}`}`}
                                 />
                             </div>

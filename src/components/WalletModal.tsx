@@ -228,7 +228,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                             {wallet?.deposit_qr ? (
                                                 <img
                                                     alt="Deposit QR"
-                                                    className="w-48 h-48 mix-blend-multiply group-hover:scale-[1.05] transition-transform duration-500"
+                                                    className="w-48 h-48 group-hover:scale-[1.05] transition-transform duration-500"
                                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${wallet.deposit_qr}`}
                                                 />
                                             ) : (
