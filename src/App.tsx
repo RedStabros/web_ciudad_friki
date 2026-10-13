@@ -21,6 +21,7 @@ import Legal from './pages/Legal';
 import Support from './pages/Support';
 import AccountDeletion from './pages/AccountDeletion';
 import About from './pages/About';
+import Corporation from './pages/Corporation';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import MapPage from './pages/MapPage';
@@ -134,6 +135,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/about" element={<About />} />
+          <Route path="/corporacion" element={<Corporation />} />
+          <Route path="/corp" element={<Corporation />} />
           <Route path="/legal/:type" element={<Legal />} />
           <Route path="/support" element={<Support />} />
           <Route path="/account-deletion" element={<AccountDeletion />} />

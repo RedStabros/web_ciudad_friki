@@ -600,9 +600,9 @@ export default function FrikiVS() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
             <SEO 
-                title={t('seo.vs.title')}
-                description={t('seo.vs.description')}
-                keywords={t('seo.vs.keywords')}
+                title={t('seo.vs.title', 'Friki VS - Duelos de Conocimiento')}
+                description={t('seo.vs.description', 'Desafía a otros miembros en duelos de trivia en tiempo real y sube en la tabla de líderes.')}
+                keywords={t('seo.vs.keywords', 'Duelos, Batallas de Trivia, 1v1, Gaming, Leaderboard')}
                 image="/assets/seo/vs_banner.png"
             />
 

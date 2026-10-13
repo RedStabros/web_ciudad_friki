@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { getAvatarSource } from '../config/avatars';
-import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings, Trophy } from 'lucide-react';
+import { Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages, Calendar, Shield, Settings, Trophy, Building2, Sun, Moon } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
@@ -17,6 +18,11 @@ export default function RootLayout() {
     const { t, i18n } = useTranslation();
     const { session, signOut, user } = useAuth();
     const { profile, wallet, tavern, frikiVs, frikiMartGlobal, frikiMartWeb } = useApp();
+    const { theme, setTheme } = useTheme();
+    const location = useLocation();
+
+    const isLight = theme === 'light-friki';
+    const isCorpPage = location.pathname.startsWith('/corporacion') || location.pathname.startsWith('/corp');
 
     const isAdmin = profile?.role === 'admin' || user?.id === import.meta.env.VITE_SUPERUSER_ID;
 
@@ -117,7 +123,27 @@ export default function RootLayout() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Institutional Theme Switcher (Option 3: placed in navbar next to language switch when in /corporacion) */}
+                        {isCorpPage && !user && (
+                            <button
+                                type="button"
+                                onClick={() => setTheme(isLight ? 'dark-friki' : 'light-friki')}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border-theme bg-bg-main hover:bg-bg-sub text-text-sub hover:text-text-main text-xs font-bold transition-all cursor-pointer shadow-xs select-none"
+                                title={isLight ? t('corporation.themeDarkTitle', 'Cambiar a Modo Oscuro') : t('corporation.themeLightTitle', 'Cambiar a Modo Institucional Claro')}
+                                aria-label={isLight ? t('corporation.themeDark', 'Modo Oscuro') : t('corporation.themeLight', 'Modo Claro')}
+                            >
+                                <div className={`w-7 h-3.5 rounded-full p-0.5 transition-colors duration-200 flex items-center ${isLight ? 'bg-amber-500 justify-end' : 'bg-bg-sub justify-start'}`}>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-white shadow-xs flex items-center justify-center">
+                                        {isLight ? <Sun size={7} className="text-amber-600" /> : <Moon size={7} className="text-slate-700" />}
+                                    </div>
+                                </div>
+                                <span className="hidden sm:inline">
+                                    {isLight ? t('corporation.themeDark', 'Modo Oscuro') : t('corporation.themeLight', 'Modo Claro')}
+                                </span>
+                            </button>
+                        )}
+
                         {/* Language Switcher */}
                         <button
                             onClick={toggleLanguage}
@@ -185,6 +211,10 @@ export default function RootLayout() {
                                              <Link to="/settings/notifications" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
                                                 <Settings size={14} className="text-text-muted" />
                                                 {t('notificationPreferences.title', 'Ajustes de Notificaciones')}
+                                             </Link>
+                                             <Link to="/corporacion" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-medium hover:bg-bg-sub rounded-lg transition-colors">
+                                                <Building2 size={14} className="text-brand-primary" />
+                                                {t('corporation.navLink', 'Corporación')}
                                              </Link>
                                              {isAdmin && (
                                                  <Link to="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-text-main font-bold hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">

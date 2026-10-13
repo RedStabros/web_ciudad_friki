@@ -438,3 +438,64 @@
 .ingress-theme .leaflet-tile {
   filter: invert(100%) hue-rotate(200deg) brightness(80%) contrast(110%) saturate(110%) sepia(40%);
 }
+
+/* ── PRINT / PDF EXPORT STYLES (Corporate Portfolio) ────────────────────── */
+@media print {
+  /* Force light background for readability */
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-size: 11pt;
+  }
+
+  /* Hide all chrome: nav, sidebar, footers, modals, buttons, tabs bar */
+  nav,
+  header,
+  footer,
+  aside,
+  .print\:hidden,
+  [class*="sticky"],
+  [id="tabs-section"] {
+    display: none !important;
+  }
+
+  /* Remove shadows and rounded borders that don't print well */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure content uses full page width */
+  .max-w-6xl {
+    max-width: 100% !important;
+    padding: 0 1cm !important;
+  }
+
+  /* Each service card: avoid page breaks inside */
+  article {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #cccccc !important;
+    background: #fafafa !important;
+    margin-bottom: 1cm;
+    border-radius: 8px;
+  }
+
+  /* Fix text colors for print */
+  h1, h2, h3, h4, h5, p, span, li, div {
+    color: #111111 !important;
+  }
+
+  /* Corp hero section: compact on print */
+  section.relative.overflow-hidden {
+    padding: 0.5cm 0 !important;
+    border-bottom: 2px solid #cccccc !important;
+    background: #ffffff !important;
+  }
+
+  /* Add page header with corp name */
+  @page {
+    margin: 1.5cm 1cm;
+    size: A4 portrait;
+  }
+}

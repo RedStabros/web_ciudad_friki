@@ -1941,5 +1941,175 @@
       "label": "Racha de conexión",
       "days": "{{days}} días"
     }
+  },
+  "corporation": {
+    "navLink": "Corporación",
+    "badge": "Entidad Sin Ánimo de Lucro · Medellín, Colombia",
+    "title": "Corporación Ciudad Friki",
+    "tagline": "Cultura contemporánea, creatividad y comunidad organizada",
+    "subtitle": "Entidad sombrilla y coordinadora jurídica de la Red Cultural Juvenil Comunidad Underground. Más de 15 años de trayectoria fortaleciendo las economías creativas, la asociatividad juvenil y las culturas alternativas.",
+    "quote": "“El hombre no deja de jugar porque se hace viejo, sino que se hace viejo porque deja de jugar.”",
+    "quoteAuthor": "— George Bernard Shaw",
+    "hero": {
+      "viewPortfolio": "Ver Portafolio de Servicios (10 Líneas)",
+      "whatsappDirect": "WhatsApp Directo: +57 322 412 4297"
+    },
+    "footer": {
+      "subtitle": "Gestión cultural, economías creativas y proyectos",
+      "portfolio": "Portafolio (10)",
+      "alliances": "Alianzas",
+      "identity": "Misión & Visión",
+      "contact": "Cotizaciones",
+      "navLinkFull": "Corporación & Portafolio"
+    },
+    "tabs": {
+      "identity": "Identidad & Misión",
+      "portfolio": "Portafolio de Servicios (10 Líneas)",
+      "alliances": "Modelos de Alianza",
+      "trajectory": "Trayectoria & Alianzas",
+      "contact": "Contacto & Cotizaciones"
+    },
+    "themeLight": "Modo Claro",
+    "themeDark": "Modo Oscuro",
+    "themeLightTitle": "Cambiar a Modo Institucional Claro",
+    "themeDarkTitle": "Cambiar a Modo Oscuro",
+    "metrics": {
+      "years": "15+ Años",
+      "yearsLabel": "De proceso sociocultural (desde 2011)",
+      "lines": "10 Líneas",
+      "linesLabel": "De servicios y productos creativos",
+      "editions": "20 Ediciones",
+      "editionsLabel": "Del festival masivo Fiesta Friki",
+      "territory": "Comuna 4",
+      "territoryLabel": "Aranjuez, Medellín (Proyección nacional)"
+    },
+    "portfolio": {
+      "title": "Portafolio Institucional de Servicios",
+      "subtitle": "Soluciones culturales, artísticas, formativas, recreativas y digitales diseñadas a la medida para empresas, cajas de compensación, entidades públicas y organizaciones sociales.",
+      "filterAll": "Todas las 10 líneas",
+      "searchPlaceholder": "Buscar taller o servicio (ej. manga, soft combat, cosplay, eventos, rol)...",
+      "noticeTitle": "Política de Cotizaciones Personalizadas por Tipo de Entidad:",
+      "customQuoteNotice": "Nuestros servicios se presentan sin tarifas públicas fijas porque cada valor se calcula de forma justa y técnica según la temporalidad, aforo, materiales e insumos, transporte y el tipo de contratante (Entidad Pública, Empresa Privada u Organización Social / Colectivo).",
+      "requestQuoteBtn": "Solicitar Cotización a la Medida",
+      "strategicLine": "Línea Estratégica",
+      "quoteThisLine": "Cotizar Esta Línea",
+      "duration": "Duración:",
+      "capacity": "Aforo estimado:",
+      "formats": "Formatos:",
+      "activitiesTitle": "Actividades y Talleres Disponibles en esta Línea:",
+      "included": "Lo que incluye:",
+      "deliverables": "Entregables:",
+      "downloadBtn": "Descargar PDF",
+      "downloadTitle": "Exportar portafolio institucional como PDF",
+      "ctaBadge": "¿Todo revisado? El siguiente paso es tuyo",
+      "ctaTitle": "¿Listo para estructurar una propuesta?",
+      "ctaDesc": "Cuéntanos tu proyecto, tipo de entidad y fecha estimada. En menos de 48 horas te enviamos una propuesta técnica y económica a la medida.",
+      "ctaQuoteBtn": "Solicitar Cotización Ahora",
+      "ctaContactBtn": "Ir a Contacto Directo",
+      "ctaReassurance": "Sin compromiso · Propuesta técnica sin costo · Respuesta en 48h"
+    },
+    "identity": {
+      "title": "Identidad, Misión y Visión",
+      "legalTitle": "Entidad Sombrilla y Coordinadora Jurídica",
+      "legalP1": "La Red Cultural Juvenil Comunidad Underground nació en 2011 en la Comuna 4 Aranjuez como un proceso juvenil y barrial para congregar a los amantes del anime, el cosplay, los videojuegos, el rol y las culturas alternativas. A lo largo de más de 15 años y 20 ediciones del festival Fiesta Friki, consolidó un tejido de más de 100 colectivos, ilustradores, artesanos y artistas escénicos.",
+      "legalP2": "Para sustentar y reglamentar legalmente esta labor ante el Estado y la sociedad, se constituyó la CORPORACIÓN CIUDAD FRIKI (NIT 901.597.939-0) como entidad sin ánimo de lucro (ESAL). La Corporación actúa como la entidad sombrilla y coordinadora jurídica, permitiendo contratar, administrar recursos, licitar, gestionar proyectos y garantizar la dignificación del trabajo cultural de los artistas y gestores.",
+      "legalFrameworkLabel": "Marco Legal:",
+      "legalFrameworkText": "Persona jurídica de derecho privado regulada por los artículos 633 a 652 del Código Civil Colombiano, decretos 1529 de 1990, 2150 de 1995 y 427 de 1996. Domicilio principal en la Carrera 49B # 92 - 74, Barrio Aranjuez (Comuna 4), Medellín, Colombia.",
+      "missionTitle": "Misión",
+      "visionTitle": "Visión",
+      "principlesTitle": "Principios Rectores y Valores"
+    },
+    "alliances": {
+      "title": "Alianzas Estratégicas con Propósito",
+      "subtitle": "Buscamos relaciones transparentes donde los recursos, servicios y conocimientos produzcan un valor social y cultural duradero.",
+      "modalitiesLabel": "Modalidades de Colaboración:",
+      "benefitsLabel": "Beneficios para el Aliado:",
+      "allianceCta": "Proponer Alianza Institucional"
+    },
+    "trajectory": {
+      "title": "Trayectoria y Validación Institucional",
+      "subtitle": "Con más de 15 años de recorrido, nuestro proceso ha colaborado y articulado actividades con las principales entidades culturales, de juventud y desarrollo de Medellín y Antioquia.",
+      "entitiesTitle": "Entidades y Espacios con los que hemos articulado proyectos:",
+      "flagshipBadge": "Proyecto Insignia",
+      "flagshipTitle": "Fiesta Friki: Hacia la Edición XX",
+      "flagshipDesc": "Fiesta Friki es el mayor punto de encuentro y visibilización de las expresiones alternativas y juveniles de la región. En 2026 proyecta su vigésima edición (Fiesta Friki XX: Princes@s), consolidándose como una plataforma que articula programación artística, torneos de videojuegos, soft combat, cosplay, ferias comerciales de ilustradores y experiencias comunitarias para miles de asistentes.",
+      "flagshipBtn": "Conocer Oportunidades de Vinculación a Fiesta Friki"
+    },
+    "contact": {
+      "title": "Contacto Institucional & Solicitud de Propuestas",
+      "subtitle": "Comunícate directamente con la Dirección General de la Corporación para agendar una reunión, solicitar cotizaciones o estructurar convenios de cooperación.",
+      "channelsTitle": "Canales de Atención Directa",
+      "whatsappLabel": "WhatsApp Oficial:",
+      "whatsappSub": "Respuesta ágil · Chat directo",
+      "emailLabel": "Correo Institucional:",
+      "emailSub": "Recepción formal de propuestas",
+      "locationLabel": "Sede Operativa:",
+      "locationCity": "Medellín, Antioquia, Colombia",
+      "docsNoteTitle": "Documentación disponible bajo solicitud:",
+      "docsNote": "RUT actualizado con actividad ESAL, Certificado de Existencia y Representación Legal de Cámara de Comercio de Medellín, Estatutos vigentes y Estados Financieros para procesos de contratación pública o privada.",
+      "quickQuoteTitle": "Cotizador Rápido a la Medida",
+      "quickQuoteSubtitle": "Selecciona tu servicio y tipo de entidad para generar un mensaje estructurado directo a nuestro WhatsApp o correo:",
+      "step1": "1. Servicio o Línea de Interés:",
+      "step2": "2. Tipo de Organización / Entidad:",
+      "step3": "3. Detalles adicionales (Aforo, fecha estimada, lugar):",
+      "sendEmail": "Enviar por Correo"
+    },
+    "quoteModal": {
+      "title": "Solicitar Cotización",
+      "subtitle": "Indícanos los parámetros básicos para preparar una propuesta técnica y económica adaptada a tu entidad:",
+      "selectService": "Servicio de Interés:",
+      "selectEntity": "Tipo de Entidad:",
+      "entityPublic": "Entidad Pública / Estado",
+      "entityMixed": "Caja de Compensación / Entidad Mixta",
+      "entityPrivate": "Empresa Privada / Comercial",
+      "entitySocial": "Organización Social / Colectivo Comunitario",
+      "notes": "Detalles (aforo, fecha, lugar):",
+      "notesPlaceholder": "Requerimientos puntuales de tu actividad...",
+      "sendWhatsApp": "Cotizar por WhatsApp",
+      "sendEmail": "Enviar por Email",
+      "directChannels": "O contáctanos directamente a nuestros canales oficiales:"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "Inicio - Eventos y Comunidad Geek",
+      "description": "Descubre los mejores eventos frikis, anime, cosplay, videojuegos y torneos en Medellín y Colombia.",
+      "keywords": "Eventos frikis, Anime, Gaming, Cosplay, Medellín, Cultura Geek, Fandom"
+    },
+    "trivias": {
+      "title": "Trivias Clásicas",
+      "description": "Demuestra tus conocimientos en trivias temáticas de anime, series, videojuegos y cómics.",
+      "keywords": "Trivias, Quiz, Geek, Frikicoins, Preguntas y Respuestas"
+    },
+    "tavern": {
+      "title": "La Taberna - Comunidad",
+      "description": "El foro y punto de encuentro de la comunidad geek. Comparte teorías, memes y debates.",
+      "keywords": "Foro, Taberna, Comunidad Geek, Debates, Anime, Videojuegos"
+    },
+    "surveys": {
+      "title": "Encuestas Oficiales",
+      "description": "Participa en las votaciones y encuestas oficiales de Ciudad Friki.",
+      "keywords": "Encuestas, Votaciones, Comunidad, Premios"
+    },
+    "vs": {
+      "title": "Friki VS - Duelos de Conocimiento",
+      "description": "Desafía a otros miembros en duelos de trivia en tiempo real y sube en la tabla de líderes.",
+      "keywords": "Duelos, Batallas de Trivia, 1v1, Gaming, Leaderboard"
+    },
+    "frikimart": {
+      "title": "FrikiMart - Tienda Comunitaria",
+      "description": "Canjea tus Frikicoins por productos, figuras, mangas y artículos exclusivos de la comunidad.",
+      "keywords": "Tienda, FrikiMart, Frikicoins, Merch, Figuras, Cómics"
+    },
+    "ttrpg": {
+      "title": "Mesa de Rol / TTRPG",
+      "description": "Administra tus hojas de personaje e interactúa en tiempo real con tu mesa de juego de rol.",
+      "keywords": "TTRPG, Juegos de Rol, D&D, Hojas de Personaje, Dados"
+    },
+    "corporacion": {
+      "title": "Corporación Ciudad Friki",
+      "description": "Entidad cultural sin ánimo de lucro (ESAL). Portafolio institucional de formación, eventos y economías creativas.",
+      "keywords": "Corporación Ciudad Friki, ESAL, Portafolio Cultural, Aranjuez, Medellín"
+    }
   }
 }

@@ -54,9 +54,10 @@ export default function About() {
             
             <div className="text-center mt-12 pb-8 border-t border-divider-theme pt-8">
                 <p className="text-text-muted text-sm font-bold uppercase tracking-widest">Corporación Ciudad Friki © {new Date().getFullYear()}</p>
-                <div className="flex justify-center gap-4 mt-4">
-                    <Link to="/legal/privacy" className="text-brand-primary hover:underline text-sm font-medium">Política de Privacidad</Link>
-                    <Link to="/legal/terms" className="text-brand-primary hover:underline text-sm font-medium">Términos del Servicio</Link>
+                <div className="flex justify-center gap-4 mt-4 flex-wrap">
+                    <Link to="/corporacion" className="text-brand-primary hover:underline text-sm font-bold">Portafolio &amp; Corporación (ESAL)</Link>
+                    <Link to="/legal/privacy" className="text-text-muted hover:text-brand-primary hover:underline text-sm font-medium">Política de Privacidad</Link>
+                    <Link to="/legal/terms" className="text-text-muted hover:text-brand-primary hover:underline text-sm font-medium">Términos del Servicio</Link>
                 </div>
             </div>
         </div>

@@ -178,9 +178,9 @@ export default function Home() {
     return (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <SEO 
-                title={t('seo.home.title')}
-                description={t('seo.home.description')}
-                keywords={t('seo.home.keywords')}
+                title={t('seo.home.title', 'Inicio - Eventos y Comunidad Geek')}
+                description={t('seo.home.description', 'Descubre los mejores eventos frikis, anime, cosplay, videojuegos y torneos en Medellín y Colombia.')}
+                keywords={t('seo.home.keywords', 'Eventos frikis, Anime, Gaming, Cosplay, Medellín, Cultura Geek, Fandom')}
             />
 
             {/* LEFT SIDEBAR (Navigation) */}

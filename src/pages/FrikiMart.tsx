@@ -341,9 +341,9 @@ export default function FrikiMart() {
     return (
         <div className="min-h-screen bg-bg-main pb-24">
             <SEO 
-                title={t('seo.frikimart.title')}
-                description={t('seo.frikimart.description')}
-                keywords={t('seo.frikimart.keywords')}
+                title={t('seo.frikimart.title', 'FrikiMart - Tienda Comunitaria')}
+                description={t('seo.frikimart.description', 'Canjea tus Frikicoins por productos, figuras, mangas y artículos exclusivos de la comunidad.')}
+                keywords={t('seo.frikimart.keywords', 'Tienda, FrikiMart, Frikicoins, Merch, Figuras, Cómics')}
                 image="/assets/seo/frikimart_banner.png"
             />
             {/* Header */}

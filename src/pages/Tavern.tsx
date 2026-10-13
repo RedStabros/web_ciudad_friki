@@ -80,9 +80,9 @@ export default function Tavern() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <SEO 
-                title={t('seo.tavern.title')}
-                description={t('seo.tavern.description')}
-                keywords={t('seo.tavern.keywords')}
+                title={t('seo.tavern.title', 'La Taberna - Comunidad')}
+                description={t('seo.tavern.description', 'El foro y punto de encuentro de la comunidad geek. Comparte teorías, memes y debates.')}
+                keywords={t('seo.tavern.keywords', 'Foro, Taberna, Comunidad Geek, Debates, Anime, Videojuegos')}
                 image="/assets/seo/taberna_banner.png"
             />
 

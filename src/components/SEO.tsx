@@ -23,7 +23,7 @@ export function SEO({
     ogDescription,
     ogType = "website"
 }: SEOProps) {
-    const fullTitle = `${title} | Ciudad Friki`;
+    const fullTitle = title.includes('Ciudad Friki') ? title : `${title} | Ciudad Friki`;
     const fullImage = window.location.origin + image;
 
     return (

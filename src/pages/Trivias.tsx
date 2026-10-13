@@ -383,9 +383,9 @@ export default function Trivias() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
             <SEO 
-                title={t('seo.trivias.title')}
-                description={t('seo.trivias.description')}
-                keywords={t('seo.trivias.keywords')}
+                title={t('seo.trivias.title', 'Trivias Clásicas')}
+                description={t('seo.trivias.description', 'Demuestra tus conocimientos en trivias temáticas de anime, series, videojuegos y cómics.')}
+                keywords={t('seo.trivias.keywords', 'Trivias, Quiz, Geek, Frikicoins, Preguntas y Respuestas')}
                 image="/assets/seo/trivias_banner.png"
             />
             {/* HERO */}

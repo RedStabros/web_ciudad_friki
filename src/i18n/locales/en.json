@@ -1919,5 +1919,175 @@
       "label": "Login Streak",
       "days": "{{days}} days"
     }
+  },
+  "corporation": {
+    "navLink": "Corporation",
+    "badge": "Non-Profit Organization · Medellín, Colombia",
+    "title": "Ciudad Friki Corporation",
+    "tagline": "Contemporary culture, creativity and organized community",
+    "subtitle": "Umbrella organization and legal coordinator of the Red Cultural Juvenil Comunidad Underground. Over 15 years strengthening creative economies, youth associativity, and alternative cultures.",
+    "quote": "“We don’t stop playing because we grow old; we grow old because we stop playing.”",
+    "quoteAuthor": "— George Bernard Shaw",
+    "hero": {
+      "viewPortfolio": "View Services Portfolio (10 Lines)",
+      "whatsappDirect": "Direct WhatsApp: +57 322 412 4297"
+    },
+    "footer": {
+      "subtitle": "Cultural management, creative economies and projects",
+      "portfolio": "Portfolio (10)",
+      "alliances": "Alliances",
+      "identity": "Mission & Vision",
+      "contact": "Quotes",
+      "navLinkFull": "Corporation & Portfolio"
+    },
+    "tabs": {
+      "identity": "Identity & Mission",
+      "portfolio": "Services Portfolio (10 Lines)",
+      "alliances": "Partnership Models",
+      "trajectory": "History & Alliances",
+      "contact": "Contact & Quotes"
+    },
+    "themeLight": "Light Mode",
+    "themeDark": "Dark Mode",
+    "themeLightTitle": "Switch to Institutional Light Mode",
+    "themeDarkTitle": "Switch to Dark Mode",
+    "metrics": {
+      "years": "15+ Years",
+      "yearsLabel": "Of sociocultural trajectory (since 2011)",
+      "lines": "10 Lines",
+      "linesLabel": "Of creative products & service lines",
+      "editions": "20 Editions",
+      "editionsLabel": "Of our flagship festival Fiesta Friki",
+      "territory": "Comuna 4",
+      "territoryLabel": "Aranjuez, Medellín (National outreach)"
+    },
+    "portfolio": {
+      "title": "Institutional Services Portfolio",
+      "subtitle": "Cultural, artistic, educational, recreational, and digital solutions custom-tailored for companies, family compensation funds, public entities, and social organizations.",
+      "filterAll": "All 10 lines",
+      "searchPlaceholder": "Search workshop or service (e.g., manga, soft combat, cosplay, events, rpg)...",
+      "noticeTitle": "Custom Quotes Policy by Entity Type:",
+      "customQuoteNotice": "Our services do not carry fixed public rates because each quotation is determined fairly and technically based on timeframe, capacity, materials, logistics, and entity type (Public Entity, Private Company, or Community / Grassroots Collective).",
+      "requestQuoteBtn": "Request Tailored Quote",
+      "strategicLine": "Strategic Line",
+      "quoteThisLine": "Quote This Line",
+      "duration": "Duration:",
+      "capacity": "Estimated capacity:",
+      "formats": "Formats:",
+      "activitiesTitle": "Available Activities & Workshops in this Line:",
+      "included": "Included:",
+      "deliverables": "Deliverables:",
+      "downloadBtn": "Download PDF",
+      "downloadTitle": "Export institutional portfolio as PDF",
+      "ctaBadge": "All reviewed? The next step is yours",
+      "ctaTitle": "Ready to build a proposal?",
+      "ctaDesc": "Tell us about your project, organization type, and estimated date. Within 48 hours we will send you a custom technical and economic proposal.",
+      "ctaQuoteBtn": "Request a Quote Now",
+      "ctaContactBtn": "Go to Direct Contact",
+      "ctaReassurance": "No commitment · Technical proposal at no cost · Response within 48h"
+    },
+    "identity": {
+      "title": "Identity, Mission & Vision",
+      "legalTitle": "Umbrella Entity & Legal Coordinator",
+      "legalP1": "The Red Cultural Juvenil Comunidad Underground was born in 2011 in Comuna 4 Aranjuez as a youth grassroots initiative to gather enthusiasts of anime, cosplay, gaming, role-playing, and alternative cultures. Across more than 15 years and 20 editions of festival Fiesta Friki, it consolidated a fabric of over 100 collectives, illustrators, crafters, and performing artists.",
+      "legalP2": "To formally sustain and regulate this cultural work before the State and society, CORPORACIÓN CIUDAD FRIKI (NIT 901.597.939-0) was established as a non-profit organization (ESAL). The Corporation acts as the legal umbrella and coordinator, enabling public contracting, resource management, tenders, and dignified cultural work for creators and facilitators.",
+      "legalFrameworkLabel": "Legal Framework:",
+      "legalFrameworkText": "Private legal non-profit entity governed by articles 633 to 652 of the Colombian Civil Code and decrees 1529 of 1990, 2150 of 1995, and 427 of 1996. Headquartered at Carrera 49B # 92 - 74, Aranjuez (Comuna 4), Medellín, Colombia.",
+      "missionTitle": "Mission",
+      "visionTitle": "Vision",
+      "principlesTitle": "Guiding Principles & Values"
+    },
+    "alliances": {
+      "title": "Purpose-Driven Strategic Partnerships",
+      "subtitle": "We build transparent relationships where resources, services, and expertise generate lasting social and cultural value.",
+      "modalitiesLabel": "Collaboration Modalities:",
+      "benefitsLabel": "Benefits for the Partner:",
+      "allianceCta": "Propose Institutional Partnership"
+    },
+    "trajectory": {
+      "title": "Trajectory & Institutional Validation",
+      "subtitle": "With more than 15 years of experience, our process has collaborated and coordinated activities with leading cultural, youth, and development institutions across Medellín and Antioquia.",
+      "entitiesTitle": "Institutions & Spaces where we have articulated projects:",
+      "flagshipBadge": "Flagship Project",
+      "flagshipTitle": "Fiesta Friki: Towards Edition XX",
+      "flagshipDesc": "Fiesta Friki is the largest hub for alternative youth culture in the region. In 2026, it projects its 20th edition (Fiesta Friki XX: Princes@s), consolidating a mass platform combining artistic programming, gaming tournaments, soft combat, cosplay, artist alleys, and community experiences for thousands of attendees.",
+      "flagshipBtn": "Explore Partnership Opportunities for Fiesta Friki"
+    },
+    "contact": {
+      "title": "Institutional Contact & Proposal Requests",
+      "subtitle": "Reach out directly to the General Board of the Corporation to schedule a meeting, request quotes, or structure cooperation agreements.",
+      "channelsTitle": "Direct Communication Channels",
+      "whatsappLabel": "Official WhatsApp:",
+      "whatsappSub": "Fast response · Direct chat",
+      "emailLabel": "Institutional Email:",
+      "emailSub": "Formal reception of proposals",
+      "locationLabel": "Operating Headquarters:",
+      "locationCity": "Medellín, Antioquia, Colombia",
+      "docsNoteTitle": "Documentation available upon request:",
+      "docsNote": "Updated tax ID (RUT) with non-profit activity, Certificate of Legal Existence and Representation from the Medellín Chamber of Commerce, current Bylaws, and Financial Statements for public or private contracting.",
+      "quickQuoteTitle": "Quick Tailored Quoter",
+      "quickQuoteSubtitle": "Select your service and entity type to generate a structured message directly to our WhatsApp or email:",
+      "step1": "1. Service or Line of Interest:",
+      "step2": "2. Organization / Entity Type:",
+      "step3": "3. Additional details (Capacity, tentative date, location):",
+      "sendEmail": "Send via Email"
+    },
+    "quoteModal": {
+      "title": "Request a Quote",
+      "subtitle": "Provide the basic parameters to prepare a technical and economic proposal tailored to your organization:",
+      "selectService": "Service of Interest:",
+      "selectEntity": "Entity Type:",
+      "entityPublic": "Public Entity / Government",
+      "entityMixed": "Family Compensation Fund / Mixed Entity",
+      "entityPrivate": "Private Company / Commercial",
+      "entitySocial": "Social Organization / Community Collective",
+      "notes": "Details (capacity, date, location):",
+      "notesPlaceholder": "Specific requirements for your activity...",
+      "sendWhatsApp": "Quote via WhatsApp",
+      "sendEmail": "Send via Email",
+      "directChannels": "Or reach out directly through our official channels:"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "Home - Events & Geek Community",
+      "description": "Discover top geek events, anime conventions, cosplay, gaming, and tournaments in Colombia.",
+      "keywords": "Geek events, Anime, Gaming, Cosplay, Medellín, Geek Culture, Fandom"
+    },
+    "trivias": {
+      "title": "Classic Trivias",
+      "description": "Test your knowledge with thematic quizzes on anime, series, video games, and comics.",
+      "keywords": "Trivias, Quiz, Geek, Frikicoins, Questions and Answers"
+    },
+    "tavern": {
+      "title": "The Tavern - Community",
+      "description": "The discussion forum for the geek community. Share theories, memes, and topics.",
+      "keywords": "Forum, Tavern, Geek Community, Discussions, Anime, Gaming"
+    },
+    "surveys": {
+      "title": "Official Surveys",
+      "description": "Vote and participate in official Ciudad Friki community polls.",
+      "keywords": "Surveys, Polls, Community, Awards"
+    },
+    "vs": {
+      "title": "Friki VS - Trivia Duels",
+      "description": "Challenge other members in real-time trivia duels and climb the leaderboard.",
+      "keywords": "Duels, Trivia Battles, 1v1, Gaming, Leaderboard"
+    },
+    "frikimart": {
+      "title": "FrikiMart - Community Store",
+      "description": "Redeem your Frikicoins for items, figures, manga, and exclusive community rewards.",
+      "keywords": "Store, FrikiMart, Frikicoins, Merch, Figures, Comics"
+    },
+    "ttrpg": {
+      "title": "TTRPG Virtual Tabletop",
+      "description": "Manage character sheets and roll dice in real-time with your tabletop roleplaying group.",
+      "keywords": "TTRPG, Roleplaying Games, D&D, Character Sheets, Dice"
+    },
+    "corporacion": {
+      "title": "Ciudad Friki Corporation",
+      "description": "Non-profit cultural organization (ESAL). Institutional portfolio of training, events, and creative economies.",
+      "keywords": "Ciudad Friki Corporation, Non-profit, Cultural Portfolio, Medellín"
+    }
   }
 }

@@ -194,9 +194,9 @@ export default function Surveys() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-20 animate-in fade-in duration-1000">
             <SEO 
-                title={t('seo.surveys.title')}
-                description={t('seo.surveys.description')}
-                keywords={t('seo.surveys.keywords')}
+                title={t('seo.surveys.title', 'Encuestas Oficiales')}
+                description={t('seo.surveys.description', 'Participa en las votaciones y encuestas oficiales de Ciudad Friki.')}
+                keywords={t('seo.surveys.keywords', 'Encuestas, Votaciones, Comunidad, Premios')}
             />
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b-2 border-divider-theme pb-12 px-4">
                 <div className="max-w-2xl">
