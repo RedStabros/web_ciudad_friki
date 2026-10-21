@@ -7,7 +7,9 @@
     "profile": "Profile",
     "play": "Play",
     "notifications": "Notifications",
-    "adminPanel": "Admin Panel"
+    "adminPanel": "Admin Panel",
+    "achievements": "Achievements",
+    "menu": "Menu"
   },
   "splash": {
     "wait": "Loading...",

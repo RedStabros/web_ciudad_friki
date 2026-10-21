@@ -975,7 +975,7 @@ export default function Corporation() {
             {/* ── MODAL FLOTANTE DE COTIZACIÓN RÁPIDA ── */}
             {isQuoteModalOpen && (
                 <div className="fixed inset-0 z-[200] bg-ui-overlay backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-bg-side rounded-3xl border border-border-theme p-6 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-4">
+                    <div className="bg-bg-side rounded-3xl border border-border-theme p-5 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-4 max-h-[92dvh] overflow-y-auto custom-scrollbar">
                         <button
                             onClick={() => setIsQuoteModalOpen(false)}
                             className="absolute top-5 right-5 text-text-muted hover:text-text-main p-1.5 rounded-full hover:bg-bg-sub transition-colors cursor-pointer"

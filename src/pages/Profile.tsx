@@ -78,7 +78,7 @@ function SelectionModal({ isOpen, onClose, title, children }: SelectionModalProp
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
-            <div className="relative w-full max-w-2xl bg-bg-side rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[85vh] border border-divider-theme">
+            <div className="relative w-full max-w-2xl bg-bg-side rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[92dvh] sm:max-h-[90vh] border border-divider-theme">
                 <header className="p-8 pb-4 flex items-center justify-between border-b border-divider-theme">
                     <h2 className="text-2xl font-black italic tracking-tighter uppercase text-text-main leading-none">{title}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-xl transition-all">
@@ -397,26 +397,26 @@ export default function Profile() {
     const currentThemeData = THEME_OPTIONS.find(themeOpt => themeOpt.id === currentTheme) || THEME_OPTIONS[0];
 
     return (
-        <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-display animate-in fade-in duration-500">
+        <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-display animate-in fade-in duration-500">
             <SEO 
                 title={t('profile.seo.title')}
                 description={t('profile.seo.description')}
                 ogType="profile"
             />
 
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <Link to="/" className="p-2 rounded-lg hover:bg-bg-sub transition-colors text-text-main">
-                        <ArrowLeft size={24} />
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
+                <div className="flex items-center gap-3">
+                    <Link to="/" className="p-2 rounded-lg hover:bg-bg-sub transition-colors text-text-main shrink-0">
+                        <ArrowLeft size={22} />
                     </Link>
-                    <h1 className="text-3xl font-bold text-text-main">{t('profile.title')}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-text-main">{t('profile.title')}</h1>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv font-semibold py-2.5 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105 flex items-center gap-2"
+                    className="bg-brand-primary hover:bg-brand-primary-light disabled:opacity-50 text-text-inv font-semibold py-2.5 px-5 sm:px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
                 >
-                    {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                     {t('common.save')}
                 </button>
             </div>
@@ -768,7 +768,7 @@ export default function Profile() {
                             <div className="bg-white p-3 rounded-lg shadow-sm">
                                 <img
                                     alt="Wallet QR Code"
-                                    className="w-48 h-48"
+                                    className="w-36 h-36 sm:w-48 sm:h-48"
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${wallet?.deposit_qr || `FRIKI:QR_${user?.id}`}`}
                                 />
                             </div>

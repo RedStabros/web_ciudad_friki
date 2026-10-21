@@ -282,7 +282,7 @@ export function ThreadCard({ thread, onVote, onClick, onEdit, onDelete, userRole
                         <div className="flex items-center bg-bg-sub/50 rounded-full px-2.5 py-1">
                             <button
                                 onClick={(e) => { e.stopPropagation(); onVote?.('like'); }}
-                                className="share-hide-el p-1 rounded-full text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition"
+                                className="share-hide-el p-2 rounded-full text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
                             >
                                 <Heart 
                                     size={18} 

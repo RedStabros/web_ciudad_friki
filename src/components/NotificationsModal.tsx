@@ -38,7 +38,7 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="relative w-full md:w-96 md:max-h-[85vh] bg-bg-side shadow-2xl md:rounded-[2rem] overflow-hidden flex flex-col border border-border-theme animate-in slide-in-from-right-10 duration-500">
+            <div className="relative w-full h-[100dvh] md:h-auto md:w-96 md:max-h-[85vh] bg-bg-side shadow-2xl rounded-none md:rounded-[2rem] overflow-hidden flex flex-col border-b md:border border-border-theme animate-in slide-in-from-right-10 duration-300">
                 <header className="p-6 border-b border-border-theme flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="p-2 bg-brand-primary/10 rounded-xl text-brand-primary">
@@ -105,7 +105,7 @@ export default function NotificationsModal({ isOpen, onClose, userId }: { isOpen
                     )}
                 </div>
 
-                <footer className="p-4 border-t border-border-theme bg-bg-sub/20">
+                <footer className="p-4 border-t border-border-theme bg-bg-sub/20 safe-padding">
                     <button className="w-full py-3 rounded-xl hover:bg-brand-primary/10 text-brand-primary font-black text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
                         <Check size={14} /> {t('common.markAllRead', 'Marcar todas como leídas')}
                     </button>

@@ -607,31 +607,33 @@ export default function FrikiVS() {
             />
 
             {/* Hero */}
-            <div className="flex items-center gap-4 mb-8">
-                <img src="/assets/icon_vs.png" alt="Friki VS" className="w-14 h-14 object-contain drop-shadow-lg" />
-                <div>
-                    <h1 className="text-4xl font-black text-text-main uppercase tracking-tighter">Friki VS</h1>
-                    <p className="text-text-muted text-sm">{t('triviaVS.subtitle')}</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex items-center gap-4">
+                    <img src="/assets/icon_vs.png" alt="Friki VS" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-lg shrink-0" />
+                    <div>
+                        <h1 className="text-3xl sm:text-4xl font-black text-text-main uppercase tracking-tighter">Friki VS</h1>
+                        <p className="text-text-muted text-xs sm:text-sm">{t('triviaVS.subtitle')}</p>
+                    </div>
                 </div>
                 {user && (
-                    <div className="ml-auto flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto pt-2 sm:pt-0">
                         <button
                             onClick={() => setShowSubmissionModal(true)}
-                            className="flex items-center gap-2 bg-bg-sub text-brand-primary border-2 border-brand-primary px-4 py-3 rounded-2xl font-black hover:bg-brand-primary/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-bg-sub text-brand-primary border-2 border-brand-primary px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl font-black hover:bg-brand-primary/10 transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer"
                         >
                             {t('triviaVS.lobby.addQuestion', '+ Pregunta')}
                         </button>
                         <button
                             onClick={() => setShowPackCreatorModal(true)}
-                            className="flex items-center gap-2 bg-bg-sub text-accent-green border-2 border-accent-green px-4 py-3 rounded-2xl font-black hover:bg-accent-green/10 transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-bg-sub text-accent-green border-2 border-accent-green px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl font-black hover:bg-accent-green/10 transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer"
                         >
                             {t('triviaVS.lobby.addTrivia', '+ Trivia')}
                         </button>
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 bg-brand-primary text-text-inv px-5 py-3 rounded-2xl font-black shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-light transition-all hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand-primary text-text-inv px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-black shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-light transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer"
                         >
-                            <Zap size={18} />
+                            <Zap size={16} />
                             {t('triviaVS.createDuel')}
                         </button>
                     </div>

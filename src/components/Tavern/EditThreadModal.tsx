@@ -57,19 +57,19 @@ export function EditThreadModal({ isOpen, onClose, thread, onSuccess }: EditThre
     ];
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl" onClick={onClose}>
+        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4 bg-ui-overlay backdrop-blur-sm shadow-2xl" onClick={onClose}>
             <div
-                className="bg-bg-side w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme"
+                className="bg-bg-side w-full sm:max-w-2xl rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 border border-border-theme max-h-[92dvh] sm:max-h-[90vh] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center p-6 border-b border-divider-theme">
+                <div className="flex justify-between items-center p-4 sm:p-6 border-b border-divider-theme shrink-0">
                     <h2 className="text-xl font-bold text-text-main">{t('tavern.modals.edit.title')}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-bg-sub rounded-full transition text-text-muted">
                         <X size={20} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1">
                     {error && (
                         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-xl flex items-center gap-3 text-accent-red text-sm">
                             <AlertCircle size={18} />

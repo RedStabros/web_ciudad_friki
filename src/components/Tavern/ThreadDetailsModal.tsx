@@ -330,11 +330,11 @@ export function ThreadDetailsModal({ isOpen, onClose, threadId, userRole }: Thre
     return (
         <>
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ui-overlay backdrop-blur-sm"
+                className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-ui-overlay backdrop-blur-sm"
                 onClick={onClose}
             >
                 <div
-                    className="bg-bg-side w-full max-w-3xl max-h-[90vh] rounded-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border-theme"
+                    className="bg-bg-side w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 border border-border-theme"
                     onClick={(e) => e.stopPropagation()}
                 >
 

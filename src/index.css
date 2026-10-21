@@ -350,11 +350,39 @@
     --ui-border: #1f2937;
   }
 
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-family: var(--font-body), sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ── Mobile Safe Area Utilities (iOS Safari Notch & Home Bar) ───────────── */
+.safe-padding {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+.safe-bottom-nav {
+  height: calc(4rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-main-content {
+  padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .safe-main-content {
+    padding-bottom: 0 !important;
   }
 }
 
@@ -375,6 +403,15 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--brand-primary);
+}
+
+/* Hide scrollbar utility for horizontal scroll tabs */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Utilities for Image Capture */
