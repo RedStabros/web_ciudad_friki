@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
     XCircle, Loader2, History, ShieldAlert, Mail, User, 
-    Clock, Copy, Ban, CheckCircle, Smartphone, MapPin, QrCode
+    Clock, Copy, Ban, CheckCircle, Smartphone, MapPin, QrCode,
+    Coins, Send
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
@@ -21,6 +22,9 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
     const [transactions, setTransactions] = useState<any[]>([]);
     const [userInfo, setUserInfo] = useState<any>(null);
     const [copied, setCopied] = useState(false);
+    const [sendAmount, setSendAmount] = useState('');
+    const [sendConcept, setSendConcept] = useState('');
+    const [sendingFc, setSendingFc] = useState(false);
 
     useEffect(() => {
         if (visible && userId) {
@@ -75,6 +79,43 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
         }
     };
 
+    const handleSendGmFc = async () => {
+        const amount = parseInt(sendAmount, 10);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Por favor ingresa un monto válido de Frikicoins');
+            return;
+        }
+
+        if (!confirm(`¿Confirmas la emisión directa de ${amount.toLocaleString('es-CO')} FC para @${username}?`)) {
+            return;
+        }
+
+        setSendingFc(true);
+        try {
+            const { data, error } = await supabase.rpc('gm_send_frikicoins', {
+                p_target_user_id: userId,
+                p_amount: amount,
+                p_concept: sendConcept.trim() || null
+            });
+
+            if (error) throw error;
+            if (data && data.success === false) {
+                alert(data.message || 'Error al emitir Frikicoins');
+                return;
+            }
+
+            alert(`¡${amount.toLocaleString('es-CO')} FC emitidos con éxito a @${username}!`);
+            setSendAmount('');
+            setSendConcept('');
+            fetchUserData();
+        } catch (err: any) {
+            console.error('Error in gm_send_frikicoins:', err);
+            alert(err.message || 'Error al emitir Frikicoins');
+        } finally {
+            setSendingFc(false);
+        }
+    };
+
     if (!visible) return null;
 
     return (
@@ -123,36 +164,36 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
                                         <div className="flex items-center gap-2.5 text-sm">
                                             <User size={16} className="text-text-muted" />
-                                            <span className="text-text-muted font-medium">Username:</span>
+                                            <span className="text-text-muted font-medium">{t('common.username', 'Username:')}</span>
                                             <span className="text-text-main font-bold">@{userInfo.username || username}</span>
                                         </div>
                                         <div className="flex items-center gap-2.5 text-sm">
                                             <Mail size={16} className="text-text-muted animate-pulse" />
-                                            <span className="text-text-muted font-medium">Email:</span>
-                                            <span className="text-text-main font-bold truncate">{userInfo.email || 'No disponible'}</span>
+                                            <span className="text-text-muted font-medium">{t('common.email', 'Email:')}</span>
+                                            <span className="text-text-main font-bold truncate">{userInfo.email || t('common.notAvailable', 'No disponible')}</span>
                                         </div>
                                         <div className="flex items-center gap-2.5 text-sm">
                                             <ShieldAlert size={16} className="text-text-muted" />
-                                            <span className="text-text-muted font-medium">Rol:</span>
+                                            <span className="text-text-muted font-medium">{t('common.role', 'Rol:')}</span>
                                             <span className="bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                                                 {userInfo.role || 'user'}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2.5 text-sm">
                                             <Clock size={16} className="text-text-muted" />
-                                            <span className="text-text-muted font-medium">Registrado:</span>
-                                            <span className="text-text-main font-bold">{userInfo.created_at ? formatDate(userInfo.created_at) : 'No disponible'}</span>
+                                            <span className="text-text-muted font-medium">{t('admin.userAudit.registered', 'Registrado:')}</span>
+                                            <span className="text-text-main font-bold">{userInfo.created_at ? formatDate(userInfo.created_at) : t('common.notAvailable', 'No disponible')}</span>
                                         </div>
                                         <div className="flex items-center gap-2.5 text-sm col-span-1 md:col-span-2">
                                             {userInfo.is_banned ? (
                                                 <div className="flex items-center gap-1.5 text-accent-red font-bold">
                                                     <Ban size={16} />
-                                                    <span>Estado: Sancionado / Baneado 🚫</span>
+                                                    <span>{t('admin.userAudit.statusSanctioned', 'Estado: Sancionado / Baneado 🚫')}</span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-1.5 text-accent-green font-bold">
                                                     <CheckCircle size={16} />
-                                                    <span>Estado: Activo / Limpio ✅</span>
+                                                    <span>{t('admin.userAudit.statusActive', 'Estado: Activo / Limpio ✅')}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -163,24 +204,24 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                         <div className="border-t border-border-theme pt-4 mt-2 space-y-4">
                                             <div className="flex items-center gap-2 text-brand-primary font-bold text-xs uppercase tracking-widest">
                                                 <ShieldAlert size={14} />
-                                                <span>Datos Privados (Solo GM / Super Admin)</span>
+                                                <span>{t('admin.userAudit.privateData', 'Datos Privados (Solo GM / Super Admin)')}</span>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pl-1">
                                                 {userInfo.full_name && (
                                                     <div className="flex items-center gap-2 text-xs">
-                                                        <span className="text-text-muted font-bold">Nombre Real:</span>
+                                                        <span className="text-text-muted font-bold">{t('admin.userAudit.realName', 'Nombre Real:')}</span>
                                                         <span className="text-text-main font-bold">{userInfo.full_name}</span>
                                                     </div>
                                                 )}
                                                 <div className="flex items-center gap-2 text-xs">
                                                     <Smartphone size={14} className="text-text-muted" />
-                                                    <span className="text-text-muted font-bold">Celular:</span>
-                                                    <span className="text-text-main font-bold">{userInfo.phone || 'No registrado'}</span>
+                                                    <span className="text-text-muted font-bold">{t('admin.userAudit.phone', 'Celular:')}</span>
+                                                    <span className="text-text-main font-bold">{userInfo.phone || t('common.notRegistered', 'No registrado')}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-xs col-span-1 md:col-span-2">
                                                     <MapPin size={14} className="text-text-muted" />
-                                                    <span className="text-text-muted font-bold">Ciudad:</span>
-                                                    <span className="text-text-main font-bold">{userInfo.city || 'No registrada'}{userInfo.country ? `, ${userInfo.country}` : ''}</span>
+                                                    <span className="text-text-muted font-bold">{t('admin.userAudit.city', 'Ciudad:')}</span>
+                                                    <span className="text-text-main font-bold">{userInfo.city || t('common.notRegistered', 'No registrada')}{userInfo.country ? `, ${userInfo.country}` : ''}</span>
                                                 </div>
                                             </div>
 
@@ -188,7 +229,7 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                             {userInfo.deposit_qr ? (
                                                 <div className="flex flex-col items-center justify-center pt-3 border-t border-border-theme/50">
                                                     <span className="text-xs font-black text-brand-primary flex items-center gap-1.5 uppercase tracking-wider mb-2">
-                                                        <QrCode size={14} /> Código QR de Desembolso
+                                                        <QrCode size={14} /> {t('admin.userAudit.qrTitle', 'Código QR de Desembolso')}
                                                     </span>
                                                     <div className="p-3 bg-white rounded-2xl shadow-md border border-border-theme">
                                                         <QRCodeSVG 
@@ -203,12 +244,12 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                                         {copied ? (
                                                             <>
                                                                 <CheckCircle size={14} className="text-accent-green" />
-                                                                <span className="text-accent-green">¡Copiado!</span>
+                                                                <span className="text-accent-green">{t('admin.userAudit.copied', '¡Copiado!')}</span>
                                                             </>
                                                         ) : (
                                                             <>
                                                                 <Copy size={14} />
-                                                                <span>Copiar Código QR</span>
+                                                                <span>{t('admin.userAudit.copyQr', 'Copiar Código QR')}</span>
                                                             </>
                                                         )}
                                                     </button>
@@ -220,6 +261,55 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                             )}
                                         </div>
                                     )}
+                                </div>
+                            )}
+
+                            {/* GM Direct Send FC Box */}
+                            {isSuperAdmin && (
+                                <div className="bg-bg-side border border-amber-500/30 rounded-2xl p-5 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Coins size={18} className="text-amber-500" />
+                                        <h3 className="text-xs font-black text-text-main uppercase tracking-wider">
+                                            Envío Directo GM (Emisión de Frikicoins)
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div className="sm:col-span-1">
+                                            <label className="text-[10px] font-bold uppercase text-text-muted mb-1 block">
+                                                {t('admin.userAudit.amountLabel', 'Cantidad (FC)')}
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                placeholder={t('admin.userAudit.amountPlaceholder', 'Ej: 50')}
+                                                value={sendAmount}
+                                                onChange={e => setSendAmount(e.target.value)}
+                                                className="w-full bg-bg-pop border border-border-theme rounded-xl px-3 py-2 text-xs text-text-main font-bold focus:outline-none focus:border-amber-500"
+                                            />
+                                        </div>
+                                        <div className="sm:col-span-2">
+                                            <label className="text-[10px] font-bold uppercase text-text-muted mb-1 block">
+                                                {t('admin.userAudit.conceptLabel', 'Concepto / Motivo')}
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder={t('admin.userAudit.conceptPlaceholder', 'Ej: Premio Dinámica Especial')}
+                                                    value={sendConcept}
+                                                    onChange={e => setSendConcept(e.target.value)}
+                                                    className="flex-1 bg-bg-pop border border-border-theme rounded-xl px-3 py-2 text-xs text-text-main focus:outline-none focus:border-amber-500"
+                                                />
+                                                <button
+                                                    onClick={handleSendGmFc}
+                                                    disabled={sendingFc || !sendAmount}
+                                                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-text-inv font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-md shadow-amber-500/20 cursor-pointer"
+                                                >
+                                                    {sendingFc ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                                                    <span>{t('admin.userAudit.sendFc', 'Emitir')}</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
@@ -236,7 +326,8 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                 ) : (
                                     <div className="border border-border-theme rounded-2xl overflow-hidden divide-y divide-border-theme bg-bg-side">
                                         {transactions.map((tx: any) => {
-                                            const isSender = tx.from_user === userId;
+                                            const isGmReward = tx.type === 'gm_reward';
+                                            const isSender = !isGmReward && tx.from_user === userId;
                                             const txColor = isSender ? 'text-accent-red' : 'text-accent-green';
                                             const txSign = isSender ? '-' : '+';
                                             const otherParty = isSender ? tx.to_username : tx.from_username;

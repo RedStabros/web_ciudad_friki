@@ -6,7 +6,7 @@
  * to owner-only features (e.g. toggling the Tavern, future GM tools).
  */
 
-const SUPERUSER_ID = import.meta.env.VITE_SUPERUSER_ID ?? '';
+export const SUPERUSER_ID = import.meta.env.VITE_SUPERUSER_ID || '9c8297f2-fc66-43d2-aa73-5efd074474e8';
 
 /**
  * Returns true if the given userId is the platform superuser/GM.

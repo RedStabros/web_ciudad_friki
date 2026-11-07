@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import UserHistoryModal from '../../components/admin/UserHistoryModal';
 import { History } from 'lucide-react';
+import { isSuperuser as checkIsSuperuser } from '../../utils/superuser';
 
 interface SearchedUser {
     id: string;
@@ -30,7 +31,7 @@ export default function AdminBans() {
     const { user } = useAuth();
     const { profile, profileLoading } = useApp();
     
-    const isSuperuser = user?.id === import.meta.env.VITE_SUPERUSER_ID;
+    const isSuperuser = checkIsSuperuser(user?.id);
     const isAdmin = profile?.role === 'admin' || isSuperuser;
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -65,12 +66,15 @@ export default function AdminBans() {
         setLoading(false);
     };
 
-    const handleOpenBanModal = (user: SearchedUser) => {
-        setBanTarget(user);
+    const handleOpenBanModal = (targetUser: SearchedUser) => {
+        if (checkIsSuperuser(targetUser.id)) {
+            return alert(t('adminRoles.errors.superAdminProtect', 'El Super Admin está protegido contra sanciones.'));
+        }
+        setBanTarget(targetUser);
         setBanData({ 
-            is_shadow_banned: user.is_shadow_banned, 
-            ban_until: user.ban_until, 
-            ban_reason: user.ban_reason || '' 
+            is_shadow_banned: targetUser.is_shadow_banned, 
+            ban_until: targetUser.ban_until, 
+            ban_reason: targetUser.ban_reason || '' 
         });
         setShowBanModal(true);
     };
@@ -89,7 +93,7 @@ export default function AdminBans() {
     };
 
     const executeBan = async () => {
-        if (!banTarget) return;
+        if (!banTarget || checkIsSuperuser(banTarget.id)) return;
         setIsProcessing(true);
         const { error } = await TavernAdminService.banUser(banTarget.id, banData);
         if (error) {
@@ -203,15 +207,16 @@ export default function AdminBans() {
                                         ) : (
                                             <button 
                                                 onClick={() => handleOpenBanModal(u)}
-                                                disabled={isProcessing}
-                                                className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-xs font-black bg-accent-red/10 text-accent-red border border-accent-red/20 hover:bg-accent-red hover:text-white transition-all"
+                                                disabled={isProcessing || checkIsSuperuser(u.id)}
+                                                className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-xs font-black bg-accent-red/10 text-accent-red border border-accent-red/20 hover:bg-accent-red hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                                             >
                                                 <ShieldAlert size={16} /> {t('adminBans.banButton')}
                                             </button>
                                         )}
                                         <button 
                                             onClick={() => handleOpenBanModal(u)}
-                                            className="p-2.5 bg-bg-pop border border-border-theme text-text-muted hover:text-brand-primary rounded-xl transition-all"
+                                            disabled={checkIsSuperuser(u.id)}
+                                            className="p-2.5 bg-bg-pop border border-border-theme text-text-muted hover:text-brand-primary rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                                             title={t('adminBans.editBan')}
                                         >
                                             <Settings size={18} />

@@ -22,6 +22,7 @@ export interface ProfileData {
     avatar_url: string | null;
     website: string;
     role: 'user' | 'worker' | 'tecnico' | 'admin';
+    can_bill_frikicoins?: boolean;
     is_banned?: boolean;
     ban_until?: string | null;
     ban_reason?: string | null;

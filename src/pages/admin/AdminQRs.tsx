@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     QrCode, PlusCircle, Loader2, Trash2, Edit3,
-    PieChart, UserPlus, XCircle, Search, Power, Shield
+    PieChart, UserPlus, XCircle, Search, Power, Shield, Download, Sparkles, Ticket, Copy
 } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import { QRAdminService } from '../../services/QRAdminService';
 import type { EventCode, QRAssignment } from '../../services/QRAdminService';
 import { useAuth } from '../../context/AuthContext';
@@ -29,6 +30,7 @@ export default function AdminQRs() {
 
     const [editingCode, setEditingCode] = useState<EventCode | null>(null);
     const [newCodeName, setNewCodeName] = useState('');
+    const [codeDescription, setCodeDescription] = useState('');
     const [points, setPoints] = useState('');
     const [maxUses, setMaxUses] = useState('');
     const [expiryDays, setExpiryDays] = useState('');
@@ -45,7 +47,10 @@ export default function AdminQRs() {
     const [redemptionsList, setRedemptionsList] = useState<any[]>([]);
     const [loadingRedemptions, setLoadingRedemptions] = useState(false);
     const [currentQrView, setCurrentQrView] = useState('');
-    const [currentQrType, setCurrentQrType] = useState<'EVENT' | 'ASSIGN'>('EVENT');
+    const [currentQrType, setCurrentQrType] = useState<'EVENT' | 'CHALLENGE' | 'ASSIGN'>('EVENT');
+    const [currentQrTitle, setCurrentQrTitle] = useState('');
+    const [currentQrPoints, setCurrentQrPoints] = useState<number>(0);
+    const [downloadingQr, setDownloadingQr] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -103,6 +108,7 @@ export default function AdminQRs() {
         const { error } = await QRAdminService.createOrUpdateCode({
             id: editingCode?.id,
             code: fullCode,
+            description: codeDescription.trim() || null,
             points: parseInt(points),
             max_uses: maxUses ? parseInt(maxUses) : null,
             expires_at: expiryDate
@@ -133,6 +139,7 @@ export default function AdminQRs() {
     const openEditModal = (code: EventCode) => {
         setEditingCode(code);
         setNewCodeName(code.code.startsWith('EVENT:') ? code.code.substring(6) : code.code);
+        setCodeDescription(code.description || '');
         setPoints(code.points.toString());
         setMaxUses(code.max_uses ? code.max_uses.toString() : '');
         setExpiryDays('');
@@ -154,10 +161,41 @@ export default function AdminQRs() {
         setLoadingRedemptions(false);
     };
 
-    const openQrModal = (code: string, type: 'EVENT' | 'ASSIGN' = 'EVENT') => {
-        setCurrentQrView(code);
+    const openQrModal = (
+        qrPayload: string,
+        type: 'EVENT' | 'CHALLENGE' | 'ASSIGN' = 'EVENT',
+        title?: string,
+        pts?: number
+    ) => {
+        const normalizedPayload = type === 'ASSIGN'
+            ? (qrPayload.startsWith('ASSIGN:') ? qrPayload : `ASSIGN:${qrPayload}`)
+            : (qrPayload.startsWith('EVENT:') ? qrPayload : `EVENT:${qrPayload}`);
+        setCurrentQrView(normalizedPayload);
         setCurrentQrType(type);
+        setCurrentQrTitle(title || normalizedPayload);
+        setCurrentQrPoints(pts || 0);
         setShowQrModal(true);
+    };
+
+    const handleDownloadQrPng = async () => {
+        const node = document.getElementById('admin-unified-qr-pass');
+        if (!node) return;
+        setDownloadingQr(true);
+        try {
+            const dataUrl = await toPng(node, {
+                quality: 0.98,
+                pixelRatio: 2,
+                backgroundColor: '#181d27'
+            });
+            const link = document.createElement('a');
+            link.download = `QR_${currentQrView.replace(/[^a-zA-Z0-9_-]/g, '_')}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (err) {
+            console.error('Error generating QR PNG:', err);
+        } finally {
+            setDownloadingQr(false);
+        }
     };
 
     // --- Assign Worker functions ---
@@ -223,7 +261,7 @@ export default function AdminQRs() {
                 {activeTab === 'codes' ? (
                     <button
                         onClick={() => {
-                            setEditingCode(null); setNewCodeName(''); setPoints(''); setMaxUses(''); setExpiryDays(''); setExpiresAt(null); setShowCreateModal(true);
+                            setEditingCode(null); setNewCodeName(''); setCodeDescription(''); setPoints(''); setMaxUses(''); setExpiryDays(''); setExpiresAt(null); setShowCreateModal(true);
                         }}
                         className="bg-brand-primary hover:bg-blue-600 text-white font-black py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-brand-primary/20 justify-center"
                     >
@@ -533,26 +571,73 @@ export default function AdminQRs() {
                 </div>
             )}
 
-            {/* View QR Code Image Modal */}
+            {/* View QR Code Image Modal (Unified Ticket Pass) */}
             {showQrModal && (
-                <div className="fixed inset-0 z-[100] flex justify-center items-center bg-black/90 backdrop-blur-md p-4 animate-in zoom-in-95">
-                    <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full relative">
-                        <button onClick={() => setShowQrModal(false)} className="absolute -top-12 right-0 text-white/50 hover:text-white transition">
+                <div className="fixed inset-0 z-[100] flex justify-center items-center bg-black/85 backdrop-blur-md p-4 animate-in zoom-in-95">
+                    <div className="flex flex-col items-center max-w-sm w-full relative">
+                        <button onClick={() => setShowQrModal(false)} className="self-end mb-3 text-white/70 hover:text-white transition">
                             <XCircle size={32} />
                         </button>
-                        <h2 className="text-2xl font-black text-black text-center mb-6 break-all w-full">{currentQrView}</h2>
 
-                        <div className="border-[12px] border-black rounded-xl overflow-hidden bg-white mb-6 p-2 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                            <QRCodeSVG
-                                value={currentQrType === 'EVENT' ? `EVENT:${currentQrView}` : `ASSIGN:${currentQrView}`}
-                                size={220}
-                                level="H"
-                            />
+                        <div
+                            id="admin-unified-qr-pass"
+                            className="w-full bg-[#181d27] border border-gray-700/80 rounded-3xl p-6 flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                        >
+                            <div className={`w-full py-1.5 px-3 rounded-xl ${currentQrType === 'ASSIGN' ? 'bg-blue-600' : currentQrType === 'CHALLENGE' ? 'bg-purple-600' : 'bg-brand-primary'} text-white font-black text-[10px] tracking-widest uppercase mb-4 flex items-center justify-center gap-1.5 shadow-md`}>
+                                <Sparkles size={12} />
+                                <span>
+                                    {currentQrType === 'ASSIGN'
+                                        ? 'CIUDAD FRIKI • STAFF PASS'
+                                        : currentQrType === 'CHALLENGE'
+                                            ? 'CIUDAD FRIKI • RETO / DINÁMICA'
+                                            : 'CIUDAD FRIKI • EVENT PASS'}
+                                </span>
+                            </div>
+
+                            {currentQrPoints > 0 && (
+                                <div className="bg-amber-400 text-black font-black uppercase tracking-widest text-[10px] px-3.5 py-1 rounded-full shadow-md flex items-center gap-1 mb-2">
+                                    <Ticket size={12} /> {currentQrPoints} FC
+                                </div>
+                            )}
+
+                            <h2 className="font-black text-white text-xl mt-1 mb-1 break-words w-full">{currentQrTitle}</h2>
+                            <p className="text-amber-400 font-bold text-xs mb-4 break-all font-mono">
+                                {currentQrView}
+                            </p>
+
+                            <div className="bg-white p-4 rounded-2xl mb-4 shadow-inner flex justify-center">
+                                <QRCodeSVG
+                                    value={currentQrView}
+                                    size={200}
+                                    level="H"
+                                    fgColor="#111827"
+                                />
+                            </div>
+
+                            <p className="text-[10px] font-mono uppercase tracking-wider text-gray-400">
+                                {currentQrType === 'ASSIGN' ? t('adminQRs.modals.view.assignHint') : t('adminQRs.modals.view.eventHint')}
+                            </p>
                         </div>
 
-                        <p className="text-center text-sm font-bold text-gray-500">
-                            {currentQrType === 'EVENT' ? t('adminQRs.modals.view.eventHint') : t('adminQRs.modals.view.assignHint')}
-                        </p>
+                        <div className="flex gap-2 w-full mt-3">
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(currentQrView);
+                                    alert(t('events.qrModal.copied', '¡Código copiado!'));
+                                }}
+                                className="flex-1 flex justify-center items-center gap-2 text-text-muted hover:text-brand-primary bg-bg-sub py-2.5 rounded-xl font-bold text-xs transition cursor-pointer"
+                            >
+                                <Copy size={15} /> {t('wallet.copyQrCode', 'Copiar Código')}
+                            </button>
+                            <button
+                                onClick={handleDownloadQrPng}
+                                disabled={downloadingQr}
+                                className="flex-1 flex justify-center items-center gap-2 text-text-inv bg-brand-primary hover:bg-brand-primary-light py-2.5 rounded-xl font-black text-xs transition shadow-md shadow-brand-primary/20 cursor-pointer disabled:opacity-50"
+                            >
+                                {downloadingQr ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                                <span>{t('events.downloadPng', 'Descargar PNG')}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

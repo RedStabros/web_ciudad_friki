@@ -508,6 +508,23 @@ export const TriviaAdminService = {
         }
     },
 
+    async updatePackQuestion(questionId: string, questionText: string, options: { text: string; is_correct: boolean }[]): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('trivia_packs_questions')
+                .update({
+                    question_text: questionText,
+                    options
+                })
+                .eq('id', questionId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating pack question:', error);
+            throw error;
+        }
+    },
+
     async approveTriviaPack(params: {
         submissionId: string;
         publishDate: string;

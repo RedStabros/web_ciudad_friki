@@ -32,6 +32,8 @@ export interface FrikiEvent {
     qr_requested?: boolean;
     qr_approved?: boolean;
     qr_reward_amount?: number;
+    recurrence_type?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+    recurrence_days?: number[] | null;
     parent_event_id?: string | null;
     edition_number?: number | null;
     // Transient UI properties
@@ -249,14 +251,14 @@ export const EventService = {
     async createEvent(eventData: Partial<FrikiEvent>) {
         try {
             // Map lat/lng to geo_location for Supabase PostGIS if provided
-            const dataToInsert = { ...eventData };
-            if (dataToInsert.lat !== undefined && dataToInsert.lng !== undefined) {
-                if (dataToInsert.lat !== null && dataToInsert.lng !== null) {
-                    dataToInsert.geo_location = `POINT(${dataToInsert.lng} ${dataToInsert.lat})`;
-                }
-                delete dataToInsert.lat;
-                delete dataToInsert.lng;
+            const dataToInsert: any = { ...eventData };
+            if (typeof dataToInsert.lat === 'number' && typeof dataToInsert.lng === 'number') {
+                dataToInsert.geo_location = `POINT(${dataToInsert.lng} ${dataToInsert.lat})`;
             }
+            delete dataToInsert.lat;
+            delete dataToInsert.lng;
+            delete dataToInsert.isLiked;
+            delete dataToInsert.isSaved;
 
             const { error, data } = await supabase
                 .from('events')
@@ -273,16 +275,16 @@ export const EventService = {
 
     async updateEvent(id: string, eventData: Partial<FrikiEvent>) {
         try {
-            const dataToUpdate = { ...eventData };
-            if (dataToUpdate.lat !== undefined && dataToUpdate.lng !== undefined) {
-                if (dataToUpdate.lat !== null && dataToUpdate.lng !== null) {
-                    dataToUpdate.geo_location = `POINT(${dataToUpdate.lng} ${dataToUpdate.lat})`;
-                } else {
-                    dataToUpdate.geo_location = null;
-                }
-                delete dataToUpdate.lat;
-                delete dataToUpdate.lng;
+            const dataToUpdate: any = { ...eventData };
+            if (typeof dataToUpdate.lat === 'number' && typeof dataToUpdate.lng === 'number') {
+                dataToUpdate.geo_location = `POINT(${dataToUpdate.lng} ${dataToUpdate.lat})`;
+            } else if (dataToUpdate.lat === null || dataToUpdate.lng === null) {
+                dataToUpdate.geo_location = null;
             }
+            delete dataToUpdate.lat;
+            delete dataToUpdate.lng;
+            delete dataToUpdate.isLiked;
+            delete dataToUpdate.isSaved;
 
             const { error, data } = await supabase
                 .from('events')

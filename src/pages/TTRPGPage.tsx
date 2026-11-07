@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { supabase } from '../lib/supabase';
 import { TTRPGService } from '../services/TTRPGService';
 import type { TTRPGSheet } from '../types/ttrpg';
 import CharacterSheetEditor from '../components/TTRPG/CharacterSheetEditor';
@@ -206,6 +207,10 @@ export default function TTRPGPage() {
             sum += val;
         }
         setRollResult({ qty, faces, rolls, sum });
+
+        if (user) {
+            supabase.rpc('increment_my_rolls', { p_increment: qty }).then(() => {});
+        }
     };
 
     return (

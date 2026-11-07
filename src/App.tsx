@@ -22,6 +22,7 @@ import Support from './pages/Support';
 import AccountDeletion from './pages/AccountDeletion';
 import About from './pages/About';
 import Corporation from './pages/Corporation';
+import CraftsPage from './pages/CraftsPage';
 import OnboardingModal from './components/OnboardingModal';
 import MyEvents from './pages/MyEvents';
 import MapPage from './pages/MapPage';
@@ -129,6 +130,8 @@ function App() {
 
           {/* Events Feed (Now unified with Home) */}
           <Route path="/events" element={<Home />} />
+          <Route path="/manualidades" element={<CraftsPage />} />
+          <Route path="/crafts" element={<CraftsPage />} />
 
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />

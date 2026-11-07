@@ -30,6 +30,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
         whatsapp: '',
         tags: [] as string[],
         qr_requested: false,
+        recurrence_type: 'daily' as 'daily' | 'weekly' | 'biweekly' | 'monthly',
+        recurrence_days: [] as number[],
         lat: null as number | null,
         lng: null as number | null,
     });
@@ -54,6 +56,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 whatsapp: initialData.whatsapp || '',
                 tags: initialData.tags || [],
                 qr_requested: initialData.qr_requested || false,
+                recurrence_type: initialData.recurrence_type || 'daily',
+                recurrence_days: initialData.recurrence_days || [],
                 lat: initialData.lat || null,
                 lng: initialData.lng || null,
             });
@@ -64,6 +68,7 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 title: '', description: '', date: '', startTime: '', endDate: '', endTime: '',
                 location: '', maps_location_url: '', price_min: 0, is_free: false,
                 external_link: '', whatsapp: '', tags: [], qr_requested: false,
+                recurrence_type: 'daily', recurrence_days: [],
                 lat: null, lng: null
             });
             setImagePreview(null);
@@ -72,17 +77,16 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
     }, [isOpen, initialData]);
 
     /**
-     * Resize image to max 1080px wide and compress to JPEG 0.8
-     * Mirrors the mobile app's ImageManipulator logic:
-     *   manipulateAsync(uri, [{ resize: { width: 1080 } }], { compress: 0.8, format: JPEG })
+     * Resize image to max 1200px wide and compress to JPEG 0.8
+     * Robust implementation that will not crash on iOS Safari camera photos / HEIC
      */
     const resizeAndCompressImage = (file: File): Promise<Blob> => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const img = new Image();
             const objectUrl = URL.createObjectURL(file);
             img.onload = () => {
                 URL.revokeObjectURL(objectUrl);
-                const MAX_WIDTH = 1080;
+                const MAX_WIDTH = 1200;
                 let { width, height } = img;
                 if (width > MAX_WIDTH) {
                     height = Math.round((height * MAX_WIDTH) / width);
@@ -91,15 +95,27 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 const canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
-                const ctx = canvas.getContext('2d')!;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    return resolve(file);
+                }
                 ctx.drawImage(img, 0, 0, width, height);
                 canvas.toBlob(
-                    (blob) => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')),
+                    (blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            resolve(file);
+                        }
+                    },
                     'image/jpeg',
-                    0.8 // quality 0.8 matches the app
+                    0.8
                 );
             };
-            img.onerror = reject;
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(file);
+            };
             img.src = objectUrl;
         });
     };
@@ -112,7 +128,6 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 setImageFile(compressed);
                 setImagePreview(URL.createObjectURL(compressed));
             } catch {
-                // Fallback: use original if canvas fails
                 setImageFile(file);
                 setImagePreview(URL.createObjectURL(file));
             }
@@ -134,12 +149,24 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
 
     if (!isOpen) return null;
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if (e && e.preventDefault) e.preventDefault();
         if (!user) return alert(t('common.loginRequired', 'Inicia sesión para crear eventos'));
 
-        if (!formData.title || !formData.date || !formData.location || !formData.startTime) {
-            return alert(t('common.errorHighlight', 'Por favor llena los campos requeridos (*).'));
+        const missingFields: string[] = [];
+        if (!formData.title.trim()) missingFields.push(t('events.title', 'Título'));
+        if (!formData.date.trim()) missingFields.push(t('events.startDate', 'Fecha de Inicio'));
+        if (!formData.startTime.trim()) missingFields.push(t('events.startTime', 'Hora de Inicio'));
+        if (!formData.location.trim()) missingFields.push(t('events.locationName', 'Lugar del Evento'));
+
+        if (missingFields.length > 0) {
+            return alert(`${t('common.errorHighlight', 'Por favor llena los campos requeridos (*):')}\n• ${missingFields.join('\n• ')}`);
+        }
+
+        // Validate weekly recurrence
+        const isMultiDay = formData.endDate && formData.endDate !== formData.date;
+        if (isMultiDay && formData.recurrence_type === 'weekly' && formData.recurrence_days.length === 0) {
+            return alert(t('events.recurrence.weeklyRequired', 'Por favor selecciona al menos un día de la semana para la recurrencia semanal.'));
         }
 
         setIsSubmitting(true);
@@ -152,11 +179,11 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
 
                 const { error: uploadError } = await supabase.storage
                     .from('event-banners')
-                    .upload(fileName, imageFile, { contentType: 'image/jpeg' });
+                    .upload(fileName, imageFile, { contentType: 'image/jpeg', upsert: true });
 
                 if (uploadError) {
                     console.error('Storage error:', uploadError);
-                    alert(t('events.errors.uploadError', 'Error subiendo la imagen. Intenta de nuevo.'));
+                    alert(t('events.errors.uploadError', 'Error subiendo la imagen. Intenta de nuevo con otra foto o menor tamaño.'));
                     setIsSubmitting(false);
                     return;
                 }
@@ -186,6 +213,8 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                 created_by: user.id,              // app always sends created_by
                 status: 'pending' as const,
                 qr_requested: formData.qr_requested,
+                recurrence_type: isMultiDay ? formData.recurrence_type : 'daily',
+                recurrence_days: (isMultiDay && formData.recurrence_type === 'weekly') ? formData.recurrence_days : null,
                 parent_event_id: initialData?.parent_event_id || null,
                 edition_number: initialData?.edition_number || 1,
                 lat: formData.lat,
@@ -337,6 +366,88 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Recurrence Selector for Multi-day Events */}
+                            {formData.endDate && formData.endDate !== formData.date && (
+                                <div className="mt-4 p-4 bg-bg-sub/70 rounded-2xl border border-brand-primary/30 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-xs font-black uppercase tracking-wider text-brand-primary flex items-center gap-1.5">
+                                            <span>🔁</span> {t('events.recurrence.title', 'Frecuencia de las Sesiones')}
+                                        </label>
+                                        <span className="text-[11px] font-bold text-text-muted">
+                                            {formData.recurrence_type === 'daily' && t('events.recurrence.dailyDesc', 'Todos los días del evento')}
+                                            {formData.recurrence_type === 'weekly' && t('events.recurrence.weeklyDesc', 'Días seleccionados cada semana')}
+                                            {formData.recurrence_type === 'biweekly' && t('events.recurrence.biweeklyDesc', 'Cada 14 días')}
+                                            {formData.recurrence_type === 'monthly' && t('events.recurrence.monthlyDesc', 'Una sesión al mes')}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        {[
+                                            { type: 'daily', label: t('events.recurrence.daily', 'Diario') },
+                                            { type: 'weekly', label: t('events.recurrence.weekly', 'Semanal') },
+                                            { type: 'biweekly', label: t('events.recurrence.biweekly', 'Quincenal') },
+                                            { type: 'monthly', label: t('events.recurrence.monthly', 'Mensual') },
+                                        ].map(({ type, label }) => {
+                                            const isSelected = formData.recurrence_type === type;
+                                            return (
+                                                <button
+                                                    key={type}
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, recurrence_type: type as any })}
+                                                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                                                        isSelected
+                                                            ? 'bg-brand-primary text-text-inv border-brand-primary shadow-sm'
+                                                            : 'bg-bg-side text-text-sub border-border-theme hover:border-brand-primary/50'
+                                                    }`}
+                                                >
+                                                    {label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {formData.recurrence_type === 'weekly' && (
+                                        <div className="pt-2 border-t border-divider-theme">
+                                            <label className="block text-xs font-bold text-text-sub mb-2">
+                                                {t('events.recurrence.selectDays', 'Selecciona los días en que se realiza el evento:')} *
+                                            </label>
+                                            <div className="flex flex-wrap gap-2">
+                                                {[
+                                                    { day: 1, label: 'Lun' },
+                                                    { day: 2, label: 'Mar' },
+                                                    { day: 3, label: 'Mié' },
+                                                    { day: 4, label: 'Jue' },
+                                                    { day: 5, label: 'Vie' },
+                                                    { day: 6, label: 'Sáb' },
+                                                    { day: 0, label: 'Dom' },
+                                                ].map(({ day, label }) => {
+                                                    const isSelected = formData.recurrence_days.includes(day);
+                                                    return (
+                                                        <button
+                                                            key={day}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const next = isSelected
+                                                                    ? formData.recurrence_days.filter(d => d !== day)
+                                                                    : [...formData.recurrence_days, day];
+                                                                setFormData({ ...formData, recurrence_days: next });
+                                                            }}
+                                                            className={`min-w-[44px] h-9 px-2 rounded-xl text-xs font-black border flex items-center justify-center transition-all ${
+                                                                isSelected
+                                                                    ? 'bg-brand-primary text-text-inv border-brand-primary shadow-md scale-105'
+                                                                    : 'bg-bg-side text-text-sub border-border-theme hover:border-brand-primary/50'
+                                                            }`}
+                                                        >
+                                                            {label}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Location */}
@@ -548,12 +659,12 @@ export function CreateEventModal({ isOpen, onClose, onCreated, initialData }: { 
                         {t('common.cancel')}
                     </button>
                     <button
-                        type="submit"
-                        form="createForm"
+                        type="button"
+                        onClick={() => handleSubmit()}
                         disabled={isSubmitting}
-                        className="px-6 py-2 rounded-xl font-bold bg-brand-primary text-text-inv hover:bg-brand-primary-light transition shadow-lg shadow-brand-primary/20 flex items-center justify-center min-w-[120px]"
+                        className="px-6 py-2.5 rounded-xl font-bold bg-brand-primary text-text-inv hover:bg-brand-primary-light transition shadow-lg shadow-brand-primary/20 flex items-center justify-center min-w-[130px] cursor-pointer disabled:opacity-50"
                     >
-                        {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : t('events.publish')}
+                        {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (initialData ? t('common.save', 'Guardar') : t('events.publish', 'Publicar Evento'))}
                     </button>
                 </div>
 

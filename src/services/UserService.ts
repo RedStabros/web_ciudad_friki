@@ -31,7 +31,7 @@ export const UserService = {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('username, full_name, avatar_url, role, interests, bio, phone, city, country, neighborhood, website, email, notification_preferences(*)')
+                .select('username, full_name, avatar_url, role, can_bill_frikicoins, interests, bio, phone, city, country, neighborhood, website, email, notification_preferences(*)')
                 .eq('id', userId)
                 .single();
 

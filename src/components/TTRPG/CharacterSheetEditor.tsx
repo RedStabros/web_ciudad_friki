@@ -5,7 +5,7 @@ import { TTRPGService } from '../../services/TTRPGService';
 import { supabase } from '../../lib/supabase';
 import {
     X, Shield, Moon, PawPrint, Sparkles, AlertTriangle,
-    Cloud, RefreshCw, Dices, Coins, Zap
+    Cloud, RefreshCw, Dices, Coins, Zap, Share2, Check
 } from 'lucide-react';
 
 interface CharacterSheetEditorProps {
@@ -263,6 +263,11 @@ export default function CharacterSheetEditor({ sheetId, userId, onClose }: Chara
         }
         setQuickRollResult({ rolls, sum });
 
+        // Sincronizar tirada con Supabase para el contador de user_stats y logros
+        if (userId) {
+            supabase.rpc('increment_my_rolls', { p_increment: diceQty }).then(() => {});
+        }
+
         // Broadcast roll
         const rollPayload = {
             id: `roll_${Math.random().toString(36).substring(2, 11)}`,
@@ -311,6 +316,11 @@ export default function CharacterSheetEditor({ sheetId, userId, onClose }: Chara
             rollLabel = `Lanzó ${label} (${value})`;
         }
 
+        // Sincronizar tirada con Supabase para el contador de user_stats y logros
+        if (userId) {
+            supabase.rpc('increment_my_rolls', { p_increment: rolls.length }).then(() => {});
+        }
+
         // Show in the quick roller UI
         setQuickRollResult({ rolls, sum });
         setDiceQty(sheet?.system === 'Fantasía Épica (5e)' ? 1 : Math.max(1, value));
@@ -348,6 +358,32 @@ export default function CharacterSheetEditor({ sheetId, userId, onClose }: Chara
             const res = Math.random() > 0.5 ? 'Cara' : 'Cruz';
             setCoinResult(res);
         }, 1200);
+    };
+
+    // Export / Share Sheet Summary & Record Achievement
+    const [copiedSummary, setCopiedSummary] = useState(false);
+    const handleExportSheet = async () => {
+        if (!sheet) return;
+        try {
+            const summaryLines = [
+                `📜 ${sheet.characterName || 'Personaje'} (${sheet.system || 'TTRPG'})`,
+                sheet.player ? `👤 Jugador: ${sheet.player}` : null,
+                sheet.chronicle ? `🏰 Crónica/Campaña: ${sheet.chronicle}` : null,
+                sheet.clan ? `🩸 Clan/Linaje: ${sheet.clan}` : null,
+                sheet.concept ? `🎭 Concepto: ${sheet.concept}` : null,
+                sheet.experience ? `⭐ Experiencia: ${sheet.experience.spent || 0} / ${sheet.experience.total || 0}` : null,
+                sheet.notes ? `\n📝 Notas:\n${sheet.notes}` : null,
+                `\nGenerado desde Ciudad Friki Web`
+            ].filter(Boolean).join('\n');
+
+            await navigator.clipboard.writeText(summaryLines);
+            setCopiedSummary(true);
+            setTimeout(() => setCopiedSummary(false), 3000);
+
+            await supabase.rpc('record_ttrpg_pdf_export');
+        } catch (err) {
+            console.error('Error exporting sheet summary:', err);
+        }
     };
 
     const getSystemIcon = (system: string) => {
@@ -470,6 +506,19 @@ export default function CharacterSheetEditor({ sheetId, userId, onClose }: Chara
                     >
                         <Dices size={14} />
                         {t('ttrpg.quickRoll', 'Dados')}
+                    </button>
+
+                    <button
+                        onClick={handleExportSheet}
+                        title={t('ttrpg.exportSheet', 'Copiar y Exportar Ficha')}
+                        className={`px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 transition border ${
+                            copiedSummary
+                                ? 'bg-accent-green text-black border-accent-green shadow-md font-bold'
+                                : 'bg-bg-sub/50 text-text-main border-divider-theme hover:bg-bg-sub'
+                        }`}
+                    >
+                        {copiedSummary ? <Check size={14} /> : <Share2 size={14} />}
+                        <span className="hidden sm:inline">{copiedSummary ? t('common.copied', '¡Copiado!') : t('common.export', 'Exportar')}</span>
                     </button>
 
                     <button onClick={onClose} className="p-2 bg-bg-sub hover:bg-bg-sub/80 rounded-xl transition text-text-muted hover:text-text-main">
