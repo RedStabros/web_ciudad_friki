@@ -23,26 +23,64 @@ export interface ReportMessage {
     sender_id: string;
     message: string;
     attachment_url?: string | null;
+    is_staff?: boolean;
     created_at: string;
     sender?: { username: string; avatar_url?: string | null };
 }
 
-// Uses 'web_bug_reports' — a separate table from the mobile app's 'bug_reports'
 const TABLE = 'web_bug_reports';
 
 export const BugReportService = {
     /**
-     * Submit a new bug report via RPC to bypass RLS constraints.
-     * The server-side function uses SECURITY DEFINER so auth.uid() is always correct.
+     * Upload an image attachment to the 'bug-reports' storage bucket
      */
-    async reportBug(_userId: string, description: string) {
-        try {
-            const { data, error } = await supabase.rpc('submit_web_bug_report', {
-                p_description: description,
+    async uploadAttachment(file: File): Promise<string> {
+        const ext = file.name.split('.').pop() || 'jpg';
+        const fileName = `web_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+        const { error } = await supabase.storage
+            .from('bug-reports')
+            .upload(fileName, file, {
+                contentType: file.type || 'image/jpeg',
+                upsert: false,
             });
 
-            if (error) throw error;
-            return { data: data as string, error: null };
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('bug-reports')
+            .getPublicUrl(fileName);
+
+        return publicUrl;
+    },
+
+    /**
+     * Submit a new bug report with optional screenshot and platform='web'
+     */
+    async reportBug(userId: string, description: string, attachmentUrl?: string | null) {
+        try {
+            const { data, error } = await supabase
+                .from(TABLE)
+                .insert({
+                    user_id: userId,
+                    description: description.trim(),
+                    attachment_url: attachmentUrl || null,
+                    platform: 'web',
+                    severity: 'normal',
+                    status: 'pending',
+                })
+                .select('id')
+                .single();
+
+            if (!error && data) {
+                return { data: data.id as string, error: null };
+            }
+
+            // Fallback to RPC if direct insert fails
+            const { data: rpcData, error: rpcError } = await supabase.rpc('submit_web_bug_report', {
+                p_description: description.trim(),
+            });
+            if (rpcError) throw rpcError;
+            return { data: rpcData as string, error: null };
         } catch (error: any) {
             console.error('Error submitting bug report:', error);
             return { data: null, error };
@@ -50,21 +88,38 @@ export const BugReportService = {
     },
 
     /**
-     * Fetch all bug reports (Admin only).
-     * Tries to join profiles for username; falls back to user_id only.
+     * Fetch reports created by a specific user
+     */
+    async getUserReports(userId: string) {
+        try {
+            const { data, error } = await supabase
+                .from(TABLE)
+                .select('id, user_id, description, status, severity, platform, attachment_url, is_archived, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return { data: (data as unknown as BugReport[]) || [], error: null };
+        } catch (error: any) {
+            console.error('Error fetching user bug reports:', error);
+            return { data: [], error };
+        }
+    },
+
+    /**
+     * Fetch all bug reports (Admin / Tecnico).
      */
     async getAllReports() {
         try {
             const { data, error } = await supabase
                 .from(TABLE)
-                .select('id, user_id, title, description, status, severity, platform, attachment_url, is_archived, created_at, profiles(username)')
+                .select('id, user_id, description, status, severity, platform, attachment_url, is_archived, created_at, profiles(username)')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                // Fallback: fetch without the profiles join
                 const { data: plain, error: plainError } = await supabase
                     .from(TABLE)
-                    .select('id, user_id, title, description, status, severity, platform, attachment_url, is_archived, created_at')
+                    .select('id, user_id, description, status, severity, platform, attachment_url, is_archived, created_at')
                     .order('created_at', { ascending: false });
                 if (plainError) throw plainError;
                 return { data: plain as unknown as BugReport[], error: null };
@@ -77,7 +132,7 @@ export const BugReportService = {
     },
 
     /**
-     * Update bug report status or severity (Admin only)
+     * Update bug report status, severity, or archive flag
      */
     async updateReport(id: string, updates: Partial<BugReport>) {
         try {
@@ -104,7 +159,7 @@ export const BugReportService = {
             const { data, error } = await supabase
                 .from('web_bug_report_messages')
                 .select(`
-                    id, report_id, sender_id, message, attachment_url, created_at,
+                    id, report_id, sender_id, message, attachment_url, is_staff, created_at,
                     sender:profiles!sender_id(username, avatar_url)
                 `)
                 .eq('report_id', reportId)
@@ -125,7 +180,7 @@ export const BugReportService = {
     /**
      * Send message in a ticket thread
      */
-    async sendMessage(reportId: string, message: string, attachmentUrl?: string | null) {
+    async sendMessage(reportId: string, message: string, attachmentUrl?: string | null, isStaff = false) {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Usuario no autenticado');
@@ -135,8 +190,9 @@ export const BugReportService = {
                 .insert({
                     report_id: reportId,
                     sender_id: user.id,
-                    message: message.trim(),
-                    attachment_url: attachmentUrl || null
+                    message: message.trim() || '📎 Imagen adjunta',
+                    attachment_url: attachmentUrl || null,
+                    is_staff: isStaff
                 })
                 .select()
                 .single();

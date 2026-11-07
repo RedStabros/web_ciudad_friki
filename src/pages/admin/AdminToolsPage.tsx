@@ -4,7 +4,7 @@ import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
     Trophy, ShieldCheck, Clock, Loader2,
-    Eye, Share2, MessageSquare, Swords, Coins
+    Eye, Share2, MessageSquare, Swords, Coins, Bug
 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { shareContent } from '../../utils/shareContent';
@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { getAvatarSource } from '../../config/avatars';
 import UserAuditModal from '../../components/admin/UserAuditModal';
+import { AdminBugReports } from '../../components/AdminBugReports';
 import { Link } from 'react-router-dom';
 
 export default function AdminToolsPage() {
@@ -30,6 +31,7 @@ export default function AdminToolsPage() {
     const [auditUser, setAuditUser] = useState<{ id: string; username: string } | null>(null);
     const [recalculatingStats, setRecalculatingStats] = useState(false);
     const [recalcSuccess, setRecalcSuccess] = useState<string | null>(null);
+    const [showBugReportsModal, setShowBugReportsModal] = useState(false);
 
     const handleRecalculateStats = async () => {
         if (!window.confirm(t('admin.recalculateConfirm', '¿Deseas recalcular todas las estadísticas y sincronizar los 148 logros retroactivos para todos los usuarios?'))) return;
@@ -183,7 +185,15 @@ export default function AdminToolsPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <button
+                        onClick={() => setShowBugReportsModal(true)}
+                        className="flex items-center gap-2 px-3 py-2 bg-accent-red/10 border border-accent-red/30 text-accent-red rounded-xl text-xs font-black uppercase hover:bg-accent-red/20 transition shadow-sm"
+                    >
+                        <Bug size={15} />
+                        <span>{t('helpdesk.adminTitle', 'Mesa de Ayuda')}</span>
+                    </button>
+
                     <button
                         onClick={handleRecalculateStats}
                         disabled={recalculatingStats}
@@ -377,20 +387,20 @@ export default function AdminToolsPage() {
                 <div className="flex items-center gap-2 mb-4 border-b border-border-theme pb-3">
                     <Coins className="text-amber-500" size={20} />
                     <h3 className="font-black text-text-main uppercase tracking-wider text-sm">
-                        Consumo y Absorción de la Economía (POS & Tienda)
+                        {t('settings.economyAbsorption.title', 'Consumo y Absorción de la Economía (POS & Tienda)')}
                     </h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">Cobros Stand / POS</p>
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.economyAbsorption.posSpent', 'Cobros Stand / POS')}</p>
                         <p className="text-2xl font-black text-amber-500">{(stats?.biller_spent_total || 0).toLocaleString()} FC</p>
                     </div>
                     <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">FrikiMart (Tienda)</p>
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.economyAbsorption.storeSpent', 'FrikiMart (Tienda)')}</p>
                         <p className="text-2xl font-black text-brand-primary">{(stats?.frikimart_spent_total || 0).toLocaleString()} FC</p>
                     </div>
                     <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
-                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">Total Absorbido</p>
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">{t('settings.economyAbsorption.totalAbsorbed', 'Total Absorbido')}</p>
                         <p className="text-2xl font-black text-accent-green">{(stats?.total_spent_fc || 0).toLocaleString()} FC</p>
                     </div>
                 </div>
@@ -644,6 +654,12 @@ export default function AdminToolsPage() {
                 userId={auditUser?.id || null}
                 username={auditUser?.username || ''}
                 isSuperAdmin={false}
+            />
+
+            {/* Helpdesk / Bug Reports Modal */}
+            <AdminBugReports
+                isOpen={showBugReportsModal}
+                onClose={() => setShowBugReportsModal(false)}
             />
         </div>
     );

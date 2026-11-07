@@ -154,9 +154,12 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
             return;
         }
 
-        // 2. Asistencia Oficial Directa (ciudadfriki://attendance/{event_id})
-        if (trimmed.startsWith('ciudadfriki://attendance/')) {
-            const eventId = trimmed.replace('ciudadfriki://attendance/', '').trim();
+        // 2. Asistencia Oficial Directa (ciudadfriki://attendance/{event_id} o ATTENDANCE:{event_id})
+        if (trimmed.startsWith('ciudadfriki://attendance/') || trimmed.startsWith('ATTENDANCE:')) {
+            const eventId = trimmed
+                .replace('ciudadfriki://attendance/', '')
+                .replace('ATTENDANCE:', '')
+                .trim();
             setIsLoading(true);
             setActiveTab('main');
             try {
@@ -165,28 +168,27 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                 });
                 if (error) throw error;
                 if (response?.success) {
-                    alert(`¡Has recibido ${response.amount} Frikicoins por asistir al evento ${response.event_title || ''}!`);
+                    alert(t('wallet.event.redeemSuccess', { amount: response.amount }));
                     await fetchWalletData();
                     setActiveTab('history');
                 } else {
-                    alert(response?.message || 'No se pudo reclamar la asistencia.');
+                    alert(response?.message || t('wallet.event.redeemError', 'No se pudo reclamar la asistencia.'));
                 }
             } catch (err: any) {
                 console.error('Attendance error:', err);
-                alert(err.message || 'Error al procesar asistencia');
+                alert(err.message || t('common.error', 'Error al procesar asistencia'));
             } finally {
                 setIsLoading(false);
             }
             return;
         }
 
-        // 2. Códigos de Asignación o Evento
-        if (trimmed.startsWith('ASSIGN:') || trimmed.startsWith('EVENT:') || trimmed.startsWith('ATTENDANCE:') || trimmed.includes('event-reward/')) {
+        // 3. Códigos de Asignación o Evento
+        if (trimmed.startsWith('ASSIGN:') || trimmed.startsWith('EVENT:') || trimmed.includes('event-reward/')) {
             const isAssignment = trimmed.startsWith('ASSIGN:');
             let cleanCode = trimmed;
             if (trimmed.startsWith('ASSIGN:')) cleanCode = trimmed.replace('ASSIGN:', '');
             else if (trimmed.startsWith('EVENT:')) cleanCode = trimmed.replace('EVENT:', '');
-            else if (trimmed.startsWith('ATTENDANCE:')) cleanCode = trimmed.replace('ATTENDANCE:', '');
             else if (trimmed.includes('event-reward/')) cleanCode = trimmed.split('event-reward/')[1];
 
             setIsLoading(true);
@@ -400,7 +402,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
 
                                     <div className="space-y-4">
                                         {transactions.length > 0 ? transactions.slice(0, visibleCount).map((tx) => {
-                                            const isReceived = tx.to_user === userId;
+                                            const isReceived = tx.to_user === userId || tx.type === 'gm_reward';
                                             const isP2P = tx.type === 'transfer' || tx.type === 'p2p' || (!tx.type && tx.from_user && tx.to_user);
                                             let descriptionText = tx.description;
                                             if (descriptionText) {
@@ -443,9 +445,9 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                                     tx.type === 'biller_charge' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30' :
                                                                     tx.type === 'event_reward' ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/30' :
                                                                     isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
-                                                                    {tx.type === 'gm_reward' ? '🛡️ Envío del GM' :
-                                                                     tx.type === 'biller_charge' ? '🛍️ Compra en Stand' :
-                                                                     tx.type === 'event_reward' ? (descriptionText?.toLowerCase().includes('reto') || descriptionText?.toLowerCase().includes('dinám') ? '🎯 Reto de Evento' : '🎟️ Asistencia') :
+                                                                    {tx.type === 'gm_reward' ? t('wallet.txTypes.gmReward', '🛡️ Envío del GM') :
+                                                                     tx.type === 'biller_charge' ? t('wallet.txTypes.billerCharge', '🛍️ Compra en Stand') :
+                                                                     tx.type === 'event_reward' ? (descriptionText?.toLowerCase().includes('reto') || descriptionText?.toLowerCase().includes('dinám') ? t('wallet.txTypes.eventChallenge', '🎯 Reto de Evento') : t('wallet.txTypes.eventAttendance', '🎟️ Asistencia')) :
                                                                      tx.type || (isReceived ? t('wallet.income') : t('wallet.expense'))}
                                                                 </span>
                                                                 <p className="text-[10px] font-bold text-text-muted">{new Date(tx.created_at).toLocaleDateString()} • {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>

@@ -1,8 +1,9 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel, Zap, MapPin } from 'lucide-react';
+import { ShieldAlert, Users, CalendarCheck, BarChart2, Gamepad2, QrCode, MessageSquareWarning, Settings, Loader2, Store, LayoutDashboard, Gavel, Zap, MapPin, CreditCard, ClipboardList } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { isSuperuser as checkIsSuperuser } from '../utils/superuser';
 
 export default function AdminLayout() {
     const { user, isLoading: authLoading } = useAuth();
@@ -10,8 +11,10 @@ export default function AdminLayout() {
     const location = useLocation();
     const { t } = useTranslation();
 
-    const isSuperuser = user?.id === import.meta.env.VITE_SUPERUSER_ID;
+    const isSuperuser = checkIsSuperuser(user?.id);
     const isAdmin = profile?.role === 'admin' || isSuperuser;
+    const isTecnico = profile?.role === 'tecnico';
+    const isBiller = Boolean(profile?.can_bill_frikicoins);
 
     if (authLoading || profileLoading) {
         return (
@@ -22,24 +25,41 @@ export default function AdminLayout() {
         );
     }
 
-    if (!user || !isAdmin) {
+    if (!user || (!isAdmin && !isTecnico && !isBiller)) {
         return <Navigate to="/" replace />;
     }
 
-    const navItems = [
-        { path: '/admin/roles', icon: <Users size={20} />, label: t('admin.sidebar.roles') },
-        { path: '/admin/events', icon: <CalendarCheck size={20} />, label: t('admin.sidebar.events') },
-        { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: t('admin.sidebar.surveys') },
-        { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: t('admin.sidebar.trivias') },
-        { path: '/admin/frikivs', icon: <Zap size={20} />, label: t('admin.sidebar.frikivs', 'Aportes VS') },
-        { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
-        { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
-        { path: '/admin/bans', icon: <Gavel size={20} />, label: t('admin.sidebar.bans') },
-        { path: '/admin/allies', icon: <MapPin size={20} />, label: t('admin.sidebar.allies', 'Aliados') },
-        { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
-        ...(isSuperuser || frikiMartAdmin ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
-        ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),
-    ];
+    if (!isAdmin && location.pathname === '/admin') {
+        return <Navigate to={isTecnico ? '/admin/surveys' : '/admin/billers'} replace />;
+    }
+
+    const navItems = isAdmin
+        ? [
+            { path: '/admin/roles', icon: <Users size={20} />, label: t('admin.sidebar.roles') },
+            { path: '/admin/events', icon: <CalendarCheck size={20} />, label: t('admin.sidebar.events') },
+            { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: t('admin.sidebar.surveys') },
+            { path: '/admin/trivias', icon: <Gamepad2 size={20} />, label: t('admin.sidebar.trivias') },
+            { path: '/admin/frikivs', icon: <Zap size={20} />, label: t('admin.sidebar.frikivs', 'Aportes VS') },
+            { path: '/admin/qrs', icon: <QrCode size={20} />, label: t('admin.sidebar.qrs') },
+            { path: '/admin/tavern', icon: <MessageSquareWarning size={20} />, label: t('admin.sidebar.tavern') },
+            { path: '/admin/bans', icon: <Gavel size={20} />, label: t('admin.sidebar.bans') },
+            { path: '/admin/allies', icon: <MapPin size={20} />, label: t('admin.sidebar.allies', 'Aliados') },
+            { path: '/admin/billers', icon: <CreditCard size={20} />, label: t('admin.sidebar.billers', 'Facturadores & VIP') },
+            { path: '/admin/reports', icon: <ClipboardList size={20} />, label: t('admin.sidebar.reports', 'Reportes Staff') },
+            { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
+            ...(isSuperuser || frikiMartAdmin ? [{ path: '/admin/frikimart', icon: <Store size={20} />, label: t('admin.sidebar.frikimart') }] : []),
+            ...(isSuperuser ? [{ path: '/admin/gm', icon: <Settings size={20} />, label: t('admin.sidebar.gm') }] : []),
+        ]
+        : isTecnico
+            ? [
+                { path: '/admin/surveys', icon: <BarChart2 size={20} />, label: t('admin.sidebar.surveys') },
+                { path: '/admin/frikivs', icon: <Zap size={20} />, label: t('admin.sidebar.frikivs', 'Aportes VS') },
+                { path: '/admin/billers', icon: <CreditCard size={20} />, label: t('admin.sidebar.billers', 'Facturadores & VIP') },
+                { path: '/admin/tools', icon: <LayoutDashboard size={20} />, label: t('admin.sidebar.tools') },
+            ]
+            : [
+                { path: '/admin/billers', icon: <CreditCard size={20} />, label: t('admin.sidebar.billers', 'Facturadores & VIP') },
+            ];
 
     return (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative animate-in fade-in duration-300">

@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Coins, Search, ShieldAlert, Loader2, List, UserCheck, Calendar,
-    Sparkles, X, Plus, ShoppingCart, Award
+    Sparkles, X, Plus, ShoppingCart, Award, QrCode, CheckCircle2, RefreshCw
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../../lib/supabase';
 import { getAvatarSource } from '../../config/avatars';
+import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
+import { isSuperuser as checkIsSuperuser } from '../../utils/superuser';
 
 interface SearchedUser {
     id: string;
@@ -68,7 +72,34 @@ interface EventOption {
 
 export default function AdminBillers() {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'permissions' | 'vip' | 'logs'>('permissions');
+    const { user } = useAuth();
+    const { profile } = useApp();
+    const isAdmin = profile?.role === 'admin' || checkIsSuperuser(user?.id);
+    const [activeTab, setActiveTab] = useState<'pos' | 'permissions' | 'vip' | 'logs'>(isAdmin ? 'permissions' : 'pos');
+
+    // POS Terminal State
+    const [posMode, setPosMode] = useState<'charge' | 'grant'>('charge');
+    const [chargeAmountStr, setChargeAmountStr] = useState('');
+    const [chargeConcept, setChargeConcept] = useState('');
+    const [generatingCharge, setGeneratingCharge] = useState(false);
+    const [checkingCharge, setCheckingCharge] = useState(false);
+    const [activeCharge, setActiveCharge] = useState<{
+        id: string;
+        amount_fc: number;
+        concept: string;
+        qr_code: string;
+        expires_at: string;
+    } | null>(null);
+    const [chargeSuccess, setChargeSuccess] = useState(false);
+    const [chargeCustomer, setChargeCustomer] = useState<string | null>(null);
+
+    // Grant COP -> FC State
+    const [grantPesosStr, setGrantPesosStr] = useState('');
+    const [grantCustomerQr, setGrantCustomerQr] = useState('');
+    const [grantingFc, setGrantingFc] = useState(false);
+
+    // Logs Search Filter
+    const [logsSearchQuery, setLogsSearchQuery] = useState('');
 
     // Permissions State
     const [searchQuery, setSearchQuery] = useState('');
@@ -103,15 +134,170 @@ export default function AdminBillers() {
     const LOGS_PER_PAGE = 20;
 
     useEffect(() => {
-        if (activeTab === 'permissions') {
+        if (activeTab === 'permissions' && isAdmin) {
             handleSearch();
         } else if (activeTab === 'vip') {
             loadVipPasses();
-        } else {
+        } else if (activeTab === 'logs') {
             loadLogs(1, logSubTab);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, logSubTab]);
+
+    // POS Realtime + 4s Polling Backup
+    const verifyChargeCompleted = async (customerId?: string | null) => {
+        setChargeSuccess(true);
+        if (customerId) {
+            const { data: cust } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('id', customerId)
+                .maybeSingle();
+            if (cust?.username) {
+                setChargeCustomer(cust.username);
+            }
+        }
+    };
+
+    const handleManualVerifyCharge = async () => {
+        if (!activeCharge?.id || chargeSuccess) return;
+        setCheckingCharge(true);
+        try {
+            const { data: row } = await supabase
+                .from('frikicoins_biller_charges')
+                .select('status, customer_id')
+                .eq('id', activeCharge.id)
+                .maybeSingle();
+            if (row?.status === 'completed') {
+                await verifyChargeCompleted(row.customer_id);
+            } else {
+                alert(t('biller.pos.stillPending', 'El cobro aún está pendiente de pago por el cliente.'));
+            }
+        } catch (err) {
+            console.error('Error checking charge status:', err);
+        } finally {
+            setCheckingCharge(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!activeCharge?.id || chargeSuccess) return;
+
+        const pollInterval = setInterval(async () => {
+            const { data: row } = await supabase
+                .from('frikicoins_biller_charges')
+                .select('status, customer_id')
+                .eq('id', activeCharge.id)
+                .maybeSingle();
+            if (row?.status === 'completed') {
+                await verifyChargeCompleted(row.customer_id);
+            }
+        }, 4000);
+
+        const channel = supabase
+            .channel(`web_biller_charge_${activeCharge.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'frikicoins_biller_charges',
+                    filter: `id=eq.${activeCharge.id}`,
+                },
+                async (payload: any) => {
+                    if (payload.new && payload.new.status === 'completed') {
+                        await verifyChargeCompleted(payload.new.customer_id);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            clearInterval(pollInterval);
+            supabase.removeChannel(channel);
+        };
+    }, [activeCharge?.id, chargeSuccess]);
+
+    const handleCreatePosCharge = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const amountFc = parseInt(chargeAmountStr.replace(/\D/g, ''), 10) || 0;
+        if (amountFc <= 0) {
+            alert(t('biller.pos.errInvalidAmount', 'Ingresa un monto válido en Frikicoins mayor a 0.'));
+            return;
+        }
+
+        setGeneratingCharge(true);
+        try {
+            const { data, error } = await supabase.rpc('create_biller_charge', {
+                p_amount_fc: amountFc,
+                p_concept: chargeConcept.trim() || t('biller.pos.defaultConcept', 'Compra en Stand Oficial')
+            });
+
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.message || 'Error al generar cobro');
+
+            setActiveCharge({
+                id: data.charge_id,
+                amount_fc: data.amount_fc,
+                concept: data.concept,
+                qr_code: data.qr_code || `BILLER_PAY:${data.charge_id}`,
+                expires_at: data.expires_at,
+            });
+            setChargeSuccess(false);
+            setChargeCustomer(null);
+        } catch (err: any) {
+            console.error('Error creating POS charge:', err);
+            alert(err.message || t('common.error', 'Error'));
+        } finally {
+            setGeneratingCharge(false);
+        }
+    };
+
+    const handleCancelPosCharge = async () => {
+        if (!activeCharge) return;
+        try {
+            await supabase.rpc('cancel_biller_charge', { p_charge_id: activeCharge.id });
+        } catch (e) {
+            console.error('Error cancelling POS charge:', e);
+        }
+        setActiveCharge(null);
+        setChargeSuccess(false);
+        setChargeCustomer(null);
+    };
+
+    const handleGrantFromCop = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const pesos = parseInt(grantPesosStr.replace(/\D/g, ''), 10) || 0;
+        if (pesos < 100) {
+            alert(t('biller.pos.errMinCop', 'El monto mínimo en pesos es $100 COP.'));
+            return;
+        }
+        const trimmedQr = grantCustomerQr.trim();
+        if (!trimmedQr) {
+            alert(t('biller.pos.errMissingQr', 'Ingresa el código QR o ID de billetera del cliente (FRIKI:...).'));
+            return;
+        }
+        const targetId = trimmedQr.startsWith('FRIKI:') ? trimmedQr.replace('FRIKI:', '').trim() : trimmedQr;
+
+        setGrantingFc(true);
+        try {
+            const { data, error } = await supabase.rpc('award_frikicoins_from_billing', {
+                p_qr_code: targetId,
+                p_amount_pesos: pesos
+            });
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.message || 'Error al otorgar Frikicoins');
+
+            alert(t('biller.pos.grantSuccess', { points: data.points, defaultValue: `¡Se otorgaron ${data.points} Frikicoins con éxito!` }));
+            setGrantPesosStr('');
+            setGrantCustomerQr('');
+        } catch (err: any) {
+            console.error('Error awarding FC from COP:', err);
+            alert(err.message || t('common.error', 'Error'));
+        } finally {
+            setGrantingFc(false);
+        }
+    };
 
     // Helpers
     const getTodayColombiaStr = () => {
@@ -379,6 +565,16 @@ export default function AdminBillers() {
         );
     });
 
+    const filteredChargeLogs = chargeLogs.filter(log => {
+        if (!logsSearchQuery.trim()) return true;
+        const q = logsSearchQuery.toLowerCase();
+        return (
+            (log.concept && log.concept.toLowerCase().includes(q)) ||
+            (log.biller?.username && log.biller.username.toLowerCase().includes(q)) ||
+            (log.customer?.username && log.customer.username.toLowerCase().includes(q))
+        );
+    });
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -408,19 +604,29 @@ export default function AdminBillers() {
                 )}
             </div>
 
-            {/* Main Tabs (3 Tabs) */}
-            <div className="flex gap-2 p-1 bg-bg-pop border border-border-theme rounded-xl w-full max-w-lg mx-auto sm:mx-0">
+            {/* Main Tabs */}
+            <div className="flex flex-wrap gap-2 p-1 bg-bg-pop border border-border-theme rounded-xl w-full max-w-2xl mx-auto sm:mx-0">
                 <button
-                    onClick={() => setActiveTab('permissions')}
-                    className={`flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 ${
-                        activeTab === 'permissions' ? 'bg-amber-500 text-white shadow-lg' : 'text-text-muted hover:bg-bg-sub'
+                    onClick={() => setActiveTab('pos')}
+                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 whitespace-nowrap ${
+                        activeTab === 'pos' ? 'bg-amber-500 text-white shadow-lg' : 'text-text-muted hover:bg-bg-sub'
                     }`}
                 >
-                    <UserCheck size={16} /> {t('adminBillers.tabs.permissions', 'Personal')}
+                    <QrCode size={16} /> {t('biller.pos.tabTitle', 'Terminal POS')}
                 </button>
+                {isAdmin && (
+                    <button
+                        onClick={() => setActiveTab('permissions')}
+                        className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 whitespace-nowrap ${
+                            activeTab === 'permissions' ? 'bg-amber-500 text-white shadow-lg' : 'text-text-muted hover:bg-bg-sub'
+                        }`}
+                    >
+                        <UserCheck size={16} /> {t('adminBillers.tabs.permissions', 'Personal')}
+                    </button>
+                )}
                 <button
                     onClick={() => setActiveTab('vip')}
-                    className={`flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 whitespace-nowrap ${
                         activeTab === 'vip' ? 'bg-amber-500 text-white shadow-lg' : 'text-text-muted hover:bg-bg-sub'
                     }`}
                 >
@@ -428,13 +634,220 @@ export default function AdminBillers() {
                 </button>
                 <button
                     onClick={() => setActiveTab('logs')}
-                    className={`flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-2 whitespace-nowrap ${
                         activeTab === 'logs' ? 'bg-amber-500 text-white shadow-lg' : 'text-text-muted hover:bg-bg-sub'
                     }`}
                 >
                     <List size={16} /> {t('adminBillers.tabs.logs', 'Auditoría')}
                 </button>
             </div>
+
+            {/* TAB 0: TERMINAL POS */}
+            {activeTab === 'pos' && (
+                <div className="bg-bg-pop border border-border-theme rounded-2xl p-5 sm:p-6 space-y-6">
+                    <div className="flex gap-2 border-b border-border-theme pb-3">
+                        <button
+                            type="button"
+                            onClick={() => setPosMode('charge')}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
+                                posMode === 'charge'
+                                    ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                                    : 'text-text-muted hover:text-text-main'
+                            }`}
+                        >
+                            <ShoppingCart size={15} /> {t('biller.pos.modeCharge', 'Cobrar Frikicoins (QR)')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPosMode('grant')}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
+                                posMode === 'grant'
+                                    ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                                    : 'text-text-muted hover:text-text-main'
+                            }`}
+                        >
+                            <Award size={15} /> {t('biller.pos.modeGrant', 'Premiar por Compra ($ COP)')}
+                        </button>
+                    </div>
+
+                    {posMode === 'charge' ? (
+                        !activeCharge ? (
+                            <form onSubmit={handleCreatePosCharge} className="max-w-lg space-y-5">
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-text-muted mb-2">
+                                        {t('biller.pos.amountLabel', 'Monto a Cobrar (Frikicoins)')}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={chargeAmountStr}
+                                        onChange={e => setChargeAmountStr(e.target.value)}
+                                        placeholder="Ej: 500"
+                                        className="w-full bg-bg-side border border-border-theme rounded-xl px-4 py-3.5 text-2xl font-black text-amber-500 focus:outline-none focus:border-amber-500 transition"
+                                    />
+                                    <div className="flex flex-wrap gap-2 mt-2.5">
+                                        {[100, 500, 1000, 5000].map(inc => (
+                                            <button
+                                                key={inc}
+                                                type="button"
+                                                onClick={() => {
+                                                    const curr = parseInt(chargeAmountStr.replace(/\D/g, ''), 10) || 0;
+                                                    setChargeAmountStr(String(curr + inc));
+                                                }}
+                                                className="px-3 py-1.5 rounded-lg bg-bg-side border border-border-theme hover:border-amber-500/50 text-xs font-black text-text-sub hover:text-amber-500 transition"
+                                            >
+                                                +{inc.toLocaleString('es-CO')} FC
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-text-muted mb-2">
+                                        {t('biller.pos.conceptLabel', 'Concepto / Producto (Opcional)')}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={chargeConcept}
+                                        onChange={e => setChargeConcept(e.target.value)}
+                                        placeholder={t('biller.pos.conceptPlaceholder', 'Ej: Peluche Pikachu Stand 4')}
+                                        className="w-full bg-bg-side border border-border-theme rounded-xl px-4 py-3 text-sm text-text-main focus:outline-none focus:border-amber-500 transition"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={generatingCharge || !(parseInt(chargeAmountStr, 10) > 0)}
+                                    className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-text-inv font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    {generatingCharge ? <Loader2 size={18} className="animate-spin" /> : <QrCode size={18} />}
+                                    <span>{t('biller.pos.generateQrBtn', 'Generar Código QR de Cobro')}</span>
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="max-w-md mx-auto bg-bg-side border border-border-theme rounded-3xl p-6 flex flex-col items-center text-center space-y-5 animate-in zoom-in-95">
+                                {chargeSuccess ? (
+                                    <>
+                                        <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/40">
+                                            <CheckCircle2 size={36} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-black text-emerald-400">
+                                                {t('biller.pos.successTitle', '¡Cobro Exitoso!')}
+                                            </h3>
+                                            <p className="text-sm text-text-muted font-bold mt-1">
+                                                {activeCharge.concept}
+                                            </p>
+                                        </div>
+                                        <div className="text-3xl font-black text-amber-500">
+                                            +{activeCharge.amount_fc.toLocaleString('es-CO')} FC
+                                        </div>
+                                        {chargeCustomer && (
+                                            <p className="text-xs font-bold text-text-main bg-bg-pop px-3 py-1.5 rounded-full border border-border-theme">
+                                                {t('biller.pos.paidBy', 'Pagado por')}: @{chargeCustomer}
+                                            </p>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setActiveCharge(null);
+                                                setChargeSuccess(false);
+                                                setChargeCustomer(null);
+                                                setChargeAmountStr('');
+                                                setChargeConcept('');
+                                            }}
+                                            className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-widest transition"
+                                        >
+                                            {t('biller.pos.newChargeBtn', 'Nuevo Cobro')}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center gap-2 text-amber-500 text-xs font-black uppercase tracking-widest">
+                                            <Loader2 size={16} className="animate-spin" />
+                                            <span>{t('biller.pos.waitingPayment', 'Esperando pago del cliente...')}</span>
+                                        </div>
+                                        <div>
+                                            <div className="text-3xl font-black text-text-main">
+                                                {activeCharge.amount_fc.toLocaleString('es-CO')} FC
+                                            </div>
+                                            <p className="text-xs text-text-muted font-bold mt-1">{activeCharge.concept}</p>
+                                        </div>
+                                        <div className="bg-white p-4 rounded-2xl shadow-lg border-4 border-amber-500/30">
+                                            <QRCodeSVG
+                                                value={activeCharge.qr_code}
+                                                size={210}
+                                                level="H"
+                                            />
+                                        </div>
+                                        <p className="text-[11px] font-mono text-text-muted select-all break-all">
+                                            {activeCharge.qr_code}
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-2.5 w-full pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={handleManualVerifyCharge}
+                                                disabled={checkingCharge}
+                                                className="flex-1 py-2.5 px-3 rounded-xl bg-bg-pop border border-border-theme hover:border-amber-500 text-text-main font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                                            >
+                                                <RefreshCw size={14} className={checkingCharge ? 'animate-spin text-amber-500' : ''} />
+                                                <span>{t('biller.pos.verifyPaymentBtn', 'Verificar estado del pago')}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleCancelPosCharge}
+                                                className="py-2.5 px-4 rounded-xl bg-accent-red/10 border border-accent-red/30 text-accent-red hover:bg-accent-red/20 font-bold text-xs transition cursor-pointer"
+                                            >
+                                                {t('biller.pos.cancelChargeBtn', 'Cancelar Cobro')}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )
+                    ) : (
+                        <form onSubmit={handleGrantFromCop} className="max-w-lg space-y-5">
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-text-muted mb-2">
+                                    {t('biller.pos.copAmountLabel', 'Valor de la Compra en Pesos ($ COP)')}
+                                </label>
+                                <input
+                                    type="number"
+                                    min="100"
+                                    step="100"
+                                    value={grantPesosStr}
+                                    onChange={e => setGrantPesosStr(e.target.value)}
+                                    placeholder="Ej: 20000"
+                                    className="w-full bg-bg-side border border-border-theme rounded-xl px-4 py-3 text-xl font-black text-text-main focus:outline-none focus:border-amber-500 transition"
+                                />
+                                <p className="text-xs font-bold text-amber-500 mt-1.5">
+                                    {t('biller.pos.calculatedFc', 'Frikicoins a otorgar')}: {Math.floor((parseInt(grantPesosStr.replace(/\D/g, ''), 10) || 0) / 100).toLocaleString('es-CO')} FC
+                                </p>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-text-muted mb-2">
+                                    {t('biller.pos.customerQrLabel', 'Código QR o ID de Billetera del Cliente')}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={grantCustomerQr}
+                                    onChange={e => setGrantCustomerQr(e.target.value)}
+                                    placeholder="FRIKI:..."
+                                    className="w-full bg-bg-side border border-border-theme rounded-xl px-4 py-3 text-sm font-mono text-text-main focus:outline-none focus:border-amber-500 transition"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={grantingFc || !grantPesosStr || !grantCustomerQr.trim()}
+                                className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-text-inv font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                {grantingFc ? <Loader2 size={18} className="animate-spin" /> : <Award size={18} />}
+                                <span>{t('biller.pos.grantBtn', 'Otorgar Frikicoins')}</span>
+                            </button>
+                        </form>
+                    )}
+                </div>
+            )}
 
             {/* TAB 1: PERMISSIONS */}
             {activeTab === 'permissions' && (
@@ -651,7 +1064,18 @@ export default function AdminBillers() {
                             <p className="font-bold">{t('common.loading', 'Cargando registros...')}</p>
                         </div>
                     ) : logSubTab === 'charges' ? (
-                        chargeLogs.length === 0 ? (
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder={t('biller.searchChargesPlaceholder', 'Filtrar cobros por concepto, stand o comprador...')}
+                                    value={logsSearchQuery}
+                                    onChange={e => setLogsSearchQuery(e.target.value)}
+                                    className="w-full bg-bg-pop border border-border-theme rounded-xl pl-11 pr-4 py-3 text-sm text-text-main placeholder-text-muted focus:outline-none focus:border-amber-500 transition"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
+                            </div>
+                        {filteredChargeLogs.length === 0 ? (
                             <div className="text-center py-12 bg-bg-pop border border-border-theme rounded-2xl">
                                 <ShoppingCart size={48} className="mx-auto text-text-muted mb-4 opacity-50" />
                                 <h3 className="text-xl font-black text-text-main mb-2">{t('biller.noCharges', 'Sin cobros registrados')}</h3>
@@ -673,7 +1097,7 @@ export default function AdminBillers() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-border-theme">
-                                                {chargeLogs.map((log) => (
+                                                {filteredChargeLogs.map((log) => (
                                                     <tr key={log.id} className="hover:bg-bg-sub/50 transition">
                                                         <td className="px-6 py-4 text-xs text-text-muted">
                                                             {formatDate(log.created_at)}
@@ -710,7 +1134,8 @@ export default function AdminBillers() {
                                     </div>
                                 </div>
                             </div>
-                        )
+                        )}
+                        </div>
                     ) : (
                         awardLogs.length === 0 ? (
                             <div className="text-center py-12 bg-bg-pop border border-border-theme rounded-2xl">

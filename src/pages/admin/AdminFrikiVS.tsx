@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
     Loader2, Zap, Trophy, Calendar, Check, X, Edit2, Trash2, 
     Save, ChevronDown, ChevronUp, AlertCircle, Share2
@@ -7,11 +9,21 @@ import { TriviaAdminService } from '../../services/TriviaAdminService';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminFrikiVS() {
+    const { t } = useTranslation();
     const { user } = useAuth();
+    const [searchParams] = useSearchParams();
 
     // Navigation and tab states
-    const [activeTab, setActiveTab] = useState<'pending' | 'packs' | 'ranking'>('pending');
+    const initialTab = searchParams.get('tab') === 'packs' ? 'packs' : searchParams.get('tab') === 'ranking' ? 'ranking' : 'pending';
+    const [activeTab, setActiveTab] = useState<'pending' | 'packs' | 'ranking'>(initialTab);
     const [rankingType, setRankingType] = useState<'questions' | 'trivias'>('questions');
+
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam === 'packs' || tabParam === 'pending' || tabParam === 'ranking') {
+            setActiveTab(tabParam);
+        }
+    }, [searchParams]);
 
     // Data states
     const [submissions, setSubmissions] = useState<any[]>([]);
@@ -30,6 +42,10 @@ export default function AdminFrikiVS() {
 
     // Expand states for trivia packs questions
     const [expandedPacks, setExpandedPacks] = useState<Record<string, { loading: boolean; questions: any[] }>>({});
+    const [editingPackQId, setEditingPackQId] = useState<string | null>(null);
+    const [editPackQText, setEditPackQText] = useState('');
+    const [editPackQOptions, setEditPackQOptions] = useState<{ text: string; is_correct: boolean }[]>([]);
+    const [savingPackQId, setSavingPackQId] = useState<string | null>(null);
 
     // Modals & inputs states
     const [approvingPack, setApprovingPack] = useState<any | null>(null);
@@ -192,6 +208,52 @@ export default function AdminFrikiVS() {
         const now = new Date();
         setPackPublishDate(getLocalDateTimeString(now));
         setPackExpireDate(getLocalDateTimeString(new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)));
+    };
+
+    const handleStartEditPackQuestion = (q: any) => {
+        setEditingPackQId(q.id);
+        setEditPackQText(q.question_text);
+        setEditPackQOptions((q.options || []).map((o: any) => ({ text: o.text, is_correct: !!o.is_correct })));
+    };
+
+    const handleSavePackQuestion = async (packId: string, questionId: string) => {
+        if (!editPackQText.trim()) {
+            alert(t('adminFrikiVs.errors.emptyQuestion', 'El texto de la pregunta no puede estar vacío.'));
+            return;
+        }
+        if (editPackQOptions.some(o => !o.text.trim())) {
+            alert(t('adminFrikiVs.errors.emptyOption', 'Todas las opciones de respuesta deben tener texto.'));
+            return;
+        }
+        if (!editPackQOptions.some(o => o.is_correct)) {
+            alert(t('adminFrikiVs.errors.noCorrectOption', 'Debes seleccionar al menos una opción correcta.'));
+            return;
+        }
+
+        setSavingPackQId(questionId);
+        try {
+            await TriviaAdminService.updatePackQuestion(questionId, editPackQText.trim(), editPackQOptions);
+            setExpandedPacks(prev => {
+                const current = prev[packId];
+                if (!current) return prev;
+                return {
+                    ...prev,
+                    [packId]: {
+                        ...current,
+                        questions: current.questions.map(q =>
+                            q.id === questionId
+                                ? { ...q, question_text: editPackQText.trim(), options: editPackQOptions }
+                                : q
+                        )
+                    }
+                };
+            });
+            setEditingPackQId(null);
+        } catch (error: any) {
+            alert(error.message || t('common.error', 'Error al guardar la pregunta.'));
+        } finally {
+            setSavingPackQId(null);
+        }
     };
 
     const handleApprovePack = async (e: React.FormEvent) => {
@@ -594,27 +656,95 @@ export default function AdminFrikiVS() {
                                                         ) : expandedData.questions.length === 0 ? (
                                                             <p className="text-xs text-text-muted italic text-center">No se encontraron preguntas para este paquete.</p>
                                                         ) : (
-                                                            expandedData.questions.map((q, qIdx) => (
-                                                                <div key={q.id || qIdx} className="space-y-1.5 border-b border-border-theme/20 last:border-0 pb-3 last:pb-0">
-                                                                    <p className="text-xs font-extrabold text-text-main">
-                                                                        {qIdx + 1}. {q.question_text}
-                                                                    </p>
-                                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-2">
-                                                                        {q.options?.map((opt: any, oIdx: number) => (
-                                                                            <div 
-                                                                                key={oIdx} 
-                                                                                className={`text-[11px] px-2 py-1 rounded-lg border ${
-                                                                                    opt.is_correct 
-                                                                                        ? 'border-accent-green/20 bg-accent-green/5 text-accent-green font-bold' 
-                                                                                        : 'border-border-theme/20 bg-bg-side/40 text-text-muted'
-                                                                                }`}
-                                                                            >
-                                                                                • {opt.text}
+                                                            expandedData.questions.map((q, qIdx) => {
+                                                                const isEditingPackQ = editingPackQId === q.id;
+                                                                const isSavingPackQ = savingPackQId === q.id;
+                                                                return (
+                                                                    <div key={q.id || qIdx} className="space-y-2 border-b border-border-theme/20 last:border-0 pb-3 last:pb-0">
+                                                                        {isEditingPackQ ? (
+                                                                            <div className="space-y-2">
+                                                                                <textarea
+                                                                                    value={editPackQText}
+                                                                                    onChange={e => setEditPackQText(e.target.value)}
+                                                                                    maxLength={250}
+                                                                                    rows={2}
+                                                                                    className="w-full bg-bg-side border border-brand-primary text-text-main px-3 py-1.5 rounded-xl text-xs font-bold focus:outline-none resize-none"
+                                                                                />
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                                                    {editPackQOptions.map((opt, oIdx) => (
+                                                                                        <div key={oIdx} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg border ${opt.is_correct ? 'border-accent-green/40 bg-accent-green/10' : 'border-border-theme/40 bg-bg-side'}`}>
+                                                                                            <input
+                                                                                                type="radio"
+                                                                                                checked={opt.is_correct}
+                                                                                                onChange={() => setEditPackQOptions(prev => prev.map((o, i) => ({ ...o, is_correct: i === oIdx })))}
+                                                                                                className="accent-accent-green"
+                                                                                            />
+                                                                                            <input
+                                                                                                type="text"
+                                                                                                value={opt.text}
+                                                                                                onChange={e => setEditPackQOptions(prev => prev.map((o, i) => i === oIdx ? { ...o, text: e.target.value } : o))}
+                                                                                                maxLength={80}
+                                                                                                className="flex-1 bg-transparent text-[11px] text-text-main focus:outline-none"
+                                                                                            />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                <div className="flex justify-end gap-2 pt-1">
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => setEditingPackQId(null)}
+                                                                                        disabled={isSavingPackQ}
+                                                                                        className="px-2.5 py-1 rounded-lg border border-border-theme text-[11px] font-bold text-text-muted hover:bg-bg-side"
+                                                                                    >
+                                                                                        {t('common.cancel', 'Cancelar')}
+                                                                                    </button>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => handleSavePackQuestion(item.id, q.id)}
+                                                                                        disabled={isSavingPackQ}
+                                                                                        className="px-3 py-1 rounded-lg bg-accent-green text-white text-[11px] font-black flex items-center gap-1"
+                                                                                    >
+                                                                                        {isSavingPackQ ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                                                                                        {t('common.save', 'Guardar')}
+                                                                                    </button>
+                                                                                </div>
                                                                             </div>
-                                                                        ))}
+                                                                        ) : (
+                                                                            <>
+                                                                                <div className="flex items-start justify-between gap-2">
+                                                                                    <p className="text-xs font-extrabold text-text-main">
+                                                                                        {qIdx + 1}. {q.question_text}
+                                                                                    </p>
+                                                                                    {q.id && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => handleStartEditPackQuestion(q)}
+                                                                                            className="p-1 rounded-md text-text-muted hover:text-brand-primary hover:bg-bg-side transition shrink-0"
+                                                                                            title={t('common.edit', 'Editar')}
+                                                                                        >
+                                                                                            <Edit2 size={12} />
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-2">
+                                                                                    {q.options?.map((opt: any, oIdx: number) => (
+                                                                                        <div 
+                                                                                            key={oIdx} 
+                                                                                            className={`text-[11px] px-2 py-1 rounded-lg border ${
+                                                                                                opt.is_correct 
+                                                                                                    ? 'border-accent-green/20 bg-accent-green/5 text-accent-green font-bold' 
+                                                                                                    : 'border-border-theme/20 bg-bg-side/40 text-text-muted'
+                                                                                            }`}
+                                                                                        >
+                                                                                            {opt.is_correct ? '✅ ' : '• '}{opt.text}
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </>
+                                                                        )}
                                                                     </div>
-                                                                </div>
-                                                            ))
+                                                                );
+                                                            })
                                                         )}
                                                     </div>
                                                 )}

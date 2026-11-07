@@ -326,7 +326,8 @@ export default function UserAuditModal({ visible, onClose, userId, username, isS
                                 ) : (
                                     <div className="border border-border-theme rounded-2xl overflow-hidden divide-y divide-border-theme bg-bg-side">
                                         {transactions.map((tx: any) => {
-                                            const isSender = tx.from_user === userId;
+                                            const isGmReward = tx.type === 'gm_reward';
+                                            const isSender = !isGmReward && tx.from_user === userId;
                                             const txColor = isSender ? 'text-accent-red' : 'text-accent-green';
                                             const txSign = isSender ? '-' : '+';
                                             const otherParty = isSender ? tx.to_username : tx.from_username;

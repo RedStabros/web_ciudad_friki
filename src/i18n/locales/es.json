@@ -314,7 +314,8 @@
       "title": "Frikicoins QR",
       "subtitle": "Muestra estos códigos a los asistentes para que reclamen su recompensa.",
       "multiDayHint": " Cada día tiene un código diferente.",
-      "generating": "Generando QRs..."
+      "generating": "Generando QRs...",
+      "activeToday": "ACTIVO HOY"
     },
     "onlyEvents": "Solo Eventos",
     "onlyAllies": "Solo Aliados",
@@ -410,7 +411,9 @@
       "redemptions": "{{current}} / {{max}} Canjes",
       "expires": "Vence: {{date}}",
       "viewQr": "Ver QR",
-      "revoke": "Revocar"
+      "revoke": "Revocar",
+      "badgeOfficial": "🎟️ Asistencia Oficial",
+      "badgeChallenge": "🎯 Reto / Dinámica"
     },
     "modals": {
       "create": {
@@ -422,7 +425,9 @@
         "maxUsesLabel": "Uso máximo global (Opcional)",
         "expiryLabel": "Expira en (días) (Opcional)",
         "saveChanges": "Guardar Cambios",
-        "generate": "Generar QR"
+        "generate": "Generar QR",
+        "descriptionLabel": "Nombre del Reto / Dinámica (Opcional)",
+        "descriptionPlaceholder": "Ej: Reto Karaoke, Torneo Smash, Stand Trivia..."
       },
       "assign": {
         "title": "Asignar QR a Staff",
@@ -441,6 +446,13 @@
       "view": {
         "eventHint": "Los usuarios pueden escanear esto con su cámara en la app.",
         "assignHint": "Código de trabajador seguro para asignar desde Scanner."
+      },
+      "qr": {
+        "passTypeEvent": "CIUDAD FRIKI • EVENT PASS",
+        "passTypeChallenge": "CIUDAD FRIKI • RETO / DINÁMICA",
+        "passTypeStaff": "CIUDAD FRIKI • STAFF PASS",
+        "rewardLabel": "RECOMPENSA",
+        "capacityLabel": "CAPACIDAD"
       }
     }
   },
@@ -1089,7 +1101,17 @@
     "reward": "Recompensa",
     "cameraPermissionRequired": "Se requiere permiso de cámara para escanear",
     "cameraPermissionDenied": "Permiso de cámara denegado",
-    "recipientQrPlaceholder": "Ej: FRIKI:12345ABC"
+    "recipientQrPlaceholder": "Ej: FRIKI:12345ABC",
+    "txTypes": {
+      "gm_reward": "Premio GM",
+      "event_reward": "Evento / Reto",
+      "trivia_reward": "Trivia",
+      "biller_spend": "Pago en Stand",
+      "biller_earning": "Premio Stand",
+      "store_spend": "FrikiMart",
+      "achievement": "Logro",
+      "transfer": "Transferencia"
+    }
   },
   "settings": {
     "title": "Opciones",
@@ -1168,7 +1190,13 @@
     "byCiudadFriki": "por @RedStabros",
     "totalResponses": "Respuestas",
     "totalSpent": "Gastado",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "economyAbsorption": {
+      "title": "Consumo y Absorción de la Economía (POS & Tienda)",
+      "posSpent": "Cobros Stand / POS",
+      "storeSpent": "FrikiMart (Tienda)",
+      "totalAbsorbed": "Total Absorbido"
+    }
   },
   "notifications": {
     "title": "Notificaciones",
@@ -1595,6 +1623,11 @@
       "scheduled": "Agenda",
       "muted": "Silenciado",
       "activated": "Recordatorio activado para 15 min antes."
+    },
+    "filters": {
+      "all": "Todos",
+      "active": "Activos",
+      "past": "Pasados"
     }
   },
   "eventDetails": {
@@ -2241,7 +2274,42 @@
     "pageShort": "pág",
     "new": "Nuevo",
     "noRatingsYet": "Sin calificaciones aún",
-    "beFirstToRate": "¡Sé el primero en calificar!"
+    "beFirstToRate": "¡Sé el primero en calificar!",
+    "gm": {
+      "openWorkshopBtn": "Abrir Taller GM Exclusivo (Crear / Subir / Editar)",
+      "title": "Taller GM Exclusivo — Manualidades",
+      "subtitle": "Gestión de catálogo, subida a Supabase Storage y moderación",
+      "newCraft": "Nueva Manualidad",
+      "editCraft": "Editar Manualidad",
+      "searchPlaceholder": "Buscar por título o categoría...",
+      "emptyCatalog": "No hay manualidades registradas.",
+      "published": "Publicado",
+      "draft": "Oculto",
+      "confirmDelete": "¿Seguro que deseas eliminar permanentemente esta manualidad?",
+      "titleRequired": "El título de la manualidad es obligatorio.",
+      "uploadSuccess": "Archivo subido correctamente a Supabase Storage",
+      "uploadError": "Error al subir archivo",
+      "savedSuccess": "Manualidad guardada correctamente",
+      "saveError": "Error al guardar manualidad",
+      "formTitle": "Título *",
+      "formCategory": "Categoría *",
+      "formDifficulty": "Dificultad *",
+      "formTime": "Tiempo estimado (min)",
+      "formPages": "Páginas",
+      "formPublishStatus": "Estado de Publicación",
+      "publishedVisible": "Publicado (Visible a usuarios)",
+      "draftHidden": "Borrador / Oculto",
+      "formThumbnail": "Portada / Miniatura (Imagen)",
+      "uploadImage": "Subir Imagen",
+      "formPrintable": "Archivo Imprimible (PDF / Imagen o Link Externo)",
+      "uploadPdf": "Subir PDF/IMG",
+      "formVideoUrl": "URL Video Tutorial (YouTube Shorts / Reel - Opcional)",
+      "formAuthor": "Autor Original (Créditos - Opcional)",
+      "formSourceUrl": "URL Fuente Original (Opcional)",
+      "formTags": "Etiquetas (Separadas por coma)",
+      "formDescription": "Descripción / Instrucciones",
+      "saveBtn": "Guardar Manualidad"
+    }
   },
   "biller": {
     "noCharges": "Sin cobros registrados",
@@ -2255,7 +2323,35 @@
     "pesosCop": "Pesos ($ COP)",
     "searchPlaceholder": "@usuario o correo...",
     "searchingUser": "Buscando usuario...",
-    "deliveryNotePlaceholder": "Ej: Manilla dorada #042 entregada en taquilla"
+    "deliveryNotePlaceholder": "Ej: Manilla dorada #042 entregada en taquilla",
+    "pos": {
+      "tabTitle": "Terminal POS",
+      "chargeTab": "Cobrar Frikicoins (QR)",
+      "awardTab": "Premiar por Compra ($ COP)",
+      "chargeTitle": "Generar Cobro en Frikicoins",
+      "chargeDesc": "Crea un código QR dinámico (expira en 10 min) para que el cliente escanee desde su billetera.",
+      "amountFcLabel": "Monto a Cobrar (FC) *",
+      "conceptLabel": "Concepto / Producto (Opcional)",
+      "conceptPlaceholder": "Ej: Combo Ramen + Bebida, Camiseta Anime...",
+      "generateQrBtn": "Generar Código QR de Cobro",
+      "paymentReceivedTitle": "¡Pago Recibido Exitosamente!",
+      "paymentReceivedDesc": "El cobro por {{amount}} FC fue procesado y acreditado.",
+      "newChargeBtn": "Nuevo Cobro",
+      "scanToPayBadge": "Escanea desde Billetera Ciudad Friki",
+      "waitingClientPayment": "Esperando pago del cliente en tiempo real...",
+      "verifyNowBtn": "Verificar estado del pago",
+      "cancelChargeBtn": "Cancelar Cobro",
+      "confirmCancelCharge": "¿Cancelar este cobro QR?",
+      "awardTitle": "Premiar Frikicoins por Compra en Pesos ($ COP)",
+      "awardDesc": "Otorga Frikicoins automáticamente según la tasa de conversión vigente (aplica x2 si el cliente tiene Pase VIP activo).",
+      "selectClientLabel": "1. Buscar y Seleccionar Cliente *",
+      "invoiceNumberLabel": "2. Número de Factura / Recibo *",
+      "invoicePlaceholder": "Ej: FAC-00124",
+      "amountCopLabel": "3. Valor de la Compra ($ COP) *",
+      "awardBtn": "Registrar Factura y Enviar Frikicoins",
+      "awardSuccess": "¡{{fc}} FC otorgados exitosamente a @{{username}}!",
+      "searchChargesPlaceholder": "Buscar por cliente, facturador, concepto o estado..."
+    }
   },
   "ttrpg": {
     "exportSheet": "Copiar y Exportar Ficha",
@@ -2264,5 +2360,46 @@
   },
   "vipPass": {
     "noActiveEvents": "No hay eventos activos programados para hoy o próximos días."
+  },
+  "helpdesk": {
+    "title": "Mesa de Ayuda & Reportes",
+    "subtitle": "Reporta errores, dudas o comunícate con soporte técnico",
+    "adminTitle": "Mesa de Ayuda & Reportes",
+    "adminSubtitle": "Soporte técnico unificado (Web y App Móvil) con chat en tiempo real",
+    "tabNew": "Nuevo Reporte",
+    "tabMyTickets": "Mis Reportes",
+    "tabActive": "Activos",
+    "tabArchived": "Archivados",
+    "descriptionLabel": "Descripción del problema o consulta *",
+    "descriptionPlaceholder": "Explica detalladamente qué ocurrió, en qué pantalla estabas o cuál es tu duda...",
+    "screenshotLabel": "Captura de pantalla (Opcional)",
+    "attachScreenshot": "Adjuntar captura o imagen",
+    "uploadingScreenshot": "Subiendo imagen...",
+    "submitTicket": "Enviar Reporte a Soporte",
+    "ticketCreatedSuccess": "¡Tu reporte fue enviado! Puedes hacer seguimiento y chatear con soporte en la pestaña Mis Reportes.",
+    "noTicketsYet": "No tienes reportes enviados",
+    "noTicketsMatching": "No hay reportes que coincidan con el filtro.",
+    "createFirstTicket": "Crear un reporte",
+    "backToTickets": "Volver a mis reportes",
+    "originalReport": "Reporte Original",
+    "viewAttachment": "Ver captura adjunta",
+    "waitSupportReply": "Un miembro del equipo revisará tu caso pronto. Puedes agregar más detalles o capturas aquí abajo.",
+    "SupportStaff": "Soporte Ciudad Friki",
+    "you": "Tú",
+    "replyPlaceholder": "Escribe un mensaje o respuesta...",
+    "staffReplyPlaceholder": "Escribe una respuesta oficial para el usuario...",
+    "ticketClosedNotice": "Este reporte ha sido marcado como cerrado/resuelto.",
+    "searchPlaceholder": "Buscar por usuario, descripción o URL...",
+    "archive": "Archivar",
+    "restore": "Restaurar",
+    "openChat": "Abrir Hilo",
+    "noMessagesYet": "Aún no hay mensajes en este hilo. Escribe abajo para responder al usuario.",
+    "selectTicketPrompt": "Selecciona un reporte de la lista para ver los detalles y conversar con el usuario.",
+    "status": {
+      "open": "Abierto",
+      "in_progress": "En Proceso",
+      "resolved": "Resuelto",
+      "closed": "Cerrado"
+    }
   }
 }

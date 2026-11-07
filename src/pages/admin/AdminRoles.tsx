@@ -4,6 +4,7 @@ import { Users, Search, Shield, ShieldAlert, Wrench, Briefcase, User, Loader2 } 
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { getAvatarSource } from '../../config/avatars';
+import { isSuperuser as checkIsSuperuser } from '../../utils/superuser';
 
 interface SearchedUser {
     id: string;
@@ -22,7 +23,7 @@ export default function AdminRoles() {
     const [loading, setLoading] = useState(false);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-    const isSuperuser = currentUser?.id === import.meta.env.VITE_SUPERUSER_ID;
+    const isSuperuser = checkIsSuperuser(currentUser?.id);
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -58,7 +59,7 @@ export default function AdminRoles() {
     }, []);
 
     const handleUpdateRole = async (userId: string, newRole: string) => {
-        if (userId === import.meta.env.VITE_SUPERUSER_ID) {
+        if (checkIsSuperuser(userId)) {
             return alert(t('adminRoles.errors.superAdminProtect'));
         }
 
@@ -191,7 +192,7 @@ export default function AdminRoles() {
                                         <td className="p-4 text-right pr-6 align-middle">
                                             <div className="inline-flex items-center relative w-full sm:w-auto">
                                                 <select
-                                                    disabled={updatingId === u.id || (!isSuperuser && u.role === 'admin')}
+                                                    disabled={updatingId === u.id || checkIsSuperuser(u.id) || (!isSuperuser && u.role === 'admin')}
                                                     value={u.role}
                                                     onChange={(e) => handleUpdateRole(u.id, e.target.value)}
                                                     className={`w-full sm:w-[130px] appearance-none bg-bg-pop border-2 border-border-theme text-xs font-black rounded-xl pl-3 pr-8 py-2.5 outline-none focus:border-brand-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm ${roles.find(r => r.value === u.role)?.className}`}

@@ -18,6 +18,7 @@ import { AdminPendingApprovalsModal, type PendingApprovalsCounts } from './admin
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
+import { isSuperuser as checkIsSuperuser } from '../utils/superuser';
 
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
@@ -29,7 +30,8 @@ export default function RootLayout() {
     const isLight = theme === 'light-friki';
     const isCorpPage = location.pathname.startsWith('/corporacion') || location.pathname.startsWith('/corp');
 
-    const isAdmin = profile?.role === 'admin' || user?.id === import.meta.env.VITE_SUPERUSER_ID;
+    const isAdmin = profile?.role === 'admin' || checkIsSuperuser(user?.id);
+    const hasStaffPanelAccess = isAdmin || profile?.role === 'tecnico' || Boolean(profile?.can_bill_frikicoins);
 
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -351,10 +353,10 @@ export default function RootLayout() {
                                                 <Building2 size={15} className="text-brand-primary" />
                                                 <span>{t('corporation.navLink', 'Corporación')}</span>
                                             </Link>
-                                            {isAdmin && (
+                                            {hasStaffPanelAccess && (
                                                 <Link to="/admin" className="flex items-center gap-2.5 px-3 py-2 text-xs text-text-main font-bold hover:bg-brand-primary/10 hover:text-brand-primary rounded-xl transition-colors">
                                                     <Shield size={15} className="text-brand-primary" />
-                                                    <span>Admin Panel</span>
+                                                    <span>{t('admin.sidebar.title', 'Admin Panel')}</span>
                                                 </Link>
                                             )}
 
@@ -498,13 +500,13 @@ export default function RootLayout() {
                             </div>
 
                             {/* Section: Account & Management */}
-                            {isAdmin && (
+                            {hasStaffPanelAccess && (
                                 <div>
                                     <p className="text-[10px] font-black uppercase tracking-widest text-text-muted px-3 mb-2">
-                                        Administración
+                                        {t('admin.sidebar.title', 'Administración')}
                                     </p>
                                     <div className="space-y-1">
-                                        <DrawerLink to="/admin" icon={<Shield size={16} className="text-brand-primary" />} label="Panel de Control Admin" />
+                                        <DrawerLink to="/admin" icon={<Shield size={16} className="text-brand-primary" />} label={t('admin.sidebar.title', 'Panel de Control Admin')} />
                                     </div>
                                 </div>
                             )}

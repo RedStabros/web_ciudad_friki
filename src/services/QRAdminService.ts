@@ -4,6 +4,10 @@ export interface EventCode {
     id: string;
     code: string;
     points: number;
+    description?: string | null;
+    event_id?: string | null;
+    valid_from?: string | null;
+    valid_until?: string | null;
     max_uses: number | null;
     current_uses: number;
     expires_at: string | null;
@@ -44,13 +48,15 @@ export const QRAdminService = {
                     p_code: codeData.code,
                     p_points: codeData.points,
                     p_max_uses: codeData.max_uses,
-                    p_expires_at: codeData.expires_at
+                    p_expires_at: codeData.expires_at,
+                    p_description: codeData.description ?? null
                 });
                 if (error) throw error;
             } else {
                 const { error } = await supabase.from('event_codes').insert({
                     code: codeData.code,
                     points: codeData.points,
+                    description: codeData.description ?? null,
                     max_uses: codeData.max_uses,
                     expires_at: codeData.expires_at,
                     is_active: true

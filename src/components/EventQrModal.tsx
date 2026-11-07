@@ -90,6 +90,16 @@ export function EventQrModal({ event, onClose }: EventQrModalProps) {
             ? `ciudadfriki://event-reward/${event.id}` 
             : `ciudadfriki://event-reward/${codeItem.code}`;
 
+        // Local Colombia/Browser date check (avoids UTC shift after 7 PM)
+        const now = new Date();
+        const todayLocalStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        let isTodayActive = false;
+        if (codeItem.valid_from) {
+            const vfDate = new Date(codeItem.valid_from);
+            const vfLocalStr = `${vfDate.getFullYear()}-${String(vfDate.getMonth() + 1).padStart(2, '0')}-${String(vfDate.getDate()).padStart(2, '0')}`;
+            isTodayActive = vfLocalStr === todayLocalStr || codeItem.valid_from.startsWith(todayLocalStr);
+        }
+
         const isChallenge = codeItem.description && (
             codeItem.description.toLowerCase().includes('reto') ||
             codeItem.description.toLowerCase().includes('dinám') ||
@@ -102,10 +112,15 @@ export function EventQrModal({ event, onClose }: EventQrModalProps) {
 
         return (
             <div key={codeItem.id} className="w-full max-w-sm mb-6 flex flex-col items-center">
+                {isTodayActive && (
+                    <div className="mb-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+                        <span>{t('events.qrModal.activeToday', '🟢 ACTIVO HOY')}</span>
+                    </div>
+                )}
                 {/* Exportable Ticket Card (Consistent credential styling across all themes) */}
                 <div
                     id={cardElementId}
-                    className="w-full bg-[#181d27] border border-gray-700/80 rounded-3xl p-6 flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                    className={`w-full bg-[#181d27] border ${isTodayActive ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-gray-700/80'} rounded-3xl p-6 flex flex-col items-center text-center shadow-2xl relative overflow-hidden`}
                 >
                     {/* Top Pass Category Bar */}
                     <div className={`w-full py-1.5 px-3 rounded-xl ${passColor} text-white font-black text-[10px] tracking-widest uppercase mb-4 flex items-center justify-center gap-1.5 shadow-md`}>

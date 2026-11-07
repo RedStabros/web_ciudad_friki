@@ -132,7 +132,7 @@ export function AdminPendingApprovalsModal({
                     {/* Pending Trivia Packs */}
                     <button
                         type="button"
-                        onClick={() => handleNavigate('/admin/trivias')}
+                        onClick={() => handleNavigate('/admin/frikivs?tab=packs')}
                         className="w-full p-4 rounded-xl border border-border-theme bg-bg-sub/70 hover:bg-bg-sub hover:border-brand-primary/50 transition flex items-center justify-between text-left group"
                     >
                         <div className="flex items-center gap-3">

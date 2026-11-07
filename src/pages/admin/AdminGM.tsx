@@ -13,7 +13,8 @@ import { TavernAdminService } from '../../services/TavernAdminService';
 import UserAuditModal from '../../components/admin/UserAuditModal';
 import AutoTriviaGeneratorModal from '../../components/admin/AutoTriviaGeneratorModal';
 import { AdminBugReports } from '../../components/AdminBugReports';
-import { Send, Bug, Radio } from 'lucide-react';
+import { CraftManagerModal } from '../../components/admin/CraftManagerModal';
+import { Send, Bug } from 'lucide-react';
 
 
 export default function AdminGM() {
@@ -55,6 +56,7 @@ export default function AdminGM() {
     const [auditUsername, setAuditUsername] = useState('');
     const [showAutoModal, setShowAutoModal] = useState(false);
     const [showBugReports, setShowBugReports] = useState(false);
+    const [showCraftManager, setShowCraftManager] = useState(false);
 
     useEffect(() => {
         if (isSpecialAdmin) {
@@ -262,7 +264,7 @@ export default function AdminGM() {
                     {savingSettings['store_web_enabled'] && <p className="text-[10px] text-emerald-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
                 </div>
 
-                {/* Manualidades y Papercraft Toggle */}
+                {/* Manualidades y Papercraft Toggle + Taller GM */}
                 <div className="bg-bg-pop border border-pink-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full -mr-12 -mt-12"></div>
                     <div className="flex items-start justify-between z-10">
@@ -278,6 +280,16 @@ export default function AdminGM() {
                             />
                             <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
                         </label>
+                    </div>
+                    <div className="z-10 pt-1">
+                        <button
+                            type="button"
+                            onClick={() => setShowCraftManager(true)}
+                            className="px-3.5 py-2 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-black text-xs flex items-center gap-1.5 shadow-md shadow-pink-500/20 transition cursor-pointer"
+                        >
+                            <Scissors size={13} />
+                            <span>{t('crafts.gm.openWorkshopBtn', 'Abrir Taller GM de Manualidades')}</span>
+                        </button>
                     </div>
                     {savingSettings['crafts_enabled'] && <p className="text-[10px] text-pink-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
                 </div>
@@ -321,40 +333,6 @@ export default function AdminGM() {
                         </label>
                     </div>
                     {savingSettings['app_maintenance_mode'] && <p className="text-[10px] text-red-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
-                </div>
-
-                {/* Broadcast Tool */}
-                <div className="flex items-center justify-between p-4 bg-bg-sub border border-border-theme rounded-2xl">
-                    <div className="flex-1 pr-4">
-                        <h4 className="font-bold text-text-main flex items-center gap-2">
-                            <Radio size={18} className="text-brand-primary" /> 
-                            {t('adminGM.controls.broadcast.title', 'Comunicado Global')}
-                        </h4>
-                        <p className="text-xs text-text-muted mt-1 max-w-[400px]">{t('adminGM.controls.broadcast.description', 'Enviar un mensaje push global sin afectar a los usuarios.')}</p>
-                        <div className="mt-3 space-y-2 max-w-sm">
-                            <input 
-                                type="text" 
-                                placeholder={t('adminGM.controls.broadcast.titlePlaceholder', 'Título del comunicado')}
-                                className="w-full bg-bg-side border border-border-theme rounded-xl px-3 py-2 text-sm text-text-main focus:border-brand-primary outline-none"
-                                value={broadcastTitle}
-                                onChange={e => setBroadcastTitle(e.target.value)}
-                            />
-                            <textarea 
-                                placeholder={t('adminGM.controls.broadcast.messagePlaceholder', 'Mensaje del comunicado')}
-                                className="w-full bg-bg-side border border-border-theme rounded-xl px-3 py-2 text-sm text-text-main focus:border-brand-primary outline-none resize-none h-20"
-                                value={broadcastMessage}
-                                onChange={e => setBroadcastMessage(e.target.value)}
-                            ></textarea>
-                            <button 
-                                onClick={handleSendBroadcast}
-                                disabled={sendingBroadcast || !broadcastTitle.trim() || !broadcastMessage.trim()}
-                                className="w-full bg-brand-primary text-white font-bold py-2 rounded-xl text-sm disabled:opacity-50 flex justify-center items-center gap-2"
-                            >
-                                {sendingBroadcast ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                                {t('common.send', 'Enviar')}
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 {/* FrikiMart Controls */}
@@ -581,6 +559,12 @@ export default function AdminGM() {
             <AdminBugReports 
                 isOpen={showBugReports}
                 onClose={() => setShowBugReports(false)}
+            />
+
+            {/* Craft Manager Modal (Taller GM) */}
+            <CraftManagerModal
+                isOpen={showCraftManager}
+                onClose={() => setShowCraftManager(false)}
             />
         </div>
     );

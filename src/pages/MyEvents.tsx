@@ -242,7 +242,7 @@ export default function MyEvents() {
                             statusFilter === 'all' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
                         }`}
                     >
-                        Todos ({events.length})
+                        {t('myEvents.filters.all', 'Todos')} ({events.length})
                     </button>
                     <button
                         onClick={() => setStatusFilter('active')}
@@ -250,7 +250,7 @@ export default function MyEvents() {
                             statusFilter === 'active' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
                         }`}
                     >
-                        Activos ({events.filter(e => !isEventPast(e)).length})
+                        {t('myEvents.filters.active', 'Activos')} ({events.filter(e => !isEventPast(e)).length})
                     </button>
                     <button
                         onClick={() => setStatusFilter('past')}
@@ -258,7 +258,7 @@ export default function MyEvents() {
                             statusFilter === 'past' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
                         }`}
                     >
-                        Pasados ({events.filter(e => isEventPast(e)).length})
+                        {t('myEvents.filters.past', 'Pasados')} ({events.filter(e => isEventPast(e)).length})
                     </button>
                 </div>
             </div>
