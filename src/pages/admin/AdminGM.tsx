@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Settings, ShieldAlert, Store, AlertTriangle,
     Zap, Activity, Loader2, BarChart, Dices,
-    Wrench, Globe, HelpCircle
+    Wrench, Globe, HelpCircle, Scissors
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SuperAdminService } from '../../services/SuperAdminService';
@@ -32,6 +32,7 @@ export default function AdminGM() {
     const [userTriviasEnabled, setUserTriviasEnabled] = useState(true);
     const [storeWebEnabled, setStoreWebEnabled] = useState(true);
     const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [craftsEnabled, setCraftsEnabled] = useState(true);
 
     // State metrics
     const [metrics, setMetrics] = useState<any>(null);
@@ -79,7 +80,7 @@ export default function AdminGM() {
             const keys = [
                 'tavern_enabled', 'trivia_vs_enabled', 'store_enabled',
                 'store_admin_visible', 'ttrpg_enabled', 'user_trivias_enabled',
-                'store_web_enabled', 'app_maintenance_mode'
+                'store_web_enabled', 'app_maintenance_mode', 'crafts_enabled'
             ];
             const settings = await SuperAdminService.getGlobalSettings(keys);
             setTavernEnabled(settings['tavern_enabled']);
@@ -90,6 +91,7 @@ export default function AdminGM() {
             setUserTriviasEnabled(settings['user_trivias_enabled']);
             setStoreWebEnabled(settings['store_web_enabled']);
             setMaintenanceMode(settings['app_maintenance_mode']);
+            setCraftsEnabled(settings['crafts_enabled'] !== false);
         } catch (e) {
             console.error('Error loading global settings batch:', e);
         }
@@ -258,6 +260,26 @@ export default function AdminGM() {
                         </label>
                     </div>
                     {savingSettings['store_web_enabled'] && <p className="text-[10px] text-emerald-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
+                </div>
+
+                {/* Manualidades y Papercraft Toggle */}
+                <div className="bg-bg-pop border border-pink-500/30 rounded-2xl p-5 flex flex-col gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full -mr-12 -mt-12"></div>
+                    <div className="flex items-start justify-between z-10">
+                        <div>
+                            <h3 className="font-bold text-text-main flex items-center gap-2">
+                                <Scissors size={18} className="text-pink-500" /> {t('settings.admin.crafts', 'Manualidades & Papercraft')}
+                            </h3>
+                            <p className="text-xs text-text-muted mt-1 max-w-[200px]">{t('adminGM.controls.crafts.description', 'Habilitar o pausar descargas de manualidades en toda la app y web.')}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" className="sr-only peer" checked={craftsEnabled} disabled={savingSettings['crafts_enabled']}
+                                onChange={() => handleToggle('crafts_enabled', craftsEnabled, setCraftsEnabled, t('adminGM.controls.crafts.confirmMsg', '¿Cambiar disponibilidad de Manualidades y Papercraft?'))}
+                            />
+                            <div className="w-11 h-6 bg-bg-side peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
+                        </label>
+                    </div>
+                    {savingSettings['crafts_enabled'] && <p className="text-[10px] text-pink-500 animate-pulse font-bold">{t('adminGM.saving')}</p>}
                 </div>
 
                 {/* Generador Automático de Trivias */}

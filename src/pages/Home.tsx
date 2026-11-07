@@ -1,6 +1,6 @@
 import { Link, useOutletContext } from 'react-router-dom';
 import { SEO } from '../components/SEO';
-import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock, Dices, List, LayoutGrid, MapPin } from 'lucide-react';
+import { Home as HomeIcon, Calendar, BarChart2, Gamepad2, PlusCircle, Loader2, ChevronRight, Trophy, Swords, Zap, Clock, Dices, List, LayoutGrid, MapPin, Scissors } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import { EventCard } from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
@@ -189,6 +189,10 @@ export default function Home() {
                     <Link to="/" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md bg-brand-primary/10 text-brand-primary transition-colors">
                         <HomeIcon className="mr-3 text-xl" size={20} />
                         {t('nav.home')}
+                    </Link>
+                    <Link to="/manualidades" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                        <Scissors className="mr-3 text-xl text-pink-500 group-hover:text-pink-400" size={20} />
+                        {t('nav.crafts', 'Manualidades')}
                     </Link>
                     {tavern && (
                         <Link to="/tavern" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
@@ -431,7 +435,7 @@ export default function Home() {
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Swords size={18} className="text-brand-primary" />
-                                    <h3 className="text-sm font-black text-text-main uppercase tracking-wider">Top Friki VS</h3>
+                                    <h3 className="text-sm font-black text-text-main uppercase tracking-wider">{t('triviaVS.topTitle', 'Top Friki VS')}</h3>
                                 </div>
                                 <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full border border-brand-primary/20">
                                     {t('triviaVS.leaderboard.title')}

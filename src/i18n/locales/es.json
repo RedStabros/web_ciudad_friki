@@ -9,7 +9,9 @@
     "notifications": "Notificaciones",
     "adminPanel": "Admin Panel",
     "achievements": "Logros",
-    "menu": "Menú"
+    "menu": "Menú",
+    "crafts": "Manualidades",
+    "map": "Mapa"
   },
   "splash": {
     "loading": "Cargando...",
@@ -80,7 +82,10 @@
     "send": "Enviar",
     "back": "Volver",
     "preview": "Vista Previa",
-    "errorHighlight": "Por favor llena los campos requeridos (*)."
+    "errorHighlight": "Por favor llena los campos requeridos (*).",
+    "frikicoins": "Frikicoins",
+    "notAvailable": "No disponible",
+    "notRegistered": "No registrado"
   },
   "auth": {
     "welcome": "Bienvenido a Ciudad Friki",
@@ -160,6 +165,43 @@
       "gm": "Panel GM",
       "bans": "Sanciones",
       "frikivs": "Aportes VS"
+    },
+    "recalculateAchievements": "Recalcular Logros",
+    "recalculating": "Recalculando...",
+    "recalculateConfirm": "¿Deseas recalcular todas las estadísticas y sincronizar los 148 logros retroactivos para todos los usuarios?",
+    "recalculateSuccess": "¡Sincronización exitosa! {{count}} usuarios recalculados.",
+    "recalculateError": "Error recalculando estadísticas: {{error}}",
+    "approvals": {
+      "title": "Centro de Aprobaciones",
+      "pendingTitle": "Tareas Pendientes de Moderación",
+      "events": "Eventos pendientes",
+      "questions": "Preguntas VS pendientes",
+      "packs": "Packs VS pendientes",
+      "reviewNow": "Revisar Ahora",
+      "later": "Más tarde",
+      "pendingEventsCount_one": "1 evento pendiente",
+      "pendingEventsCount_other": "{{count}} eventos pendientes",
+      "pendingQuestionsCount_one": "1 pregunta pendiente",
+      "pendingQuestionsCount_other": "{{count}} preguntas pendientes",
+      "pendingPacksCount_one": "1 paquete pendiente",
+      "pendingPacksCount_other": "{{count}} paquetes pendientes"
+    },
+    "userAudit": {
+      "registered": "Registrado:",
+      "statusSanctioned": "Estado: Sancionado / Baneado 🚫",
+      "statusActive": "Estado: Activo / Limpio ✅",
+      "privateData": "Datos Privados (Solo GM / Super Admin)",
+      "realName": "Nombre Real:",
+      "phone": "Celular:",
+      "city": "Ciudad:",
+      "copyQr": "Copiar Código QR",
+      "copied": "¡Copiado!",
+      "amountPlaceholder": "Ej: 50",
+      "conceptPlaceholder": "Ej: Premio Dinámica Especial",
+      "sendFc": "Emitir",
+      "amountLabel": "Cantidad (FC)",
+      "conceptLabel": "Concepto / Motivo",
+      "qrTitle": "Código QR de Desembolso"
     }
   },
   "dashboard": {
@@ -279,7 +321,8 @@
     "mapInstructions": "Haz clic en el mapa para ajustar la ubicación exacta.",
     "errors": {
       "locationDenied": "No se pudo obtener tu ubicación. Verifica los permisos de tu navegador."
-    }
+    },
+    "downloadPng": "Descargar PNG"
   },
   "map": {
     "normalMode": "Modo Normal",
@@ -701,10 +744,45 @@
     }
   },
   "seo": {
+    "home": {
+      "title": "Inicio - Eventos y Comunidad Geek",
+      "description": "Descubre los mejores eventos frikis, anime, cosplay, videojuegos y torneos en Medellín y Colombia.",
+      "keywords": "Eventos frikis, Anime, Gaming, Cosplay, Medellín, Cultura Geek, Fandom"
+    },
+    "trivias": {
+      "title": "Trivias Clásicas",
+      "description": "Demuestra tus conocimientos en trivias temáticas de anime, series, videojuegos y cómics.",
+      "keywords": "Trivias, Quiz, Geek, Frikicoins, Preguntas y Respuestas"
+    },
+    "tavern": {
+      "title": "La Taberna - Comunidad",
+      "description": "El foro y punto de encuentro de la comunidad geek. Comparte teorías, memes y debates.",
+      "keywords": "Foro, Taberna, Comunidad Geek, Debates, Anime, Videojuegos"
+    },
+    "surveys": {
+      "title": "Encuestas Oficiales",
+      "description": "Participa en las votaciones y encuestas oficiales de Ciudad Friki.",
+      "keywords": "Encuestas, Votaciones, Comunidad, Premios"
+    },
+    "vs": {
+      "title": "Friki VS - Duelos de Conocimiento",
+      "description": "Desafía a otros miembros en duelos de trivia en tiempo real y sube en la tabla de líderes.",
+      "keywords": "Duelos, Batallas de Trivia, 1v1, Gaming, Leaderboard"
+    },
     "frikimart": {
-      "title": "FrikiMart - Tienda Oficial Ciudad Friki",
-      "description": "Canjea tus Frikicoins por productos exclusivos en FrikiMart.",
-      "keywords": "frikimart, tienda, frikicoins, productos, tienda friki"
+      "title": "FrikiMart - Tienda Comunitaria",
+      "description": "Canjea tus Frikicoins por productos, figuras, mangas y artículos exclusivos de la comunidad.",
+      "keywords": "Tienda, FrikiMart, Frikicoins, Merch, Figuras, Cómics"
+    },
+    "ttrpg": {
+      "title": "Mesa de Rol / TTRPG",
+      "description": "Administra tus hojas de personaje e interactúa en tiempo real con tu mesa de juego de rol.",
+      "keywords": "TTRPG, Juegos de Rol, D&D, Hojas de Personaje, Dados"
+    },
+    "corporacion": {
+      "title": "Corporación Ciudad Friki",
+      "description": "Entidad cultural sin ánimo de lucro (ESAL). Portafolio institucional de formación, eventos y economías creativas.",
+      "keywords": "Corporación Ciudad Friki, ESAL, Portafolio Cultural, Aranjuez, Medellín"
     }
   },
   "tavern": {
@@ -1010,7 +1088,8 @@
     "enterQr": "Ingresa o escanea el código",
     "reward": "Recompensa",
     "cameraPermissionRequired": "Se requiere permiso de cámara para escanear",
-    "cameraPermissionDenied": "Permiso de cámara denegado"
+    "cameraPermissionDenied": "Permiso de cámara denegado",
+    "recipientQrPlaceholder": "Ej: FRIKI:12345ABC"
   },
   "settings": {
     "title": "Opciones",
@@ -2072,46 +2151,118 @@
       "directChannels": "O contáctanos directamente a nuestros canales oficiales:"
     }
   },
-  "seo": {
-    "home": {
-      "title": "Inicio - Eventos y Comunidad Geek",
-      "description": "Descubre los mejores eventos frikis, anime, cosplay, videojuegos y torneos en Medellín y Colombia.",
-      "keywords": "Eventos frikis, Anime, Gaming, Cosplay, Medellín, Cultura Geek, Fandom"
+  "crafts": {
+    "title": "Manualidades & Papercraft",
+    "subtitle": "Plantillas de libre descarga para imprimir",
+    "heroTag": "Taller & Manualidades",
+    "searchPlaceholder": "Buscar por personaje, anime, serie o juego...",
+    "emptyTitle": "No encontramos manualidades",
+    "emptyDesc": "Intenta con otra búsqueda o categoría.",
+    "freeDownloadPill": "Contenido 100% libre de descarga",
+    "difficulty": "Dificultad",
+    "difficultyLabel": "Dificultad:",
+    "pages": "Páginas",
+    "time": "Tiempo",
+    "minutes": "min",
+    "page": "Página",
+    "pagesShort": "págs",
+    "instructions": "Instrucciones & Consejos",
+    "watchTutorial": "Ver Video Tutorial de Armado",
+    "downloadPdf": "Descargar Plantilla",
+    "rateTitle": "Califica esta manualidad",
+    "commentPlaceholder": "Comentario opcional sobre el armado o dificultad...",
+    "sendRating": "Enviar Calificación",
+    "ratingSuccess": "¡Gracias por tu calificación!",
+    "noFile": "La plantilla aún no está disponible para descarga.",
+    "downloadError": "No se pudo descargar el archivo.",
+    "loadingReviews": "Cargando opiniones...",
+    "clearFilters": "Limpiar filtros",
+    "freeDownloadNotice": "Descarga Directa y Gratuita",
+    "freeDownloadNoticeDesc": "Plantilla en alta definición lista para imprimir en hojas tamaño Carta o A4.",
+    "categories": {
+      "all": "Todos",
+      "papercraft": "✂️ Papercraft 3D",
+      "coloring": "🎨 Para Colorear",
+      "origami": "📜 Origami",
+      "cosplay": "🎭 Props & Cosplay",
+      "colorear": "🎨 Para Colorear",
+      "cosplay_props": "🎭 Props Cosplay"
     },
-    "trivias": {
-      "title": "Trivias Clásicas",
-      "description": "Demuestra tus conocimientos en trivias temáticas de anime, series, videojuegos y cómics.",
-      "keywords": "Trivias, Quiz, Geek, Frikicoins, Preguntas y Respuestas"
+    "difficulties": {
+      "all": "Todas",
+      "easy": "Fácil",
+      "medium": "Media",
+      "hard": "Difícil",
+      "facil": "Fácil",
+      "intermedio": "Media",
+      "avanzado": "Difícil"
     },
-    "tavern": {
-      "title": "La Taberna - Comunidad",
-      "description": "El foro y punto de encuentro de la comunidad geek. Comparte teorías, memes y debates.",
-      "keywords": "Foro, Taberna, Comunidad Geek, Debates, Anime, Videojuegos"
+    "reviewsTitle": "Opiniones de la Comunidad",
+    "noReviews": "Aún no hay comentarios sobre este modelo. ¡Sé el primero en compartir tu experiencia!",
+    "loadMoreReviews": "Cargar más opiniones",
+    "ratedWith": "Calificó con {{stars}} estrellas",
+    "categoryGuides": {
+      "papercraftTitle": "✂️ Guía rápida de armado (Papercraft 3D)",
+      "papercraftStep1Title": "Línea continua (──):",
+      "papercraftStep1Desc": "Cortar con tijeras o bisturí sobre el contorno exterior.",
+      "papercraftStep2Title": "Línea punteada (- - -):",
+      "papercraftStep2Desc": "Doblar suavemente marcando el pliegue con una regla.",
+      "papercraftStep3Title": "Pestañas / Solapas:",
+      "papercraftStep3Desc": "Aplica pegamento en barra o silicón líquido para unir las caras 3D.",
+      "papercraftStep4Title": "Papel recomendado:",
+      "papercraftStep4Desc": "Imprime en cartulina opalina de 150g a 200g para mayor firmeza.",
+      "coloringTitle": "🎨 ¿Cómo colorear esta lámina?",
+      "coloringStep1Title": "Técnica libre:",
+      "coloringStep1Desc": "Usa lápices de colores, marcadores a base de agua o crayones.",
+      "coloringStep2Title": "Paleta Personal:",
+      "coloringStep2Desc": "Elige tus 6 colores favoritos antes de empezar para crear una armonía única.",
+      "coloringStep3Title": "Comunidad:",
+      "coloringStep3Desc": "Comparte una foto de tu dibujo terminado en La Taberna para ganar Frikicoins con los likes de la comunidad.",
+      "origamiTitle": "🦢 Consejos de Origami",
+      "origamiStep1Title": "Papel:",
+      "origamiStep1Desc": "Utiliza papel bond estándar delgado (75g - 90g) para que los pliegues múltiples no abulten.",
+      "origamiStep2Title": "Precisión:",
+      "origamiStep2Desc": "Alinea las esquinas con exactitud antes de marcar cada pliegue con la uña.",
+      "cosplayTitle": "🎭 Consejos para Props & Cosplay",
+      "cosplayStep1Title": "Refuerzo:",
+      "cosplayStep1Desc": "Pega las piezas sobre foamy (goma EVA) de 2mm a 5mm o cartón maqueta.",
+      "cosplayStep2Title": "Acabado:",
+      "cosplayStep2Desc": "Sella con cola vinílica o sellador acrílico antes de pintar con spray o acrílicos."
     },
-    "surveys": {
-      "title": "Encuestas Oficiales",
-      "description": "Participa en las votaciones y encuestas oficiales de Ciudad Friki.",
-      "keywords": "Encuestas, Votaciones, Comunidad, Premios"
-    },
-    "vs": {
-      "title": "Friki VS - Duelos de Conocimiento",
-      "description": "Desafía a otros miembros en duelos de trivia en tiempo real y sube en la tabla de líderes.",
-      "keywords": "Duelos, Batallas de Trivia, 1v1, Gaming, Leaderboard"
-    },
-    "frikimart": {
-      "title": "FrikiMart - Tienda Comunitaria",
-      "description": "Canjea tus Frikicoins por productos, figuras, mangas y artículos exclusivos de la comunidad.",
-      "keywords": "Tienda, FrikiMart, Frikicoins, Merch, Figuras, Cómics"
-    },
-    "ttrpg": {
-      "title": "Mesa de Rol / TTRPG",
-      "description": "Administra tus hojas de personaje e interactúa en tiempo real con tu mesa de juego de rol.",
-      "keywords": "TTRPG, Juegos de Rol, D&D, Hojas de Personaje, Dados"
-    },
-    "corporacion": {
-      "title": "Corporación Ciudad Friki",
-      "description": "Entidad cultural sin ánimo de lucro (ESAL). Portafolio institucional de formación, eventos y economías creativas.",
-      "keywords": "Corporación Ciudad Friki, ESAL, Portafolio Cultural, Aranjuez, Medellín"
-    }
+    "downloadPdfVector": "Plantilla en PDF (Vector Alta Resolución)",
+    "downloadsCount": "{{count}} descargas registradas",
+    "freeUsage": "Uso Libre",
+    "defaultDesc": "Plantilla lista para imprimir en hojas tamaño Carta o A4.",
+    "ratingsCount": "Calificaciones ({{count}})",
+    "howWasModel": "¿Cómo te pareció este modelo?",
+    "videoTutorial": "Tutorial de Armado en Video",
+    "submittingRating": "Enviando...",
+    "searchButton": "Buscar",
+    "pageShort": "pág",
+    "new": "Nuevo",
+    "noRatingsYet": "Sin calificaciones aún",
+    "beFirstToRate": "¡Sé el primero en calificar!"
+  },
+  "biller": {
+    "noCharges": "Sin cobros registrados",
+    "noChargesDesc": "No hay transacciones POS de cobro en stand aún.",
+    "date": "Fecha",
+    "staff": "Staff (Facturador)",
+    "client": "Cliente",
+    "concept": "Concepto",
+    "status": "Estado",
+    "amount": "Monto",
+    "pesosCop": "Pesos ($ COP)",
+    "searchPlaceholder": "@usuario o correo...",
+    "searchingUser": "Buscando usuario...",
+    "deliveryNotePlaceholder": "Ej: Manilla dorada #042 entregada en taquilla"
+  },
+  "ttrpg": {
+    "exportSheet": "Copiar y Exportar Ficha",
+    "export": "Exportar",
+    "copied": "¡Copiado!"
+  },
+  "vipPass": {
+    "noActiveEvents": "No hay eventos activos programados para hoy o próximos días."
   }
 }

@@ -53,8 +53,9 @@ export default function Achievements() {
 
     const getProgress = (ach: any) => {
         if (!stats || !ach.required_metric) return 0;
-        const current = stats[ach.required_metric] || 0;
-        return Math.min(Number(current), ach.required_value);
+        const rawVal = stats[ach.required_metric];
+        const current = Array.isArray(rawVal) ? rawVal.length : (Number(rawVal) || 0);
+        return Math.min(current, ach.required_value);
     };
 
     if (!session) return <Navigate to="/login" replace />;

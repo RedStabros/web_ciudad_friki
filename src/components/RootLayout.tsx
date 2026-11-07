@@ -4,16 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
-import { getAvatarSource } from '../config/avatars';
 import {
     Bell, Grid, Wallet, LogOut, BarChart2, Gamepad2, Home, Languages,
     Calendar, Shield, Settings, Trophy, Building2, Sun, Moon, Menu, X,
-    MapPin, Swords, ShoppingBag, Info, ChevronRight, Sparkles
+    MapPin, Swords, ShoppingBag, Info, ChevronRight, Sparkles, Scissors, ShieldCheck
 } from 'lucide-react';
 import NotificationsModal from './NotificationsModal';
 import WalletModal from './WalletModal';
 import Footer from './Footer';
 import AchievementToast from './AchievementToast';
+import { VipAvatarFrame, type VipPassInfo } from './VipAvatarFrame';
+import { AdminPendingApprovalsModal, type PendingApprovalsCounts } from './admin/AdminPendingApprovalsModal';
 import { SurveyService } from '../services/SurveyService';
 import { TriviaService } from '../services/TriviaService';
 import { supabase } from '../lib/supabase';
@@ -43,6 +44,11 @@ export default function RootLayout() {
     const [unlockedAchievement, setUnlockedAchievement] = useState<any>(null);
     const frikiMartVisible = frikiMartGlobal && frikiMartWeb;
 
+    // VIP Pass & Admin Approvals
+    const [vipInfo, setVipInfo] = useState<VipPassInfo | null>(null);
+    const [pendingCounts, setPendingCounts] = useState<PendingApprovalsCounts>({ events: 0, questions: 0, packs: 0 });
+    const [isApprovalsModalOpen, setIsApprovalsModalOpen] = useState(false);
+
     // Close mobile drawer and dropdown on route change
     const [prevPathname, setPrevPathname] = useState(location.pathname);
     if (prevPathname !== location.pathname) {
@@ -67,6 +73,59 @@ export default function RootLayout() {
             document.removeEventListener('touchstart', handleClickOutside);
         };
     }, [isUserMenuOpen]);
+
+    // Load VIP status
+    useEffect(() => {
+        if (!user?.id) {
+            setVipInfo(null);
+            return;
+        }
+        const checkVip = async () => {
+            try {
+                const { data } = await supabase.rpc('get_user_active_vip_pass', { p_user_id: user.id });
+                if (data && data.has_vip) {
+                    setVipInfo(data);
+                } else {
+                    setVipInfo(null);
+                }
+            } catch (err) {
+                console.error('Error fetching VIP pass:', err);
+            }
+        };
+        checkVip();
+    }, [user?.id]);
+
+    // Load Admin Pending Approvals
+    useEffect(() => {
+        if (!isAdmin) return;
+
+        const loadPendingApprovals = async () => {
+            try {
+                const [eventsRes, questionsRes, packsRes] = await Promise.all([
+                    supabase.from('events').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabase.from('triviaduels_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabase.from('trivia_packs_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+                ]);
+
+                const counts = {
+                    events: eventsRes.count || 0,
+                    questions: questionsRes.count || 0,
+                    packs: packsRes.count || 0,
+                };
+                setPendingCounts(counts);
+
+                const total = counts.events + counts.questions + counts.packs;
+                if (total > 0 && !sessionStorage.getItem('has_shown_approvals_popup')) {
+                    setIsApprovalsModalOpen(true);
+                    sessionStorage.setItem('has_shown_approvals_popup', 'true');
+                }
+            } catch (err) {
+                console.error('Error fetching admin pending approvals:', err);
+            }
+        };
+
+        loadPendingApprovals();
+    }, [isAdmin]);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -153,7 +212,7 @@ export default function RootLayout() {
                             <span className="sr-only">Ciudad Friki</span>
                         </Link>
 
-                        <div className="hidden lg:flex items-center gap-1 ml-4 border-l border-border-theme pl-4">
+                        <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 ml-3 xl:ml-4 border-l border-border-theme pl-3 xl:pl-4">
                             <NavLink to="/" icon={<Home size={18} />} label={t('nav.home')} />
                             {tavern && <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} />}
                             <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
@@ -221,6 +280,20 @@ export default function RootLayout() {
                                     )}
                                 </button>
 
+                                {isAdmin && (pendingCounts.events + pendingCounts.questions + pendingCounts.packs > 0) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsApprovalsModalOpen(true)}
+                                        className="p-2 rounded-full text-brand-primary hover:bg-bg-sub transition relative"
+                                        title={t('admin.approvals.title', 'Centro de Aprobaciones')}
+                                    >
+                                        <ShieldCheck size={22} />
+                                        <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] bg-brand-primary text-text-inv text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none animate-pulse">
+                                            {pendingCounts.events + pendingCounts.questions + pendingCounts.packs}
+                                        </span>
+                                    </button>
+                                )}
+
                                 <div ref={userMenuRef} className="relative ml-1">
                                     <button
                                         type="button"
@@ -228,8 +301,12 @@ export default function RootLayout() {
                                         className="flex items-center gap-2 cursor-pointer p-1 rounded-full hover:bg-bg-sub transition-all focus:outline-none"
                                         aria-expanded={isUserMenuOpen}
                                     >
-                                        <img alt="User Avatar" className="h-9 w-9 rounded-full object-cover border-2 border-brand-primary bg-bg-sub shrink-0" src={getAvatarSource(profile?.avatar_url || null)} />
-                                        <div className="hidden md:block text-sm text-left whitespace-nowrap overflow-hidden pr-2">
+                                        <VipAvatarFrame
+                                            avatarUrl={profile?.avatar_url || null}
+                                            size={36}
+                                            vipInfo={vipInfo}
+                                        />
+                                        <div className="hidden xl:block text-sm text-left whitespace-nowrap overflow-hidden pr-2">
                                             <p className="font-semibold text-text-main leading-tight truncate max-w-[120px]">
                                                 {profile?.username || t('common.loading')}
                                             </p>
@@ -340,10 +417,10 @@ export default function RootLayout() {
                         {session && profile && (
                             <div className="p-4 mx-4 mt-4 rounded-2xl bg-bg-sub/70 border border-border-theme flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-3 min-w-0">
-                                    <img
-                                        alt="Avatar"
-                                        className="h-10 w-10 rounded-full object-cover border-2 border-brand-primary shrink-0"
-                                        src={getAvatarSource(profile.avatar_url || null)}
+                                    <VipAvatarFrame
+                                        avatarUrl={profile.avatar_url || null}
+                                        size={40}
+                                        vipInfo={vipInfo}
                                     />
                                     <div className="min-w-0">
                                         <p className="font-bold text-text-main text-xs truncate">
@@ -380,6 +457,7 @@ export default function RootLayout() {
                                 </p>
                                 <div className="space-y-1">
                                     <DrawerLink to="/" icon={<Home size={16} className="text-brand-primary" />} label={t('nav.home')} />
+                                    <DrawerLink to="/manualidades" icon={<Scissors size={16} className="text-pink-500" />} label={t('nav.crafts', 'Manualidades')} />
                                     {tavern && (
                                         <DrawerLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-4 h-4 object-contain" />} label={t('nav.tavern')} />
                                     )}
@@ -511,6 +589,14 @@ export default function RootLayout() {
                 />
             )}
 
+            {isAdmin && (
+                <AdminPendingApprovalsModal
+                    isOpen={isApprovalsModalOpen}
+                    onClose={() => setIsApprovalsModalOpen(false)}
+                    counts={pendingCounts}
+                />
+            )}
+
         </div>
     );
 }
@@ -541,7 +627,7 @@ function NavLink({ to, icon, label, badge }: { to: string; icon: React.ReactNode
     return (
         <Link
             to={to}
-            className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-text-sub hover:text-brand-primary transition-all hover:bg-bg-sub font-bold text-sm tracking-tight"
+            className="relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg text-text-sub hover:text-brand-primary transition-all hover:bg-bg-sub font-bold text-xs xl:text-sm whitespace-nowrap shrink-0"
         >
             {icon}
             <span>{label}</span>

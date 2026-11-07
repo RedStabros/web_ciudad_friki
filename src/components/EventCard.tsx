@@ -7,6 +7,7 @@ import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { shareContent } from '../utils/shareContent';
 import { toPng } from 'html-to-image';
 import { useRef } from 'react';
+import { calculateEffectiveEventDays, formatEventRecurrenceInfo } from '../utils/dateUtils';
 
 interface EventCardProps {
     event: FrikiEvent;
@@ -45,6 +46,15 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
 
     const [isSharing, setIsSharing] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    const isMultiDay = event.end_date && event.end_date !== event.date;
+    const effectiveDays = isMultiDay
+        ? calculateEffectiveEventDays(event.date, event.end_date, event.recurrence_type, event.recurrence_days)
+        : 1;
+    const totalPotentialReward = (event.qr_reward_amount || 0) * effectiveDays;
+    const recurrenceInfo = isMultiDay
+        ? formatEventRecurrenceInfo(event.recurrence_type, event.recurrence_days, i18n.language)
+        : null;
 
     const shareEventTicket = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -203,7 +213,13 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
                             
                             {event.qr_approved && (
                                 <span className="bg-amber-400/10 text-amber-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                                    🎫 +{event.qr_reward_amount || 0} FC
+                                    🎫 {effectiveDays > 1 ? `Gana hasta ${totalPotentialReward} FC` : `+${event.qr_reward_amount || 0} FC`}
+                                </span>
+                            )}
+
+                            {recurrenceInfo && (
+                                <span className="bg-purple-500/10 text-purple-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    🔁 {recurrenceInfo.typeLabel}
                                 </span>
                             )}
                             
@@ -301,7 +317,7 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
                 )}
                 {event.qr_approved && (
                     <div className="absolute bottom-4 left-4 bg-amber-400 text-black text-[10px] font-black px-3 py-1 rounded-full flex items-center uppercase tracking-widest shadow-lg z-10 animate-pulse">
-                        🎁 +{event.qr_reward_amount || 0} FC
+                        🎁 {effectiveDays > 1 ? `Gana hasta ${totalPotentialReward} FC` : `+${event.qr_reward_amount || 0} FC`}
                     </div>
                 )}
             </div>
@@ -314,6 +330,11 @@ export function EventCard({ event, onInterested, onSave, onLike, onClick, isComp
                                 <Calendar className="text-base mr-1.5" size={16} />
                                 {formattedDate} • {formatTimeWithoutSeconds(event.start_time) || 'TBD'}
                             </span>
+                            {recurrenceInfo && (
+                                <span className="text-purple-400 text-xs font-bold flex items-center gap-1">
+                                    🔁 {recurrenceInfo.summary}
+                                </span>
+                            )}
                             {event.edition_number && event.edition_number > 1 && (
                                 <span className="bg-blue-500/10 text-blue-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                                     Edición {event.edition_number}

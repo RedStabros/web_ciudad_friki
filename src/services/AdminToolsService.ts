@@ -21,6 +21,9 @@ export interface AdminStats {
     ttrpg_sheets_total: number;
     ttrpg_rolls_total: number;
     tcg_matches_total: number;
+    biller_spent_total?: number;
+    frikimart_spent_total?: number;
+    total_spent_fc?: number;
     top_users: { id: string; username: string; balance: number; email?: string; avatar_url?: string }[];
 }
 

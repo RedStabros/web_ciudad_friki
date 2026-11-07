@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, Ticket, X, Loader2 } from 'lucide-react';
+import { Copy, Ticket, X, Loader2, Download, Sparkles } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
@@ -59,43 +60,101 @@ export function EventQrModal({ event, onClose }: EventQrModalProps) {
         }
     }, [event]);
 
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+    const handleDownloadTicketPng = async (cardId: string, filename: string) => {
+        const node = document.getElementById(cardId);
+        if (!node) return;
+        setDownloadingId(cardId);
+        try {
+            const dataUrl = await toPng(node, {
+                quality: 0.98,
+                pixelRatio: 2,
+                backgroundColor: '#181d27'
+            });
+            const link = document.createElement('a');
+            link.download = `${filename}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (err) {
+            console.error('Error exporting ticket as PNG:', err);
+            alert('No se pudo generar la imagen del boleto');
+        } finally {
+            setDownloadingId(null);
+        }
+    };
+
     const renderCard = (codeItem: EventCode) => {
         // Fallback value for legacy events vs new generated event codes
         const qrValue = codeItem.id === 'legacy' 
             ? `ciudadfriki://event-reward/${event.id}` 
             : `ciudadfriki://event-reward/${codeItem.code}`;
 
+        const isChallenge = codeItem.description && (
+            codeItem.description.toLowerCase().includes('reto') ||
+            codeItem.description.toLowerCase().includes('dinám') ||
+            codeItem.description.toLowerCase().includes('dinam')
+        );
+
+        const cardElementId = `ticket-pass-${codeItem.id}`;
+        const passHeader = isChallenge ? 'CIUDAD FRIKI • RETO / DINÁMICA' : 'CIUDAD FRIKI • EVENT PASS';
+        const passColor = isChallenge ? 'bg-purple-600' : 'bg-brand-primary';
+
         return (
-            <div key={codeItem.id} className="bg-bg-side border border-border-theme rounded-2xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-lg mb-6 relative">
-                <div className="absolute -top-4 bg-amber-400 text-black font-black uppercase tracking-widest text-[10px] px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-                    <Ticket size={12} /> {event.qr_reward_amount} FC
-                </div>
-                
-                <h3 className="font-black text-text-main text-xl mt-2 mb-1">{event.title}</h3>
-                <p className="text-brand-primary font-bold text-sm mb-4">
-                    {codeItem.description ? codeItem.description.replace('Dia', 'Día') : t('events.qrModal.defaultDesc')}
-                </p>
+            <div key={codeItem.id} className="w-full max-w-sm mb-6 flex flex-col items-center">
+                {/* Exportable Ticket Card (Consistent credential styling across all themes) */}
+                <div
+                    id={cardElementId}
+                    className="w-full bg-[#181d27] border border-gray-700/80 rounded-3xl p-6 flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                >
+                    {/* Top Pass Category Bar */}
+                    <div className={`w-full py-1.5 px-3 rounded-xl ${passColor} text-white font-black text-[10px] tracking-widest uppercase mb-4 flex items-center justify-center gap-1.5 shadow-md`}>
+                        <Sparkles size={12} />
+                        <span>{passHeader}</span>
+                    </div>
 
-                <div className="bg-white p-4 rounded-2xl mb-6 shadow-inner w-full flex justify-center">
-                    <QRCodeSVG 
-                        value={qrValue} 
-                        size={200}
-                        level="H"
-                        fgColor="#1e222a"
-                    />
+                    <div className="bg-amber-400 text-black font-black uppercase tracking-widest text-[10px] px-3.5 py-1 rounded-full shadow-md flex items-center gap-1 mb-2">
+                        <Ticket size={12} /> {event.qr_reward_amount || 10} FC
+                    </div>
+                    
+                    <h3 className="font-black text-white text-xl mt-1 mb-1">{event.title}</h3>
+                    <p className="text-amber-400 font-bold text-xs mb-4">
+                        {codeItem.description ? codeItem.description.replace('Dia', 'Día') : t('events.qrModal.defaultDesc', 'Asistencia Oficial')}
+                    </p>
+
+                    <div className="bg-white p-4 rounded-2xl mb-4 shadow-inner flex justify-center">
+                        <QRCodeSVG 
+                            value={qrValue} 
+                            size={190}
+                            level="H"
+                            fgColor="#111827"
+                        />
+                    </div>
+
+                    <p className="text-[10px] font-mono uppercase tracking-wider text-gray-400">
+                        Escanea con la app oficial Ciudad Friki
+                    </p>
                 </div>
 
-                <div className="flex gap-2 w-full">
+                {/* Actions Below Ticket (not included in PNG) */}
+                <div className="flex gap-2 w-full mt-3">
                     <button
                         onClick={() => {
                             navigator.clipboard.writeText(qrValue);
-                            alert(t('events.qrModal.copied'));
+                            alert(t('events.qrModal.copied', '¡Enlace copiado!'));
                         }}
-                        className="flex-1 flex justify-center items-center gap-2 text-text-muted hover:text-brand-primary bg-bg-sub py-2.5 rounded-xl font-bold transition"
+                        className="flex-1 flex justify-center items-center gap-2 text-text-muted hover:text-brand-primary bg-bg-sub py-2.5 rounded-xl font-bold text-xs transition cursor-pointer"
                     >
-                        <Copy size={16} /> {t('events.qrModal.copyLink')}
+                        <Copy size={15} /> {t('events.qrModal.copyLink', 'Copiar Enlace')}
                     </button>
-                    {/* Placeholder for download, requires html2canvas logic if we want it fully working, but user asked for individual containers so they can screenshot */}
+                    <button
+                        onClick={() => handleDownloadTicketPng(cardElementId, `Boleto_${event.title.replace(/\s+/g, '_')}`)}
+                        disabled={downloadingId === cardElementId}
+                        className="flex-1 flex justify-center items-center gap-2 text-text-inv bg-brand-primary hover:bg-brand-primary-light py-2.5 rounded-xl font-black text-xs transition shadow-md shadow-brand-primary/20 cursor-pointer disabled:opacity-50"
+                    >
+                        {downloadingId === cardElementId ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                        <span>{t('events.downloadPng', 'Descargar PNG')}</span>
+                    </button>
                 </div>
             </div>
         );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Wallet, ArrowUpRight, ArrowDownLeft, Copy, Loader2, Star, TrendingUp, AlertCircle, Send, History, Home as HomeIcon, Camera } from 'lucide-react';
+import { X, Wallet, ArrowUpRight, ArrowDownLeft, Copy, Loader2, Star, TrendingUp, AlertCircle, Send, History, Home as HomeIcon, Camera, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { UserService, type Transaction } from '../services/UserService';
+import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { WalletScanner } from './WalletScanner';
 
@@ -94,17 +95,109 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
     };
 
     const processScannedData = async (data: string) => {
-        if (data.startsWith('ASSIGN:') || data.startsWith('EVENT:')) {
-            const isAssignment = data.startsWith('ASSIGN:');
+        const trimmed = data.trim();
+
+        // 1. Cobro en Stand POS (BILLER_PAY:<charge_id>)
+        if (trimmed.startsWith('BILLER_PAY:')) {
+            const chargeId = trimmed.replace('BILLER_PAY:', '').trim();
             setIsLoading(true);
-            setActiveTab('main'); // Switch to a loading view conceptually
+            setActiveTab('main');
+            try {
+                const { data: chargeData, error: chargeErr } = await supabase.rpc('get_biller_charge_details', {
+                    p_charge_id: chargeId
+                });
+                if (chargeErr || !chargeData || !chargeData.success) {
+                    alert(chargeData?.message || 'No se pudo obtener información del cobro.');
+                    return;
+                }
+
+                const charge = chargeData.charge || chargeData;
+                const amountFc = charge.amount_fc || 0;
+                const concept = charge.concept || 'Compra en Stand Oficial';
+                const billerUsername = charge.biller_username || 'Staff';
+                const status = charge.status;
+
+                if (status && status !== 'pending') {
+                    alert(`Este cobro ya fue procesado o ha expirado (Estado: ${status}).`);
+                    return;
+                }
+
+                if (wallet && wallet.balance < amountFc) {
+                    alert(`Saldo insuficiente. Tienes ${wallet.balance.toLocaleString('es-CO')} FC y este cobro requiere ${amountFc.toLocaleString('es-CO')} FC.`);
+                    return;
+                }
+
+                const confirmPay = window.confirm(
+                    `¿Confirmar pago de ${amountFc.toLocaleString('es-CO')} FC para "${concept}" en el stand de @${billerUsername}?`
+                );
+
+                if (!confirmPay) return;
+
+                const { data: payData, error: payErr } = await supabase.rpc('pay_biller_charge', {
+                    p_charge_id: chargeId
+                });
+
+                if (payErr || !payData?.success) {
+                    alert(payData?.message || 'Error al procesar el pago del cobro');
+                    return;
+                }
+
+                alert(`¡Pago completado con éxito! Se descontaron ${amountFc} FC.`);
+                await fetchWalletData();
+                setActiveTab('history');
+            } catch (err: any) {
+                console.error('Error processing biller charge payment:', err);
+                alert(err.message || 'Error al procesar cobro');
+            } finally {
+                setIsLoading(false);
+            }
+            return;
+        }
+
+        // 2. Asistencia Oficial Directa (ciudadfriki://attendance/{event_id})
+        if (trimmed.startsWith('ciudadfriki://attendance/')) {
+            const eventId = trimmed.replace('ciudadfriki://attendance/', '').trim();
+            setIsLoading(true);
+            setActiveTab('main');
+            try {
+                const { data: response, error } = await supabase.rpc('scan_attendance_qr', {
+                    p_series_id: eventId
+                });
+                if (error) throw error;
+                if (response?.success) {
+                    alert(`¡Has recibido ${response.amount} Frikicoins por asistir al evento ${response.event_title || ''}!`);
+                    await fetchWalletData();
+                    setActiveTab('history');
+                } else {
+                    alert(response?.message || 'No se pudo reclamar la asistencia.');
+                }
+            } catch (err: any) {
+                console.error('Attendance error:', err);
+                alert(err.message || 'Error al procesar asistencia');
+            } finally {
+                setIsLoading(false);
+            }
+            return;
+        }
+
+        // 2. Códigos de Asignación o Evento
+        if (trimmed.startsWith('ASSIGN:') || trimmed.startsWith('EVENT:') || trimmed.startsWith('ATTENDANCE:') || trimmed.includes('event-reward/')) {
+            const isAssignment = trimmed.startsWith('ASSIGN:');
+            let cleanCode = trimmed;
+            if (trimmed.startsWith('ASSIGN:')) cleanCode = trimmed.replace('ASSIGN:', '');
+            else if (trimmed.startsWith('EVENT:')) cleanCode = trimmed.replace('EVENT:', '');
+            else if (trimmed.startsWith('ATTENDANCE:')) cleanCode = trimmed.replace('ATTENDANCE:', '');
+            else if (trimmed.includes('event-reward/')) cleanCode = trimmed.split('event-reward/')[1];
+
+            setIsLoading(true);
+            setActiveTab('main');
 
             try {
                 let response;
                 if (isAssignment) {
-                    response = await UserService.redeemAssignment(data.replace('ASSIGN:', ''), userId);
+                    response = await UserService.redeemAssignment(cleanCode, userId);
                 } else {
-                    response = await UserService.redeemEventCode(data.replace('EVENT:', ''), userId);
+                    response = await UserService.redeemEventCode(cleanCode, userId);
                 }
 
                 if (response.success) {
@@ -123,13 +216,14 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
             return;
         }
 
-        // Must start with FRIKI:
-        if (data.startsWith('FRIKI:')) {
-            setRecipientQr(data);
+        // 3. Dirección P2P de Billetera (FRIKI:...)
+        if (trimmed.startsWith('FRIKI:')) {
+            setRecipientQr(trimmed);
             setActiveTab('send');
-        } else {
-            alert(t('wallet.invalidQrCode', 'Código QR inválido. Debe comenzar con FRIKI:, ASSIGN:, o EVENT:'));
+            return;
         }
+
+        alert(t('wallet.invalidQrCode', 'Código QR inválido. Debe comenzar con FRIKI:, ASSIGN:, EVENT:, o BILLER_PAY:'));
     };
 
     if (!isOpen) return null;
@@ -148,7 +242,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                 <Wallet size={20} className="sm:w-6 sm:h-6" />
                                 <span className="font-extrabold uppercase tracking-[0.2em] text-xs sm:text-sm text-text-main">{t('wallet.title')}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black italic text-text-main tracking-tighter uppercase leading-none">Frikicoins</h2>
+                            <h2 className="text-2xl sm:text-3xl font-black italic text-text-main tracking-tighter uppercase leading-none">{t('common.frikicoins', 'Frikicoins')}</h2>
                         </div>
                         <button onClick={onClose} className="p-2 sm:p-3 bg-bg-sub hover:bg-brand-primary/10 hover:text-brand-primary rounded-2xl transition-all shadow-md active:scale-95 text-text-muted cursor-pointer">
                             <X size={20} className="sm:w-6 sm:h-6" />
@@ -263,7 +357,7 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                     type="text"
                                                     value={recipientQr}
                                                     onChange={e => setRecipientQr(e.target.value)}
-                                                    placeholder="Ej: FRIKI:12345ABC"
+                                                    placeholder={t('wallet.recipientQrPlaceholder', 'Ej: FRIKI:12345ABC')}
                                                     className="flex-1 bg-bg-side border border-border-theme rounded-2xl px-4 py-4 text-text-main text-sm font-mono focus:outline-none focus:border-brand-primary transition-colors"
                                                 />
                                                 <button onClick={() => setActiveTab('scan')} className="w-14 rounded-2xl bg-bg-side border border-border-theme flex items-center justify-center text-text-muted hover:text-brand-primary transition-colors">
@@ -332,16 +426,27 @@ export default function WalletModal({ isOpen, onClose, userId }: { isOpen: boole
                                                 <div key={tx.id} className="group relative flex items-center justify-between p-5 rounded-2xl bg-bg-side border border-border-theme hover:border-brand-primary/30 transition-all cursor-pointer">
                                                     <div className="flex items-center gap-4">
                                                         <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm
-                                                            ${isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
-                                                            {isReceived ? <ArrowDownLeft size={24} /> : <ArrowUpRight size={24} />}
+                                                            ${tx.type === 'gm_reward' ? 'bg-amber-500/10 text-amber-500' :
+                                                              tx.type === 'biller_charge' ? 'bg-orange-500/10 text-orange-400' :
+                                                              isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
+                                                            {tx.type === 'gm_reward' ? <ShieldCheck size={24} /> :
+                                                             tx.type === 'biller_charge' ? <ShoppingBag size={24} /> :
+                                                             isReceived ? <ArrowDownLeft size={24} /> : <ArrowUpRight size={24} />}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <h4 className="font-black text-text-main text-base leading-tight break-words">
                                                                 {descriptionText}
                                                             </h4>
                                                             <div className="flex items-start gap-2 mt-2 flex-wrap sm:flex-nowrap">
-                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shrink-0 ${isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
-                                                                    {tx.type || (isReceived ? t('wallet.income') : t('wallet.expense'))}
+                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shrink-0 ${
+                                                                    tx.type === 'gm_reward' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' :
+                                                                    tx.type === 'biller_charge' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30' :
+                                                                    tx.type === 'event_reward' ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/30' :
+                                                                    isReceived ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
+                                                                    {tx.type === 'gm_reward' ? '🛡️ Envío del GM' :
+                                                                     tx.type === 'biller_charge' ? '🛍️ Compra en Stand' :
+                                                                     tx.type === 'event_reward' ? (descriptionText?.toLowerCase().includes('reto') || descriptionText?.toLowerCase().includes('dinám') ? '🎯 Reto de Evento' : '🎟️ Asistencia') :
+                                                                     tx.type || (isReceived ? t('wallet.income') : t('wallet.expense'))}
                                                                 </span>
                                                                 <p className="text-[10px] font-bold text-text-muted">{new Date(tx.created_at).toLocaleDateString()} • {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                             </div>

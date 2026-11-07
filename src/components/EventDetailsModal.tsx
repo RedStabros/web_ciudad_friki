@@ -8,7 +8,7 @@ import type { FrikiEvent, Review } from '../services/EventService';
 import { useAuth } from '../context/AuthContext';
 import { getAvatarSource } from '../config/avatars';
 import { shareContent, buildEventShare, registerCopiedCallback } from '../utils/shareContent';
-import { isEventFinished } from '../utils/dateUtils';
+import { isEventFinished, calculateEffectiveEventDays, formatEventRecurrenceInfo } from '../utils/dateUtils';
 
 
 interface EventDetailsModalProps {
@@ -91,19 +91,15 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
     const isAlly = event.tags?.includes('aliado') ?? false;
     const isFreeEvent = event.is_free === true || (event as any).price_min === 0 || (event as any).price_min == null;
 
-    // Calculate maximum possible Frikicoins (Fix #6)
-    let totalReward = event.qr_reward_amount || 0;
-    if (event.qr_approved && event.date && event.end_date) {
-        const d1 = new Date(event.date);
-        const d2 = new Date(event.end_date);
-        if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
-            const diffTime = Math.abs(d2.getTime() - d1.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
-            if (diffDays > 1) {
-                totalReward = totalReward * diffDays;
-            }
-        }
-    }
+    // Calculate maximum possible Frikicoins using effective days
+    const isMultiDay = Boolean(event.date && event.end_date && event.date !== event.end_date);
+    const effectiveDays = isMultiDay
+        ? calculateEffectiveEventDays(event.date, event.end_date, event.recurrence_type, event.recurrence_days)
+        : 1;
+    const totalReward = (event.qr_reward_amount || 0) * effectiveDays;
+    const recurrenceInfo = isMultiDay
+        ? formatEventRecurrenceInfo(event.recurrence_type, event.recurrence_days, i18n.language)
+        : null;
 
     const formattedDate = event.date ? new Date(event.date).toLocaleDateString(i18n.language === 'es' ? 'es-CO' : 'en-US', {
 
@@ -181,10 +177,17 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                     {activeTab === 'details' ? (
                         <div className="space-y-6">
                             {event.qr_approved && (
-                                <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-3 flex items-center justify-center gap-2">
-                                    <span className="text-amber-400 font-black text-sm">
-                                        {t('events.qrBannerMax', { defaultValue: '🚀 ¡Gana hasta {{amount}} FC por asistir!', amount: totalReward })}
+                                <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
+                                    <span className="text-amber-400 font-black text-sm text-center">
+                                        {effectiveDays > 1 
+                                            ? `🚀 ¡Gana hasta ${totalReward} FC asistiendo a las ${effectiveDays} sesiones!`
+                                            : `🚀 ¡Gana +${event.qr_reward_amount || 0} FC por tu asistencia!`}
                                     </span>
+                                    {recurrenceInfo && (
+                                        <span className="text-xs font-bold text-purple-400 flex items-center gap-1">
+                                            <span>🔁</span> {recurrenceInfo.summary}
+                                        </span>
+                                    )}
                                 </div>
                             )}
 

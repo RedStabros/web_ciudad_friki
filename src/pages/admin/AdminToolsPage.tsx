@@ -4,7 +4,7 @@ import {
     LayoutDashboard, Users, TrendingUp, Wallet,
     BarChart3, ArrowRightLeft, Globe, RefreshCcw,
     Trophy, ShieldCheck, Clock, Loader2,
-    Eye, Share2, MessageSquare, Swords
+    Eye, Share2, MessageSquare, Swords, Coins
 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { shareContent } from '../../utils/shareContent';
@@ -28,6 +28,25 @@ export default function AdminToolsPage() {
     const whalesRef = useRef<HTMLDivElement>(null);
     const [auditModalVisible, setAuditModalVisible] = useState(false);
     const [auditUser, setAuditUser] = useState<{ id: string; username: string } | null>(null);
+    const [recalculatingStats, setRecalculatingStats] = useState(false);
+    const [recalcSuccess, setRecalcSuccess] = useState<string | null>(null);
+
+    const handleRecalculateStats = async () => {
+        if (!window.confirm(t('admin.recalculateConfirm', '¿Deseas recalcular todas las estadísticas y sincronizar los 148 logros retroactivos para todos los usuarios?'))) return;
+        setRecalculatingStats(true);
+        setRecalcSuccess(null);
+        try {
+            const { data, error } = await supabase.rpc('recalculate_all_user_stats');
+            if (error) throw error;
+            setRecalcSuccess(t('admin.recalculateSuccess', { count: (data as any)?.users_recalculated || 0, defaultValue: `¡Sincronización exitosa! ${(data as any)?.users_recalculated || 0} usuarios recalculados.` }));
+            setTimeout(() => setRecalcSuccess(null), 5000);
+            loadData();
+        } catch (err: any) {
+            alert(t('admin.recalculateError', { error: err.message || 'Error desconocido' }));
+        } finally {
+            setRecalculatingStats(false);
+        }
+    };
 
     useEffect(() => {
         loadData();
@@ -164,15 +183,34 @@ export default function AdminToolsPage() {
                     </div>
                 </div>
 
-                <button
-                    onClick={loadData}
-                    disabled={refreshing}
-                    className="flex items-center gap-2 px-4 py-2 bg-bg-side border border-border-theme rounded-xl text-sm font-bold text-text-main hover:bg-bg-sub transition-colors shadow-sm disabled:opacity-50"
-                >
-                    <RefreshCcw size={16} className={refreshing ? "animate-spin" : ""} />
-                    {t('common.refresh')}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleRecalculateStats}
+                        disabled={recalculatingStats}
+                        title={t('admin.recalculateConfirm', 'Recalcular estadísticas y logros retroactivos de todos los usuarios')}
+                        className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl text-xs font-black uppercase hover:bg-amber-500/20 transition shadow-sm disabled:opacity-50"
+                    >
+                        <Trophy size={15} className={recalculatingStats ? "animate-spin" : ""} />
+                        <span>{recalculatingStats ? t('admin.recalculating', 'Recalculando...') : t('admin.recalculateAchievements', 'Recalcular Logros')}</span>
+                    </button>
+
+                    <button
+                        onClick={loadData}
+                        disabled={refreshing}
+                        className="flex items-center gap-2 px-4 py-2 bg-bg-side border border-border-theme rounded-xl text-sm font-bold text-text-main hover:bg-bg-sub transition-colors shadow-sm disabled:opacity-50"
+                    >
+                        <RefreshCcw size={16} className={refreshing ? "animate-spin" : ""} />
+                        {t('common.refresh')}
+                    </button>
+                </div>
             </div>
+
+            {recalcSuccess && (
+                <div className="p-3 bg-accent-green/10 border border-accent-green/30 text-accent-green text-xs font-black rounded-xl uppercase tracking-wider flex items-center justify-between">
+                    <span>{recalcSuccess}</span>
+                    <button onClick={() => setRecalcSuccess(null)} className="text-text-muted hover:text-text-main text-sm">✕</button>
+                </div>
+            )}
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -332,6 +370,30 @@ export default function AdminToolsPage() {
                     </div>
                 </div>
 
+            </div>
+
+            {/* Economy Absorption & Spending Row */}
+            <div className="bg-gradient-to-r from-bg-pop to-bg-side border border-border-theme rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-4 border-b border-border-theme pb-3">
+                    <Coins className="text-amber-500" size={20} />
+                    <h3 className="font-black text-text-main uppercase tracking-wider text-sm">
+                        Consumo y Absorción de la Economía (POS & Tienda)
+                    </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">Cobros Stand / POS</p>
+                        <p className="text-2xl font-black text-amber-500">{(stats?.biller_spent_total || 0).toLocaleString()} FC</p>
+                    </div>
+                    <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">FrikiMart (Tienda)</p>
+                        <p className="text-2xl font-black text-brand-primary">{(stats?.frikimart_spent_total || 0).toLocaleString()} FC</p>
+                    </div>
+                    <div className="bg-bg-side p-4 rounded-xl border border-border-theme/50">
+                        <p className="text-[10px] font-black text-text-muted uppercase mb-1">Total Absorbido</p>
+                        <p className="text-2xl font-black text-accent-green">{(stats?.total_spent_fc || 0).toLocaleString()} FC</p>
+                    </div>
+                </div>
             </div>
 
             {/* Community & Gaming Stats Row */}

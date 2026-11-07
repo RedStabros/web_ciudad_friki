@@ -9,7 +9,9 @@
     "notifications": "Notifications",
     "adminPanel": "Admin Panel",
     "achievements": "Achievements",
-    "menu": "Menu"
+    "menu": "Menu",
+    "crafts": "Crafts",
+    "map": "Map"
   },
   "splash": {
     "wait": "Loading...",
@@ -80,7 +82,10 @@
     "enable": "Enable",
     "status": "Status",
     "linkCopied": "Link copied!",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "frikicoins": "Frikicoins",
+    "notAvailable": "Not available",
+    "notRegistered": "Not registered"
   },
   "auth": {
     "welcome": "Welcome to Ciudad Friki",
@@ -160,6 +165,43 @@
       "gm": "GM Panel",
       "bans": "Sanctions",
       "frikivs": "VS Contributions"
+    },
+    "recalculateAchievements": "Recalculate Achievements",
+    "recalculating": "Recalculating...",
+    "recalculateConfirm": "Do you want to recalculate all stats and synchronize retroactive achievements for all users?",
+    "recalculateSuccess": "Synchronization successful! {{count}} users recalculated.",
+    "recalculateError": "Error recalculating stats: {{error}}",
+    "approvals": {
+      "title": "Approvals Center",
+      "pendingTitle": "Pending Moderation Tasks",
+      "events": "Pending events",
+      "questions": "Pending VS questions",
+      "packs": "Pending VS packs",
+      "reviewNow": "Review Now",
+      "later": "Later",
+      "pendingEventsCount_one": "1 pending event",
+      "pendingEventsCount_other": "{{count}} pending events",
+      "pendingQuestionsCount_one": "1 pending question",
+      "pendingQuestionsCount_other": "{{count}} pending questions",
+      "pendingPacksCount_one": "1 pending pack",
+      "pendingPacksCount_other": "{{count}} pending packs"
+    },
+    "userAudit": {
+      "registered": "Registered:",
+      "statusSanctioned": "Status: Sanctioned / Banned 🚫",
+      "statusActive": "Status: Active / Clean ✅",
+      "privateData": "Private Data (GM / Super Admin only)",
+      "realName": "Real Name:",
+      "phone": "Phone:",
+      "city": "City:",
+      "copyQr": "Copy QR Code",
+      "copied": "Copied!",
+      "amountPlaceholder": "Ex: 50",
+      "conceptPlaceholder": "Ex: Special Dynamic Reward",
+      "sendFc": "Issue",
+      "amountLabel": "Amount (FC)",
+      "conceptLabel": "Concept / Reason",
+      "qrTitle": "Disbursement QR Code"
     }
   },
   "dashboard": {
@@ -269,7 +311,8 @@
     "mapInstructions": "Click on the map to set the exact location.",
     "errors": {
       "locationDenied": "Could not get your location. Please check your browser permissions."
-    }
+    },
+    "downloadPng": "Download PNG"
   },
   "map": {
     "normalMode": "Normal Mode",
@@ -681,10 +724,45 @@
     }
   },
   "seo": {
+    "home": {
+      "title": "Home - Events & Geek Community",
+      "description": "Discover top geek events, anime conventions, cosplay, gaming, and tournaments in Colombia.",
+      "keywords": "Geek events, Anime, Gaming, Cosplay, Medellín, Geek Culture, Fandom"
+    },
+    "trivias": {
+      "title": "Classic Trivias",
+      "description": "Test your knowledge with thematic quizzes on anime, series, video games, and comics.",
+      "keywords": "Trivias, Quiz, Geek, Frikicoins, Questions and Answers"
+    },
+    "tavern": {
+      "title": "The Tavern - Community",
+      "description": "The discussion forum for the geek community. Share theories, memes, and topics.",
+      "keywords": "Forum, Tavern, Geek Community, Discussions, Anime, Gaming"
+    },
+    "surveys": {
+      "title": "Official Surveys",
+      "description": "Vote and participate in official Ciudad Friki community polls.",
+      "keywords": "Surveys, Polls, Community, Awards"
+    },
+    "vs": {
+      "title": "Friki VS - Trivia Duels",
+      "description": "Challenge other members in real-time trivia duels and climb the leaderboard.",
+      "keywords": "Duels, Trivia Battles, 1v1, Gaming, Leaderboard"
+    },
     "frikimart": {
-      "title": "FrikiMart - Official Store Ciudad Friki",
-      "description": "Redeem your Frikicoins for exclusive products in FrikiMart.",
-      "keywords": "frikimart, store, frikicoins, products, geek store"
+      "title": "FrikiMart - Community Store",
+      "description": "Redeem your Frikicoins for items, figures, manga, and exclusive community rewards.",
+      "keywords": "Store, FrikiMart, Frikicoins, Merch, Figures, Comics"
+    },
+    "ttrpg": {
+      "title": "TTRPG Virtual Tabletop",
+      "description": "Manage character sheets and roll dice in real-time with your tabletop roleplaying group.",
+      "keywords": "TTRPG, Roleplaying Games, D&D, Character Sheets, Dice"
+    },
+    "corporacion": {
+      "title": "Ciudad Friki Corporation",
+      "description": "Non-profit cultural organization (ESAL). Institutional portfolio of training, events, and creative economies.",
+      "keywords": "Ciudad Friki Corporation, Non-profit, Cultural Portfolio, Medellín"
     }
   },
   "tavern": {
@@ -989,7 +1067,8 @@
     "enterQr": "Enter or scan code",
     "reward": "Reward",
     "cameraPermissionRequired": "Camera permission required for scanning",
-    "cameraPermissionDenied": "Camera permission denied"
+    "cameraPermissionDenied": "Camera permission denied",
+    "recipientQrPlaceholder": "Ex: FRIKI:12345ABC"
   },
   "settings": {
     "title": "Options",
@@ -2050,46 +2129,118 @@
       "directChannels": "Or reach out directly through our official channels:"
     }
   },
-  "seo": {
-    "home": {
-      "title": "Home - Events & Geek Community",
-      "description": "Discover top geek events, anime conventions, cosplay, gaming, and tournaments in Colombia.",
-      "keywords": "Geek events, Anime, Gaming, Cosplay, Medellín, Geek Culture, Fandom"
+  "crafts": {
+    "title": "Crafts & Papercraft",
+    "subtitle": "Free downloadable templates for printing",
+    "heroTag": "Workshop & Crafts",
+    "searchPlaceholder": "Search by character, anime, series or game...",
+    "emptyTitle": "No crafts found",
+    "emptyDesc": "Try another search term or filter category.",
+    "freeDownloadPill": "100% Free Downloadable Content",
+    "difficulty": "Difficulty",
+    "difficultyLabel": "Difficulty:",
+    "pages": "Pages",
+    "time": "Time",
+    "minutes": "min",
+    "page": "Page",
+    "pagesShort": "pgs",
+    "instructions": "Instructions & Tips",
+    "watchTutorial": "Watch Assembly Video Tutorial",
+    "downloadPdf": "Download Template",
+    "rateTitle": "Rate this craft",
+    "commentPlaceholder": "Optional comment about assembly or difficulty...",
+    "sendRating": "Submit Rating",
+    "ratingSuccess": "Thank you for rating this craft!",
+    "noFile": "The template is not yet available for download.",
+    "downloadError": "Could not download the file.",
+    "loadingReviews": "Loading reviews...",
+    "clearFilters": "Clear filters",
+    "freeDownloadNotice": "Direct & Free Download",
+    "freeDownloadNoticeDesc": "High definition template ready to print on Letter or A4 sheets.",
+    "categories": {
+      "all": "All",
+      "papercraft": "✂️ 3D Papercraft",
+      "coloring": "🎨 Coloring Sheets",
+      "origami": "📜 Origami",
+      "cosplay": "🎭 Cosplay Props",
+      "colorear": "🎨 Coloring Sheets",
+      "cosplay_props": "🎭 Cosplay Props"
     },
-    "trivias": {
-      "title": "Classic Trivias",
-      "description": "Test your knowledge with thematic quizzes on anime, series, video games, and comics.",
-      "keywords": "Trivias, Quiz, Geek, Frikicoins, Questions and Answers"
+    "difficulties": {
+      "all": "All",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "facil": "Easy",
+      "intermedio": "Medium",
+      "avanzado": "Hard"
     },
-    "tavern": {
-      "title": "The Tavern - Community",
-      "description": "The discussion forum for the geek community. Share theories, memes, and topics.",
-      "keywords": "Forum, Tavern, Geek Community, Discussions, Anime, Gaming"
+    "reviewsTitle": "Community Reviews",
+    "noReviews": "No reviews yet for this model. Be the first to share your experience!",
+    "loadMoreReviews": "Load more reviews",
+    "ratedWith": "Rated with {{stars}} stars",
+    "categoryGuides": {
+      "papercraftTitle": "✂️ 3D Papercraft Assembly Guide",
+      "papercraftStep1Title": "Solid line (──):",
+      "papercraftStep1Desc": "Cut with scissors or craft knife along the outer outline.",
+      "papercraftStep2Title": "Dashed line (- - -):",
+      "papercraftStep2Desc": "Gently fold inward (score the fold with a ruler first).",
+      "papercraftStep3Title": "Tabs:",
+      "papercraftStep3Desc": "Apply glue stick or liquid silicone to join the 3D sides.",
+      "papercraftStep4Title": "Recommended paper:",
+      "papercraftStep4Desc": "Print on opalina cardstock (150g - 200g) for firmness and durability.",
+      "coloringTitle": "🎨 How to color this sheet?",
+      "coloringStep1Title": "Free Technique:",
+      "coloringStep1Desc": "Use colored pencils, water-based markers or crayons.",
+      "coloringStep2Title": "Personal Palette:",
+      "coloringStep2Desc": "Pick your 6 favorite colors before starting to create unique harmony.",
+      "coloringStep3Title": "Community:",
+      "coloringStep3Desc": "Post a photo of your finished artwork in The Tavern to earn Frikicoins with community likes.",
+      "origamiTitle": "🦢 Origami Tips",
+      "origamiStep1Title": "Paper:",
+      "origamiStep1Desc": "Use standard thin bond paper (75g - 90g) so multiple folds don't bulk up.",
+      "origamiStep2Title": "Precision:",
+      "origamiStep2Desc": "Align corners exactly before creasing each fold firmly with a fingernail.",
+      "cosplayTitle": "🎭 Props & Cosplay Tips",
+      "cosplayStep1Title": "Reinforcement:",
+      "cosplayStep1Desc": "Glue pieces onto 2mm-5mm EVA foam or model board for firmness.",
+      "cosplayStep2Title": "Finishing:",
+      "cosplayStep2Desc": "Seal with PVA craft glue or acrylic sealer before spray painting or acrylics."
     },
-    "surveys": {
-      "title": "Official Surveys",
-      "description": "Vote and participate in official Ciudad Friki community polls.",
-      "keywords": "Surveys, Polls, Community, Awards"
-    },
-    "vs": {
-      "title": "Friki VS - Trivia Duels",
-      "description": "Challenge other members in real-time trivia duels and climb the leaderboard.",
-      "keywords": "Duels, Trivia Battles, 1v1, Gaming, Leaderboard"
-    },
-    "frikimart": {
-      "title": "FrikiMart - Community Store",
-      "description": "Redeem your Frikicoins for items, figures, manga, and exclusive community rewards.",
-      "keywords": "Store, FrikiMart, Frikicoins, Merch, Figures, Comics"
-    },
-    "ttrpg": {
-      "title": "TTRPG Virtual Tabletop",
-      "description": "Manage character sheets and roll dice in real-time with your tabletop roleplaying group.",
-      "keywords": "TTRPG, Roleplaying Games, D&D, Character Sheets, Dice"
-    },
-    "corporacion": {
-      "title": "Ciudad Friki Corporation",
-      "description": "Non-profit cultural organization (ESAL). Institutional portfolio of training, events, and creative economies.",
-      "keywords": "Ciudad Friki Corporation, Non-profit, Cultural Portfolio, Medellín"
-    }
+    "downloadPdfVector": "PDF Template (High Resolution Vector)",
+    "downloadsCount": "{{count}} registered downloads",
+    "freeUsage": "Free Use",
+    "defaultDesc": "Template ready to print on Letter or A4 sheets.",
+    "ratingsCount": "Ratings ({{count}})",
+    "howWasModel": "How did you like this model?",
+    "videoTutorial": "Video Assembly Tutorial",
+    "submittingRating": "Submitting...",
+    "searchButton": "Search",
+    "pageShort": "pg",
+    "new": "New",
+    "noRatingsYet": "No ratings yet",
+    "beFirstToRate": "Be the first to rate!"
+  },
+  "biller": {
+    "noCharges": "No charges recorded",
+    "noChargesDesc": "No POS stand charge transactions yet.",
+    "date": "Date",
+    "staff": "Staff (Biller)",
+    "client": "Client",
+    "concept": "Concept",
+    "status": "Status",
+    "amount": "Amount",
+    "pesosCop": "Pesos ($ COP)",
+    "searchPlaceholder": "@username or email...",
+    "searchingUser": "Searching user...",
+    "deliveryNotePlaceholder": "Ex: Golden wristband #042 handed at box office"
+  },
+  "ttrpg": {
+    "exportSheet": "Copy and Export Sheet",
+    "export": "Export",
+    "copied": "Copied!"
+  },
+  "vipPass": {
+    "noActiveEvents": "There are no active events scheduled for today or upcoming days."
   }
 }

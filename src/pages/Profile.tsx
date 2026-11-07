@@ -3,8 +3,9 @@ import { Link, Navigate } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import {
     ArrowLeft, Check, Loader2, X, CheckCircle, Pencil, Copy, Share2, Shield, Bug, Lock, ChevronDown, ChevronUp,
-    Eye, EyeOff, CheckCircle2, Circle, Trophy
+    Eye, EyeOff, CheckCircle2, Circle, Trophy, Sparkles
 } from 'lucide-react';
+import { VipAvatarFrame, type VipPassInfo } from '../components/VipAvatarFrame';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -13,7 +14,7 @@ import { useProfile } from '../hooks/useProfile';
 import { useAchievements } from '../hooks/useAchievements';
 import type { Achievement } from '../types/achievements';
 import { UserService } from '../services/UserService';
-import { getAvatarSource, AVATARS } from '../config/avatars';
+import { AVATARS } from '../config/avatars';
 import { useTheme, type Theme } from '../context/ThemeContext';
 import { toPng } from 'html-to-image';
 import { shareContent } from '../utils/shareContent';
@@ -147,7 +148,26 @@ export default function Profile() {
     const [storeWebEnabled, setStoreWebEnabled] = useState(false);
     const [isTogglingStoreWeb, setIsTogglingStoreWeb] = useState(false);
     const [isSharingCard, setIsSharingCard] = useState(false);
+    const [vipInfo, setVipInfo] = useState<VipPassInfo | null>(null);
     const profileCardRef = useRef<HTMLDivElement>(null);
+
+    // Load VIP Status
+    useEffect(() => {
+        if (!userId) return;
+        const checkVip = async () => {
+            try {
+                const { data } = await supabase.rpc('get_user_active_vip_pass', { p_user_id: userId });
+                if (data && data.has_vip) {
+                    setVipInfo(data);
+                } else {
+                    setVipInfo(null);
+                }
+            } catch (err) {
+                console.error('Error fetching VIP pass:', err);
+            }
+        };
+        checkVip();
+    }, [userId]);
 
     // Password change state
     const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
@@ -391,7 +411,6 @@ export default function Profile() {
         );
     }
 
-    const displayAvatar = getAvatarSource(formData.avatar_url);
     const displayBalance = wallet ? wallet.balance.toLocaleString(localStorage.getItem('i18nextLng') === 'en' ? 'en-US' : 'es-CO') : '0';
     const displayQR = wallet?.deposit_qr || t('common.noData');
     const currentThemeData = THEME_OPTIONS.find(themeOpt => themeOpt.id === currentTheme) || THEME_OPTIONS[0];
@@ -439,8 +458,13 @@ export default function Profile() {
                         </div>
 
                         <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
-                            <div className="w-32 h-32 rounded-full border-4 border-brand-primary p-1">
-                                <img alt="User Avatar" className="w-full h-full rounded-full bg-bg-sub object-cover" src={displayAvatar} crossOrigin="anonymous" />
+                            <div className="w-32 h-32 rounded-full p-1 flex items-center justify-center">
+                                <VipAvatarFrame
+                                    avatarUrl={formData.avatar_url}
+                                    size={120}
+                                    vipInfo={vipInfo}
+                                    showBadge={true}
+                                />
                             </div>
                             <div className="absolute bottom-0 right-0 bg-brand-primary text-text-inv p-2 rounded-full shadow-lg border-4 border-bg-side flex items-center justify-center hover:bg-brand-primary-light transition-colors share-hide-el">
                                 <Pencil size={16} />
@@ -453,6 +477,13 @@ export default function Profile() {
                                 <Shield size={14} className="text-brand-primary" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{profile?.role || t('common.member')}</span>
                             </div>
+
+                            {vipInfo?.has_vip && (
+                                <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 font-black text-xs shadow-sm">
+                                    <Sparkles size={13} />
+                                    <span>Pase VIP x2 Activo • {vipInfo.event_title}</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Top Achievements & Tier Counts (Mobile App parity) */}

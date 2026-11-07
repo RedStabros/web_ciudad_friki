@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import {
     Calendar, MapPin, Heart, Bookmark, Eye,
     Pencil, Clock, XCircle, ArrowLeft,
-    CalendarX, RefreshCw, Loader2, AlertTriangle, Ticket,
+    CalendarX, RefreshCw, Loader2, AlertTriangle, Ticket, Search
 } from 'lucide-react';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 import { CreateEventModal } from '../components/CreateEventModal';
@@ -78,6 +78,8 @@ export default function MyEvents() {
     const { user, session } = useAuth();
 
     const [tab, setTab] = useState<Tab>('published');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'past'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
     const [events, setEvents] = useState<MyEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -220,8 +222,49 @@ export default function MyEvents() {
                 </div>
             </div>
 
+            {/* Filter and Search Bar */}
+            <div className="max-w-3xl mx-auto px-4 pt-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="relative w-full sm:w-64">
+                    <input
+                        type="text"
+                        placeholder={t('common.search', 'Buscar evento...')}
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full bg-bg-pop border border-border-theme rounded-xl pl-9 pr-3 py-2 text-xs text-text-main placeholder-text-muted focus:outline-none focus:border-brand-primary transition"
+                    />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                </div>
+
+                <div className="flex gap-1.5 p-1 bg-bg-pop border border-border-theme rounded-xl w-full sm:w-auto">
+                    <button
+                        onClick={() => setStatusFilter('all')}
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                            statusFilter === 'all' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
+                        }`}
+                    >
+                        Todos ({events.length})
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter('active')}
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                            statusFilter === 'active' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
+                        }`}
+                    >
+                        Activos ({events.filter(e => !isEventPast(e)).length})
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter('past')}
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                            statusFilter === 'past' ? 'bg-brand-primary text-text-inv shadow-sm' : 'text-text-muted hover:text-text-main'
+                        }`}
+                    >
+                        Pasados ({events.filter(e => isEventPast(e)).length})
+                    </button>
+                </div>
+            </div>
+
             {/* Content */}
-            <div className="max-w-3xl mx-auto px-4 pt-6 space-y-4">
+            <div className="max-w-3xl mx-auto px-4 pt-4 space-y-4">
                 {loading ? (
                     <div className="flex flex-col items-center py-20 gap-3">
                         <Loader2 size={32} className="animate-spin text-brand-primary" />
@@ -252,20 +295,34 @@ export default function MyEvents() {
                         )}
                     </div>
                 ) : (
-                    events.map(event => (
-                        <EventCard
-                            key={event.id}
-                            event={event}
-                            tab={tab}
-                            actionLoading={actionLoading === event.id}
-                            onView={() => setSelectedEvent(event)}
-                            onEdit={() => setEventToEdit(event)}
-                            onUnsave={() => handleUnsave(event.id)}
-                            onConfirmAction={(action) => setConfirmModal({ action, eventId: event.id })}
-                            onLaunchEdition={() => handleLaunchEdition(event)}
-                            onViewQr={() => setQrModalEvent(event)}
-                        />
-                    ))
+                    events
+                        .filter(e => {
+                            const isPast = isEventPast(e);
+                            if (statusFilter === 'active' && isPast) return false;
+                            if (statusFilter === 'past' && !isPast) return false;
+                            if (searchQuery.trim()) {
+                                const q = searchQuery.toLowerCase();
+                                return (
+                                    e.title.toLowerCase().includes(q) ||
+                                    (e.location && e.location.toLowerCase().includes(q))
+                                );
+                            }
+                            return true;
+                        })
+                        .map(event => (
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                tab={tab}
+                                actionLoading={actionLoading === event.id}
+                                onView={() => setSelectedEvent(event)}
+                                onEdit={() => setEventToEdit(event)}
+                                onUnsave={() => handleUnsave(event.id)}
+                                onConfirmAction={(action) => setConfirmModal({ action, eventId: event.id })}
+                                onLaunchEdition={() => handleLaunchEdition(event)}
+                                onViewQr={() => setQrModalEvent(event)}
+                            />
+                        ))
                 )}
             </div>
 

@@ -43,19 +43,63 @@ export function WalletScanner({ onScan, onClose }: WalletScannerProps) {
             }
 
             setIsScanning(true);
-            await scannerRef.current.start(
-                { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                    handleResult(decodedText);
+
+            // Responsive qrbox configuration avoiding iOS Safari dimension crashes
+            const qrConfig = {
+                fps: 12,
+                qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+                    const edge = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72);
+                    return { width: Math.max(edge, 160), height: Math.max(edge, 160) };
                 },
-                (_errorMessage) => {
-                    // Ignore noisy frame errors
+                aspectRatio: 1.0,
+            };
+
+            // Use ideal facingMode for iOS Safari multi-camera support
+            try {
+                await scannerRef.current.start(
+                    { facingMode: { ideal: 'environment' } },
+                    qrConfig,
+                    (decodedText) => {
+                        handleResult(decodedText);
+                    },
+                    (_errorMessage) => {
+                        // Ignore noisy frame errors
+                    }
+                );
+            } catch (idealErr) {
+                console.warn('Ideal facingMode failed, falling back to camera enumeration:', idealErr);
+                const cameras = await Html5Qrcode.getCameras();
+                if (!cameras || cameras.length === 0) {
+                    throw new Error('No cameras found');
                 }
-            );
+                const backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('trasera')) || cameras[0];
+                await scannerRef.current.start(
+                    backCamera.id,
+                    qrConfig,
+                    (decodedText) => {
+                        handleResult(decodedText);
+                    },
+                    (_errorMessage) => {}
+                );
+            }
+
+            // Force playsinline attributes for iOS Safari
+            setTimeout(() => {
+                const videoElement = document.querySelector(`#${scannerRegionId} video`) as HTMLVideoElement | null;
+                if (videoElement) {
+                    videoElement.setAttribute('playsinline', 'true');
+                    videoElement.setAttribute('webkit-playsinline', 'true');
+                    videoElement.play().catch(() => {});
+                }
+            }, 150);
+
         } catch (err: any) {
             console.error('Camera Error:', err);
-            setCameraError(t('wallet.cameraError', 'Error accessing camera.'));
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const errorMsg = isIOS
+                ? t('wallet.cameraErrorIOS', 'No se pudo acceder a la cámara en Safari. Verifica los permisos en Ajustes > Safari > Cámara, o usa el botón de "Subir Imagen con QR" abajo.')
+                : t('wallet.cameraError', 'Error accediendo a la cámara. Revisa los permisos del navegador o usa "Subir Imagen".');
+            setCameraError(errorMsg);
             setIsScanning(false);
         }
     };

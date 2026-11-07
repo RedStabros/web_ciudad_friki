@@ -26,6 +26,8 @@ export interface FrikiEvent {
   qr_requested?: boolean;
   qr_approved?: boolean;
   qr_reward_amount?: number;
+  recurrence_type?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
+  recurrence_days?: number[] | null;
   parent_event_id?: string | null;
   edition_number?: number | null;
 }
