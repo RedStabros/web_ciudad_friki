@@ -212,14 +212,14 @@ export default function RootLayout() {
                             <span className="sr-only">Ciudad Friki</span>
                         </Link>
 
-                        <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 ml-3 xl:ml-4 border-l border-border-theme pl-3 xl:pl-4">
+                        <div className="hidden lg:flex items-center gap-1 xl:gap-2 ml-3 xl:ml-4 border-l border-border-theme pl-3 xl:pl-4 min-w-0">
                             <NavLink to="/" icon={<Home size={18} />} label={t('nav.home')} />
-                            {tavern && <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} />}
+                            {tavern && <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} hideLabelOnLg />}
                             <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
                             <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} badge={triviaBadge} />
-                            {frikiVs && <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" />}
+                            {frikiVs && <NavLink to="/friki-vs" icon={<img src="/assets/icon_vs.png" alt="Friki VS" className="w-[18px] h-[18px] object-contain" />} label="Friki VS" hideLabelOnLg />}
                             {frikiMartVisible && (
-                                <NavLink to="/frikimart" icon={<img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-[18px] h-[18px] object-contain" />} label="FrikiMart" />
+                                <NavLink to="/frikimart" icon={<img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-[18px] h-[18px] object-contain" />} label="FrikiMart" hideLabelOnLg />
                             )}
                         </div>
                     </div>
@@ -623,14 +623,15 @@ function DrawerLink({ to, icon, label, badge }: { to: string; icon: React.ReactN
     );
 }
 
-function NavLink({ to, icon, label, badge }: { to: string; icon: React.ReactNode; label: string; badge?: number }) {
+function NavLink({ to, icon, label, badge, hideLabelOnLg }: { to: string; icon: React.ReactNode; label: string; badge?: number; hideLabelOnLg?: boolean }) {
     return (
         <Link
             to={to}
+            title={label}
             className="relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg text-text-sub hover:text-brand-primary transition-all hover:bg-bg-sub font-bold text-xs xl:text-sm whitespace-nowrap shrink-0"
         >
             {icon}
-            <span>{label}</span>
+            <span className={hideLabelOnLg ? "hidden xl:inline" : ""}>{label}</span>
             {badge != null && badge > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-brand-primary text-text-inv text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                     {badge > 9 ? '9+' : badge}
