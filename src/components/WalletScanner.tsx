@@ -19,17 +19,23 @@ export function WalletScanner({ onScan, onClose }: WalletScannerProps) {
     const [manualCode, setManualCode] = useState('');
 
     useEffect(() => {
-        // Initialize Scanner on Mount
+        // Initialize Scanner on Mount and auto-start camera
         const scanner = new Html5Qrcode(scannerRegionId);
         scannerRef.current = scanner;
 
+        const timer = setTimeout(() => {
+            startCamera();
+        }, 80);
+
         // Cleanup on unmount
         return () => {
+            clearTimeout(timer);
             if (scanner.isScanning) {
                 scanner.stop().catch(console.error);
             }
             scanner.clear();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const startCamera = async () => {

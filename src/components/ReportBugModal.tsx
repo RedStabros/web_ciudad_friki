@@ -341,31 +341,37 @@ export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
                 </div>
 
                 {selectedReport && (
-                    <form onSubmit={handleSendReply} className="p-4 border-t border-border-theme bg-bg-pop flex items-center gap-2">
-                        <label className="p-2.5 rounded-xl bg-bg-side border border-border-theme text-text-muted hover:text-accent-red cursor-pointer transition shrink-0" title={t('helpdesk.attachScreenshot', 'Adjuntar imagen')}>
-                            <ImageIcon size={18} />
+                    selectedReport.status === 'completed' ? (
+                        <div className="p-4 border-t border-border-theme bg-accent-green/10 text-accent-green text-xs font-bold text-center">
+                            {t('helpdesk.caseClosedNotice', '✅ Este caso ha sido marcado como resuelto. Si necesitas más ayuda, abre un nuevo reporte.')}
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSendReply} className="p-4 border-t border-border-theme bg-bg-pop flex items-center gap-2">
+                            <label className="p-2.5 rounded-xl bg-bg-side border border-border-theme text-text-muted hover:text-accent-red cursor-pointer transition shrink-0" title={t('helpdesk.attachScreenshot', 'Adjuntar imagen')}>
+                                <ImageIcon size={18} />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => setReplyFile(e.target.files?.[0] || null)}
+                                    className="hidden"
+                                />
+                            </label>
                             <input
-                                type="file"
-                                accept="image/*"
-                                onChange={e => setReplyFile(e.target.files?.[0] || null)}
-                                className="hidden"
+                                type="text"
+                                value={replyText}
+                                onChange={e => setReplyText(e.target.value)}
+                                placeholder={replyFile ? replyFile.name : t('helpdesk.replyPlaceholder', 'Escribe un mensaje...')}
+                                className="flex-1 bg-bg-side border border-border-theme rounded-xl px-3.5 py-2.5 text-xs text-text-main focus:outline-none focus:border-accent-red"
                             />
-                        </label>
-                        <input
-                            type="text"
-                            value={replyText}
-                            onChange={e => setReplyText(e.target.value)}
-                            placeholder={replyFile ? replyFile.name : t('helpdesk.replyPlaceholder', 'Escribe un mensaje...')}
-                            className="flex-1 bg-bg-side border border-border-theme rounded-xl px-3.5 py-2.5 text-xs text-text-main focus:outline-none focus:border-accent-red"
-                        />
-                        <button
-                            type="submit"
-                            disabled={sendingReply || (!replyText.trim() && !replyFile)}
-                            className="p-2.5 rounded-xl bg-accent-red hover:bg-red-600 disabled:opacity-50 text-white transition shrink-0 cursor-pointer"
-                        >
-                            {sendingReply ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                disabled={sendingReply || (!replyText.trim() && !replyFile)}
+                                className="p-2.5 rounded-xl bg-accent-red hover:bg-red-600 disabled:opacity-50 text-white transition shrink-0 cursor-pointer"
+                            >
+                                {sendingReply ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            </button>
+                        </form>
+                    )
                 )}
             </div>
         </div>

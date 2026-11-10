@@ -176,11 +176,11 @@ export default function Profile() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Fetch pending bug report count for admin badge
+    // Fetch pending bug report count for admin/tecnico badge
     useEffect(() => {
-        if (profile?.role === 'admin') {
+        if (profile?.role === 'admin' || profile?.role === 'tecnico' || isSuperuser) {
             BugReportService.getAllReports().then(({ data }) => {
-                const pending = (data || []).filter(r => r.status === 'pending').length;
+                const pending = (data || []).filter(r => !r.is_archived && r.status === 'pending').length;
                 setPendingBugCount(pending);
             });
         }
@@ -872,8 +872,8 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    {/* Admin Panel */}
-                    {isSuperuser && (
+                    {/* Staff / Superuser Admin Panel */}
+                    {(isSuperuser || profile?.role === 'admin' || profile?.role === 'tecnico') && (
                         <div className="bg-bg-side border border-brand-secondary/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                                 <Shield size={80} className="text-brand-secondary" />
@@ -882,25 +882,27 @@ export default function Profile() {
                                 <Shield size={20} />
                                 <h2 className="text-lg font-black uppercase italic tracking-tighter">{t('settings.adminTools')}</h2>
                             </div>
-                            <div className="flex items-center justify-between gap-4 p-5 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
-                                <div className="space-y-1">
-                                    <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.maintenanceMode')}</p>
-                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                        {t('common.status')}: <span className={maintenanceMode ? 'text-brand-secondary' : 'text-text-muted opacity-50'}>{maintenanceMode ? t('settings.admin.active') : t('settings.admin.inactive')}</span>
-                                    </p>
+                            {isSuperuser && (
+                                <div className="flex items-center justify-between gap-4 p-5 mb-4 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
+                                    <div className="space-y-1">
+                                        <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.maintenanceMode')}</p>
+                                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                            {t('common.status')}: <span className={maintenanceMode ? 'text-brand-secondary' : 'text-text-muted opacity-50'}>{maintenanceMode ? t('settings.admin.active') : t('settings.admin.inactive')}</span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleToggleMaintenance}
+                                        disabled={isTogglingMaintenance}
+                                        className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95
+                                            ${maintenanceMode
+                                                ? 'bg-brand-secondary text-text-inv hover:bg-brand-secondary-light shadow-brand-secondary/20'
+                                                : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
+                                    >
+                                        {isTogglingMaintenance ? <Loader2 size={12} className="animate-spin" /> : (maintenanceMode ? t('common.finish') : t('common.active'))}
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={handleToggleMaintenance}
-                                    disabled={isTogglingMaintenance}
-                                    className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95
-                                        ${maintenanceMode
-                                            ? 'bg-brand-secondary text-text-inv hover:bg-brand-secondary-light shadow-brand-secondary/20'
-                                            : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
-                                >
-                                    {isTogglingMaintenance ? <Loader2 size={12} className="animate-spin" /> : (maintenanceMode ? t('common.finish') : t('common.active'))}
-                                </button>
-                            </div>
-                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
+                            )}
+                            <div className="flex items-center justify-between gap-4 p-5 bg-bg-sub/50 rounded-2xl border border-divider-theme shadow-inner">
                                 <div className="space-y-1">
                                     <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.userReports')}</p>
                                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
@@ -920,47 +922,51 @@ export default function Profile() {
                                 </button>
                             </div>
 
-                            {/* FrikiMart Web Toggle */}
-                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
-                                <div className="flex items-center gap-3 flex-1">
-                                    <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
-                                    <div className="space-y-1">
-                                        <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.storeWeb')}</p>
-                                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                            {storeWebEnabled ? t('settings.admin.storeWebStatusOn') : t('settings.admin.storeWebStatusOff')}
-                                        </p>
+                            {isSuperuser && (
+                                <>
+                                    {/* FrikiMart Web Toggle */}
+                                    <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
+                                        <div className="flex items-center gap-3 flex-1">
+                                            <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
+                                            <div className="space-y-1">
+                                                <p className="font-black text-text-main text-sm uppercase tracking-tight">{t('settings.admin.storeWeb')}</p>
+                                                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                                    {storeWebEnabled ? t('settings.admin.storeWebStatusOn') : t('settings.admin.storeWebStatusOff')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={handleToggleStoreWeb}
+                                            disabled={isTogglingStoreWeb}
+                                            className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95
+                                                ${storeWebEnabled
+                                                    ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20'
+                                                    : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
+                                        >
+                                            {isTogglingStoreWeb ? <Loader2 size={12} className="animate-spin" /> : (storeWebEnabled ? t('common.hide') : t('common.enable'))}
+                                        </button>
                                     </div>
-                                </div>
-                                <button
-                                    onClick={handleToggleStoreWeb}
-                                    disabled={isTogglingStoreWeb}
-                                    className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95
-                                        ${storeWebEnabled
-                                            ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/20'
-                                            : 'bg-bg-sub border border-border-theme text-text-muted hover:text-text-main'}`}
-                                >
-                                    {isTogglingStoreWeb ? <Loader2 size={12} className="animate-spin" /> : (storeWebEnabled ? t('common.hide') : t('common.enable'))}
-                                </button>
-                            </div>
 
-                            {/* FrikiMart Admin Modal Toggle */}
-                            <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
-                                <div className="flex items-center gap-3 flex-1">
-                                    <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
-                                    <div className="space-y-1">
-                                        <p className="font-black text-amber-500 text-sm uppercase tracking-tight">{t('settings.admin.storeAdmin')}</p>
-                                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
-                                            {t('settings.admin.storeAdminDesc')}
-                                        </p>
+                                    {/* FrikiMart Admin Modal Toggle */}
+                                    <div className="flex items-center justify-between gap-4 p-5 mt-4 bg-bg-sub/50 rounded-2xl border border-amber-500/20 shadow-inner">
+                                        <div className="flex items-center gap-3 flex-1">
+                                            <img src="/icons/icon_frikimart.png" alt="FrikiMart" className="w-8 h-8 object-contain" />
+                                            <div className="space-y-1">
+                                                <p className="font-black text-amber-500 text-sm uppercase tracking-tight">{t('settings.admin.storeAdmin')}</p>
+                                                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none">
+                                                    {t('settings.admin.storeAdminDesc')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsAdminFrikiMartOpen(true)}
+                                            className="px-6 py-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-amber-500/30"
+                                        >
+                                            {t('common.openPanel')}
+                                        </button>
                                     </div>
-                                </div>
-                                <button
-                                    onClick={() => setIsAdminFrikiMartOpen(true)}
-                                    className="px-6 py-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-amber-500/30"
-                                >
-                                    {t('common.openPanel')}
-                                </button>
-                            </div>
+                                </>
+                            )}
                         </div>
                     )}
 

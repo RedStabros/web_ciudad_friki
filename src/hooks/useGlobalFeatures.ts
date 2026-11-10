@@ -7,6 +7,7 @@ export function useGlobalFeatures(userId?: string) {
         tavern: true,
         frikiVs: true,
         ttrpg: true,
+        crafts: true,
         frikiMartGlobal: true,
         frikiMartWeb: true,
         frikiMartAdmin: true,
@@ -19,7 +20,7 @@ export function useGlobalFeatures(userId?: string) {
                 const { data, error } = await supabase
                     .from('global_settings')
                     .select('key, value')
-                    .in('key', ['tavern_enabled', 'trivia_vs_enabled', 'store_enabled', 'store_web_enabled', 'store_admin_visible', 'ttrpg_enabled']);
+                    .in('key', ['tavern_enabled', 'trivia_vs_enabled', 'store_enabled', 'store_web_enabled', 'store_admin_visible', 'ttrpg_enabled', 'crafts_enabled']);
 
                 if (error) throw error;
 
@@ -34,6 +35,7 @@ export function useGlobalFeatures(userId?: string) {
                     tavern: super_user || (map['tavern_enabled'] !== false),
                     frikiVs: super_user || (map['trivia_vs_enabled'] !== false),
                     ttrpg: super_user || (map['ttrpg_enabled'] !== false),
+                    crafts: super_user || (map['crafts_enabled'] !== false),
                     frikiMartGlobal: super_user || (map['store_enabled'] !== false),
                     frikiMartWeb: super_user || (map['store_web_enabled'] ?? false),
                     frikiMartAdmin: super_user || (map['store_admin_visible'] !== false),

@@ -48,6 +48,7 @@ export interface Review {
     rating: number;
     comment: string;
     created_at: string;
+    event_edition_number?: number | null;
     user?: {
         username: string;
         avatar_url: string | null;
@@ -183,6 +184,41 @@ export const EventService = {
 
     async getEventReviews(eventId: string, isAlly: boolean = false) {
         try {
+            if (!isAlly) {
+                const { data: rpcData, error: rpcError } = await supabase
+                    .rpc('get_event_series_reviews', { p_event_id: eventId });
+
+                if (!rpcError && Array.isArray(rpcData)) {
+                    if (rpcData.length === 0) {
+                        return { reviews: [], error: null };
+                    }
+
+                    const userIds = [...new Set(rpcData.map((r: any) => r.user_id).filter(Boolean))];
+                    const eventIds = [...new Set(rpcData.map((r: any) => r.event_id).filter(Boolean))];
+
+                    const [{ data: profiles }, { data: eventsMeta }] = await Promise.all([
+                        supabase.from('profiles').select('id, username, avatar_url').in('id', userIds),
+                        supabase.from('events').select('id, edition_number').in('id', eventIds)
+                    ]);
+
+                    const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+                    const editionMap = new Map((eventsMeta || []).map((ev: any) => [ev.id, ev.edition_number || 1]));
+
+                    const formattedSeriesReviews = [...rpcData]
+                        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                        .map((item: any) => ({
+                            ...item,
+                            event_edition_number: item.event_edition_number ?? editionMap.get(item.event_id) ?? 1,
+                            user: profileMap.get(item.user_id) || {
+                                username: 'Usuario',
+                                avatar_url: null
+                            }
+                        }));
+
+                    return { reviews: formattedSeriesReviews as Review[], error: null };
+                }
+            }
+
             const table = isAlly ? 'ally_reviews' : 'event_reviews';
             const idColumn = isAlly ? 'location_id' : 'event_id';
             const { data, error } = await supabase

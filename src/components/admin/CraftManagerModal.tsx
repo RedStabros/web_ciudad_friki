@@ -38,6 +38,7 @@ export function CraftManagerModal({ isOpen, onClose }: CraftManagerModalProps) {
     const [sourceAttribution, setSourceAttribution] = useState('Diseño original de su respectivo autor. Compartido con fines recreativos.');
     const [tagsStr, setTagsStr] = useState('');
     const [isPublished, setIsPublished] = useState(true);
+    const [rightsConfirmed, setRightsConfirmed] = useState(false);
 
     // File uploads
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -74,6 +75,7 @@ export function CraftManagerModal({ isOpen, onClose }: CraftManagerModalProps) {
         setSourceAttribution('Diseño original de su respectivo autor. Compartido con fines recreativos.');
         setTagsStr('');
         setIsPublished(true);
+        setRightsConfirmed(false);
         setThumbnailFile(null);
         setTemplateFile(null);
         setIsEditing(true);
@@ -94,6 +96,7 @@ export function CraftManagerModal({ isOpen, onClose }: CraftManagerModalProps) {
         setSourceAttribution(item.source_attribution || '');
         setTagsStr((item.tags || []).join(', '));
         setIsPublished(item.is_published);
+        setRightsConfirmed(true);
         setThumbnailFile(null);
         setTemplateFile(null);
         setIsEditing(true);
@@ -450,6 +453,19 @@ export function CraftManagerModal({ isOpen, onClose }: CraftManagerModalProps) {
                                         className="w-4 h-4 accent-pink-500"
                                     />
                                 </div>
+
+                                <label className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        required
+                                        checked={rightsConfirmed}
+                                        onChange={e => setRightsConfirmed(e.target.checked)}
+                                        className="w-4 h-4 mt-0.5 accent-amber-500 shrink-0"
+                                    />
+                                    <span className="text-xs font-bold text-amber-400 leading-relaxed">
+                                        {t('crafts.gm.rightsConfirmLabel', 'Confirmo que este material es de uso libre, dominio público, fan-art gratuito o cuenta con autorización/atribución de su autor para distribución recreativa sin ánimo de lucro.')}
+                                    </span>
+                                </label>
                             </div>
 
                             <div className="flex justify-end gap-3 pt-3">
@@ -462,7 +478,7 @@ export function CraftManagerModal({ isOpen, onClose }: CraftManagerModalProps) {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={saving}
+                                    disabled={saving || !rightsConfirmed}
                                     className="px-6 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-pink-500/20 transition cursor-pointer"
                                 >
                                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}

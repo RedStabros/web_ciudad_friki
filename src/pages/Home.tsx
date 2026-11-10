@@ -39,7 +39,7 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 export default function Home() {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
-    const { profile, wallet, tavern, frikiVs, ttrpg } = useApp();
+    const { profile, wallet, tavern, frikiVs, ttrpg, crafts } = useApp();
     const { setIsWalletOpen, frikiMartVisible } = useOutletContext<{ setIsWalletOpen: (open: boolean) => void, frikiMartVisible?: boolean }>();
 
     // Dashboard filter state
@@ -190,10 +190,12 @@ export default function Home() {
                         <HomeIcon className="mr-3 text-xl" size={20} />
                         {t('nav.home')}
                     </Link>
-                    <Link to="/manualidades" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
-                        <Scissors className="mr-3 text-xl text-pink-500 group-hover:text-pink-400" size={20} />
-                        {t('nav.crafts', 'Manualidades')}
-                    </Link>
+                    {crafts && (
+                        <Link to="/manualidades" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
+                            <Scissors className="mr-3 text-xl text-pink-500 group-hover:text-pink-400" size={20} />
+                            {t('nav.crafts', 'Manualidades')}
+                        </Link>
+                    )}
                     {tavern && (
                         <Link to="/tavern" className="group flex items-center px-3 py-2.5 text-sm font-medium rounded-md text-text-sub hover:bg-bg-sub hover:text-text-main transition">
                             <img src="/assets/tabern_icon.png" alt="Tavern" className="mr-3 w-5 h-5 object-contain opacity-60 group-hover:opacity-100 transition" />

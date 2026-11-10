@@ -92,7 +92,25 @@ export default function MyEvents() {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [qrModalEvent, setQrModalEvent] = useState<MyEvent | null>(null);
 
-    const handleLaunchEdition = (event: MyEvent) => {
+    const handleLaunchEdition = async (event: MyEvent) => {
+        const rootParentId = event.parent_event_id || event.id;
+        let nextEditionNumber = (event.edition_number || 1) + 1;
+
+        try {
+            const { data } = await supabase
+                .from('events')
+                .select('edition_number')
+                .or(`id.eq.${rootParentId},parent_event_id.eq.${rootParentId}`)
+                .order('edition_number', { ascending: false })
+                .limit(1);
+
+            if (data && data.length > 0 && typeof data[0].edition_number === 'number') {
+                nextEditionNumber = Math.max(data[0].edition_number, event.edition_number || 1) + 1;
+            }
+        } catch (err) {
+            console.warn('Error computing max edition_number:', err);
+        }
+
         const editionEvent = {
             ...event,
             id: undefined,
@@ -102,8 +120,8 @@ export default function MyEvents() {
             end_time: '',
             status: 'pending',
             qr_approved: false,
-            parent_event_id: event.parent_event_id || event.id,
-            edition_number: (event.edition_number || 1) + 1
+            parent_event_id: rootParentId,
+            edition_number: nextEditionNumber
         };
         setEventToEdit(editionEvent as any);
         setShowCreateModal(true);

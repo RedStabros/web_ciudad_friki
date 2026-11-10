@@ -336,10 +336,26 @@ export default function AdminQRs() {
                                 return (
                                     <div key={item.id} className="bg-bg-side border border-border-theme hover:border-brand-primary/50 transition-colors rounded-2xl p-5 flex flex-col justify-between group">
                                         <div>
-                                            <div className="flex items-start justify-between gap-2 mb-3">
-                                                <h3 className="font-black text-lg text-text-main flex-1 break-all" title={item.code}>
-                                                    {item.code}
-                                                </h3>
+                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border mb-1.5 ${
+                                                        item.event_id
+                                                            ? 'bg-brand-primary/15 text-brand-primary border-brand-primary/30'
+                                                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                                                    }`}>
+                                                        {item.event_id
+                                                            ? t('adminQRs.card.officialAttendance', '🎟️ Asistencia Oficial')
+                                                            : t('adminQRs.card.challengeBadge', '🎯 Reto / Dinámica')}
+                                                    </span>
+                                                    <h3 className="font-black text-lg text-text-main break-all" title={item.code}>
+                                                        {item.code}
+                                                    </h3>
+                                                    {item.description && (
+                                                        <p className="text-xs font-bold text-text-sub mt-0.5 line-clamp-2">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+                                                </div>
                                                 <span className={`text-[10px] uppercase font-black px-2 py-1 rounded-md border whitespace-nowrap ${item.is_active ? 'bg-accent-green/20 text-accent-green border-accent-green/30' : 'bg-black/50 text-text-sub border-border-theme'}`}>
                                                     {item.is_active ? t('adminQRs.card.active') : t('adminQRs.card.inactive')}
                                                 </span>
@@ -371,7 +387,15 @@ export default function AdminQRs() {
                                                     <Trash2 size={18} />
                                                 </button>
                                             </div>
-                                            <button onClick={() => openQrModal(item.code, 'EVENT')} className="flex items-center gap-1 px-4 py-2 font-black bg-text-main text-bg-pop rounded-xl hover:bg-white transition ml-auto">
+                                            <button
+                                                onClick={() => openQrModal(
+                                                    item.code,
+                                                    item.event_id ? 'EVENT' : 'CHALLENGE',
+                                                    item.description || item.code,
+                                                    item.points
+                                                )}
+                                                className="flex items-center gap-1 px-4 py-2 font-black bg-text-main text-bg-pop rounded-xl hover:bg-white transition ml-auto"
+                                            >
                                                 <QrCode size={16} /> {t('adminQRs.card.viewQr')}
                                             </button>
                                         </div>
@@ -439,6 +463,21 @@ export default function AdminQRs() {
                                 <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.nameLabel')}</label>
                                 <input type="text" value={newCodeName} onChange={(e) => setNewCodeName(e.target.value)} className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main focus:ring-2 focus:ring-brand-primary outline-none" placeholder="Ej: EVENTO2026" />
                                 <p className="text-xs text-text-muted mt-1 ml-1">{t('adminQRs.modals.create.nameHint')}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-text-sub mb-1">
+                                    {t('adminQRs.modals.create.descriptionLabel', 'Nombre del Reto / Dinámica (Opcional)')}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={codeDescription}
+                                    onChange={(e) => setCodeDescription(e.target.value)}
+                                    className="w-full bg-bg-pop border border-border-theme rounded-xl px-4 py-3 text-text-main focus:ring-2 focus:ring-purple-500 outline-none"
+                                    placeholder={t('adminQRs.modals.create.descriptionPlaceholder', 'Ej: Reto de Karaoke, Torneo Smash Bros...')}
+                                />
+                                <p className="text-xs text-text-muted mt-1 ml-1">
+                                    {t('adminQRs.modals.create.descriptionHint', 'Se mostrará en el recibo del usuario y en el pase imprimible.')}
+                                </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-text-sub mb-1">{t('adminQRs.modals.create.pointsLabel')}</label>

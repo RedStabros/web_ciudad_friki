@@ -13,6 +13,7 @@ interface AppContextType {
     tavern: boolean;
     frikiVs: boolean;
     ttrpg: boolean;
+    crafts: boolean;
     frikiMartGlobal: boolean;
     frikiMartWeb: boolean;
     frikiMartAdmin: boolean;
@@ -36,6 +37,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         tavern, 
         frikiVs, 
         ttrpg, 
+        crafts,
         frikiMartGlobal, 
         frikiMartWeb, 
         frikiMartAdmin, 
@@ -52,6 +54,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
             tavern,
             frikiVs,
             ttrpg,
+            crafts,
             frikiMartGlobal,
             frikiMartWeb,
             frikiMartAdmin,

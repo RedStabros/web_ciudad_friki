@@ -23,7 +23,7 @@ import { isSuperuser as checkIsSuperuser } from '../utils/superuser';
 export default function RootLayout() {
     const { t, i18n } = useTranslation();
     const { session, signOut, user } = useAuth();
-    const { profile, wallet, tavern, frikiVs, frikiMartGlobal, frikiMartWeb } = useApp();
+    const { profile, wallet, tavern, frikiVs, crafts, frikiMartGlobal, frikiMartWeb } = useApp();
     const { theme, setTheme } = useTheme();
     const location = useLocation();
 
@@ -216,6 +216,7 @@ export default function RootLayout() {
 
                         <div className="hidden lg:flex items-center gap-1 xl:gap-2 ml-3 xl:ml-4 border-l border-border-theme pl-3 xl:pl-4 min-w-0">
                             <NavLink to="/" icon={<Home size={18} />} label={t('nav.home')} />
+                            {crafts && <NavLink to="/manualidades" icon={<Scissors size={18} className="text-pink-500" />} label={t('nav.crafts', 'Manualidades')} hideLabelOnLg />}
                             {tavern && <NavLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-[18px] h-[18px] object-contain" />} label={t('nav.tavern')} hideLabelOnLg />}
                             <NavLink to="/surveys" icon={<BarChart2 size={18} />} label={t('nav.surveys')} badge={surveyBadge} />
                             <NavLink to="/trivias" icon={<Gamepad2 size={18} />} label={t('nav.trivias')} badge={triviaBadge} />
@@ -459,7 +460,9 @@ export default function RootLayout() {
                                 </p>
                                 <div className="space-y-1">
                                     <DrawerLink to="/" icon={<Home size={16} className="text-brand-primary" />} label={t('nav.home')} />
-                                    <DrawerLink to="/manualidades" icon={<Scissors size={16} className="text-pink-500" />} label={t('nav.crafts', 'Manualidades')} />
+                                    {crafts && (
+                                        <DrawerLink to="/manualidades" icon={<Scissors size={16} className="text-pink-500" />} label={t('nav.crafts', 'Manualidades')} />
+                                    )}
                                     {tavern && (
                                         <DrawerLink to="/tavern" icon={<img src="/assets/tabern_icon.png" alt="Tavern" className="w-4 h-4 object-contain" />} label={t('nav.tavern')} />
                                     )}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Scissors, Search, Download, Star, Loader2, FileText,
@@ -6,6 +7,7 @@ import {
 } from 'lucide-react';
 import { CraftService, type CraftItem, type CraftCategory, type CraftDifficulty, type CraftReviewItem } from '../services/CraftService';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 import { getAvatarSource } from '../config/avatars';
 
 function getYoutubeEmbedUrl(url?: string | null): string | null {
@@ -36,6 +38,7 @@ function getYoutubeEmbedUrl(url?: string | null): string | null {
 export default function CraftsPage() {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { crafts: craftsEnabled, featuresLoading } = useApp();
 
     const [crafts, setCrafts] = useState<CraftItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -53,8 +56,16 @@ export default function CraftsPage() {
     const [ratingSuccess, setRatingSuccess] = useState(false);
 
     useEffect(() => {
-        loadCrafts();
-    }, [selectedCategory, selectedDifficulty]);
+        const timer = setTimeout(() => {
+            loadCrafts();
+        }, 250);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCategory, selectedDifficulty, searchQuery]);
+
+    if (!featuresLoading && !craftsEnabled) {
+        return <Navigate to="/" replace />;
+    }
 
     const loadCrafts = async () => {
         setLoading(true);
@@ -406,7 +417,7 @@ export default function CraftsPage() {
                                     <h4 className="font-black text-xs uppercase tracking-wider text-brand-primary flex items-center gap-1.5">
                                         ▶️ {t('crafts.videoTutorial', 'Tutorial de Armado en Video')}
                                     </h4>
-                                    <div className="aspect-video rounded-2xl overflow-hidden border border-border-theme bg-black shadow-lg">
+                                    <div className={`${selectedCraft.video_url.includes('/shorts/') ? 'aspect-[9/16] max-w-[300px] mx-auto' : 'aspect-video'} rounded-2xl overflow-hidden border border-border-theme bg-black shadow-lg`}>
                                         <iframe
                                             src={getYoutubeEmbedUrl(selectedCraft.video_url)!}
                                             title={selectedCraft.title}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Send, Share2, Check } from 'lucide-react';
+import { X, Calendar, MapPin, ExternalLink, MessageCircle, Heart, Bookmark, Loader2, Star, Edit3, Trash2, Send, Share2, Check } from 'lucide-react';
 import { renderTextWithMedia } from '../utils/mediaRenderer';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -52,10 +52,14 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
 
 
     useEffect(() => {
-        if (isOpen && event && activeTab === 'reviews') {
+        if (isOpen && event) {
             fetchReviews();
+        } else if (!isOpen) {
+            setReviews([]);
+            setIsEditing(false);
+            setMyReview('');
         }
-    }, [isOpen, event, activeTab]);
+    }, [isOpen, event?.id]);
 
     const fetchReviews = async () => {
         if (!event) return;
@@ -78,6 +82,15 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
         setIsEditing(false);
         await fetchReviews();
         setIsSubmittingReview(false);
+    };
+
+    const handleDeleteReview = async (reviewId: string) => {
+        if (!event || !window.confirm(t('eventDetails.reviews.deleteConfirm', '¿Eliminar tu reseña?'))) return;
+        const isAlly = event.tags?.includes('aliado') ?? false;
+        await EventService.deleteReview(reviewId, isAlly);
+        setMyReview('');
+        setIsEditing(false);
+        await fetchReviews();
     };
 
     const handleEditClick = (review: Review) => {
@@ -325,12 +338,21 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                                     <p className="text-xs text-text-sub">{t('eventDetails.reviews.thanks')}</p>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => handleEditClick(reviews.find(r => r.user_id === user.id)!)}
-                                                className="text-brand-primary text-sm font-bold hover:underline"
-                                            >
-                                                {t('eventDetails.reviews.edit')}
-                                            </button>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => handleEditClick(reviews.find(r => r.user_id === user.id)!)}
+                                                    className="text-brand-primary text-sm font-bold hover:underline"
+                                                >
+                                                    {t('eventDetails.reviews.edit')}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteReview(reviews.find(r => r.user_id === user.id)!.id)}
+                                                    className="text-accent-red text-sm font-bold hover:underline flex items-center gap-1"
+                                                    title={t('common.delete', 'Eliminar')}
+                                                >
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            </div>
                                         </div>
                                     )
                                 ) : (
@@ -364,7 +386,14 @@ export function EventDetailsModal({ isOpen, onClose, event, onSaveToggle, onLike
                                                 />
                                                 <div className="flex-1">
                                                     <div className="flex items-center justify-between">
-                                                        <div className="font-bold text-text-main text-sm">{review.user?.username}</div>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="font-bold text-text-main text-sm">{review.user?.username}</div>
+                                                            {(review.event_edition_number && (review.event_edition_number > 1 || review.event_id !== event.id)) && (
+                                                                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                                                                    Ed. {review.event_edition_number}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <div className="text-[10px] text-text-muted uppercase tracking-tighter">
                                                             {new Date(review.created_at).toLocaleDateString()}
                                                         </div>

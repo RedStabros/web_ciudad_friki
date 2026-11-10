@@ -56,14 +56,20 @@ export const CraftService = {
                 query = query.eq('difficulty', difficulty);
             }
 
-            if (searchQuery && searchQuery.trim().length > 0) {
-                const clean = searchQuery.trim().toLowerCase();
-                query = query.or(`title.ilike.%${clean}%,description.ilike.%${clean}%`);
-            }
-
             const { data, error } = await query;
             if (error) throw error;
-            return data || [];
+            const items = (data || []) as CraftItem[];
+
+            if (searchQuery && searchQuery.trim().length > 0) {
+                const clean = searchQuery.trim().toLowerCase();
+                return items.filter(item =>
+                    item.title.toLowerCase().includes(clean) ||
+                    (item.description && item.description.toLowerCase().includes(clean)) ||
+                    (Array.isArray(item.tags) && item.tags.some(t => t.toLowerCase().includes(clean)))
+                );
+            }
+
+            return items;
         } catch (error) {
             console.error('Error in CraftService.getCrafts:', error);
             return [];
